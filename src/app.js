@@ -5,6 +5,7 @@ import HBS from 'hbs'
 import ExpressHbs from "express-handlebars"
 import Helmet from 'helmet'
 import CORS from 'cors'
+import Compression from 'compression'
 
 // config
 import APP from './configs/server-config.js'
@@ -70,10 +71,13 @@ const corsOptions = {
 }
 app.use(CORS(corsOptions))
 
+// сжатие
+app.use(Compression())
+
 // парсеры
 app.use(CookieParse(APP.secure.KEY_FOR_COOKIE)) // Передаем строку шифрования для cookie
 
-// middleware
+// middleware function
 app.use(onRequest)
 
 // routes
