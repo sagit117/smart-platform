@@ -1,8 +1,10 @@
 import Express from 'express'
 import CookieParse from 'cookie-parser'
 import JWT from 'jsonwebtoken'
-import hbs from "hbs"
-import expressHbs from "express-handlebars"
+import HBS from 'hbs'
+import ExpressHbs from "express-handlebars"
+import Helmet from 'helmet'
+import CORS from 'cors'
 
 // config
 import APP from './configs/server-config.js'
@@ -21,7 +23,7 @@ import { isNumber } from "./utils/is-type.js";
 const app = Express() // создаем экземпляр експресс
 
 // настройка hbs, helpers
-app.engine("hbs", expressHbs({
+app.engine("hbs", ExpressHbs({
         layoutsDir: "views/layouts",
         defaultLayout: "main-layout",
         extname: "hbs",
@@ -31,12 +33,47 @@ app.engine("hbs", expressHbs({
     })
 )
 app.set("view engine", "hbs")
-hbs.registerPartials("/partials")
+HBS.registerPartials("/partials")
 
-app.use(Express.static("./public/js")) // статика
+// статика
+app.use(Express.static("./public/js"))
 
+// защита сервера
+app.use(Helmet())
+// настройка helmet
+app.use(Helmet.contentSecurityPolicy({
+    directives:{
+        defaultSrc: ["'self'"]
+        // defaultSrc: ["'self'", "'unsafe-inline'"],
+        // connectSrc: ["'self'", "sti-trade.ru", "1cweb01.tavros.ru"], // for sti (sti-trade.ru/1cweb01.tavros.ru)
+        // scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        // fontSrc: ["'self'",  'fonts.googleapis.com', 'fonts.gstatic.com'],
+        // styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'fonts.gstatic.com'],
+        // imgSrc: ["'self'", `data:`]
+    }
+}))
+// app.use(helmet.referrerPolicy({
+//   policy: ["origin"],
+// }))
+
+// настройка CORS
+const whitelist = [ APP.address.PROTOCOL + "://" + APP.address.HOST + ':' + APP.address.PORT ]
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1 || !origin || origin === 'null') {
+            return callback(null, true)
+        } else {
+            return callback(new Error('Not allowed by CORS'))
+        }
+    },
+    optionsSuccessStatus: 200
+}
+app.use(CORS(corsOptions))
+
+// парсеры
 app.use(CookieParse(APP.secure.KEY_FOR_COOKIE)) // Передаем строку шифрования для cookie
 
+// middleware
 app.use(onRequest)
 
 // routes

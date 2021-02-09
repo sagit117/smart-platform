@@ -1,7 +1,8 @@
 export default {
     address: {
         HOST: 'localhost',
-        PORT: 3333
+        PORT: 3333,
+        PROTOCOL: 'http',
     },
     secure: {
         KEY_FOR_COOKIE: 'shop4secure-token-for-cookies',
