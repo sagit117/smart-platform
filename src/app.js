@@ -1,6 +1,8 @@
 import Express from 'express'
 import CookieParse from 'cookie-parser'
 import JWT from 'jsonwebtoken'
+import hbs from "hbs"
+import expressHbs from "express-handlebars"
 
 // config
 import APP from './configs/server-config.js'
@@ -10,14 +12,34 @@ import UsersModel from './models/users-model.js'
 import RoutesModel from  './models/routes-model.js'
 import RequestLogsModel from './models/request-log-model.js'
 
+// routers
+import configuratorRouter from "./routers/configurator-router.js";
+
 // utils
 import { isNumber } from "./utils/is-type.js";
 
 const app = Express() // создаем экземпляр експресс
 
+app.engine("hbs", expressHbs({ // настройка hbs, helpers
+        layoutsDir: "views/layouts",
+        defaultLayout: "main-layout",
+        extname: "hbs",
+        helpers: {
+
+        }
+    })
+)
+app.set("view engine", "hbs")
+hbs.registerPartials("/partials")
+
+app.use(Express.static("./public/js")) // статика
+
 app.use(CookieParse(APP.secure.KEY_FOR_COOKIE)) // Передаем строку шифрования для cookie
 
 app.use(onRequest)
+
+// routes
+app.use('/configurator', configuratorRouter)
 
 // Вспомогательные функции
 async function onRequest(request, response, next) {
