@@ -20,7 +20,8 @@ import { isNumber } from "./utils/is-type.js";
 
 const app = Express() // создаем экземпляр експресс
 
-app.engine("hbs", expressHbs({ // настройка hbs, helpers
+// настройка hbs, helpers
+app.engine("hbs", expressHbs({
         layoutsDir: "views/layouts",
         defaultLayout: "main-layout",
         extname: "hbs",
