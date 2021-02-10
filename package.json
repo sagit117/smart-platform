@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon src/server.js",
-    "build": "webpack --config webpack.config.cjs"
+    "build": "webpack --config webpack.config.cjs --watch"
   },
   "dependencies": {
     "compression": "^1.7.4",
@@ -27,6 +27,8 @@
   ],
   "type": "module",
   "devDependencies": {
+    "css-loader": "^5.0.2",
+    "style-loader": "^2.0.0",
     "webpack": "^5.21.2",
     "webpack-cli": "^4.5.0"
   }

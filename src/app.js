@@ -38,6 +38,7 @@ HBS.registerPartials("/partials")
 
 // статика
 app.use(Express.static("./dist"))
+app.use(Express.static("./public/css"))
 
 // защита сервера
 app.use(Helmet())
@@ -45,7 +46,8 @@ app.use(Helmet())
 app.use(Helmet.contentSecurityPolicy({
     directives: {
         defaultSrc: [ "'self'" ],
-        scriptSrc: [ "'unsafe-eval'", APP.address.PROTOCOL + "://" + APP.address.HOST + ':' + APP.address.PORT ],
+        scriptSrc: [ "'self'", "'unsafe-eval'" ],
+        styleSrc: [ "'self'", "'unsafe-inline'" ]
     }
 }))
 // app.use(helmet.referrerPolicy({
@@ -128,6 +130,7 @@ async function onRequest(request, response, next) {
         userAccessDenied: []
     }, user = {}) => {
         const denied = []
+
         denied.push(
             !route.roleAccessSuccess.includes(user.role),
             !route.userAccessSuccess.includes(user.email),

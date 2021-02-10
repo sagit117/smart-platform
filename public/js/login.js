@@ -1,5 +1,7 @@
 import { createApp } from './lib/vue.esm-browser.js'
 
+import ('../css/login.css')
+
 const login = {
     name: 'login',
 
