@@ -37,20 +37,15 @@ app.set("view engine", "hbs")
 HBS.registerPartials("/partials")
 
 // статика
-app.use(Express.static("./public/js"))
+app.use(Express.static("./dist"))
 
 // защита сервера
 app.use(Helmet())
 // настройка helmet
 app.use(Helmet.contentSecurityPolicy({
-    directives:{
-        defaultSrc: ["'self'"]
-        // defaultSrc: ["'self'", "'unsafe-inline'"],
-        // connectSrc: ["'self'", "sti-trade.ru", "1cweb01.tavros.ru"], // for sti (sti-trade.ru/1cweb01.tavros.ru)
-        // scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        // fontSrc: ["'self'",  'fonts.googleapis.com', 'fonts.gstatic.com'],
-        // styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'fonts.gstatic.com'],
-        // imgSrc: ["'self'", `data:`]
+    directives: {
+        defaultSrc: [ "'self'" ],
+        scriptSrc: [ "'unsafe-eval'", APP.address.PROTOCOL + "://" + APP.address.HOST + ':' + APP.address.PORT ],
     }
 }))
 // app.use(helmet.referrerPolicy({
@@ -99,7 +94,9 @@ async function onRequest(request, response, next) {
     const clientInfo = getClientInfo()
 
     // 2. Проверить пользователя
-    const token = JWT.verify(clientInfo.requestSignedCookies.token, APP.secure.KEY_FOR_JWT)
+    const token = clientInfo.requestSignedCookies?.token
+        ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
+        : false
 
     const getUser = (email = '') => {
         return UsersModel.findOne({ email })

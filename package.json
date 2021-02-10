@@ -6,7 +6,8 @@
   "author": "sagit117@gmail.com",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/server.js"
+    "start": "nodemon src/server.js",
+    "build": "webpack --config webpack.config.cjs"
   },
   "dependencies": {
     "compression": "^1.7.4",
@@ -24,5 +25,9 @@
   "keywords": [
     "shop, reports, smart, development, platform"
   ],
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "webpack": "^5.21.2",
+    "webpack-cli": "^4.5.0"
+  }
 }
