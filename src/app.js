@@ -150,6 +150,9 @@ async function onRequest(request, response, next) {
         if (error) console.error(error)
     })
 
+    // 5. Записать данные подключения в request
+    request.dataMain = clientInfo
+
     // передаем управление следующему middleware
     next()
 }

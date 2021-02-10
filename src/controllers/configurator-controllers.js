@@ -1,7 +1,8 @@
-export default class Configurator {
+import SmartController from './smart-controllers.js'
+
+export default class Configurator extends SmartController{
     constructor(request, response) {
-        this.request = request
-        this.response = response
+        super(request, response)
     }
 
     optionsRender = {
@@ -9,7 +10,5 @@ export default class Configurator {
         title: 'Конфигуратор',
     }
 
-    render() {
-        return this.response.status(200).render('configurator.hbs', this.optionsRender)
-    }
+    layout = 'configurator.hbs'
 }
