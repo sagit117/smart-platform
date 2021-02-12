@@ -132,10 +132,10 @@ async function onRequest(request, response, next) {
         const denied = []
 
         denied.push(
-            !route.roleAccessSuccess.includes(user.role),
-            !route.userAccessSuccess.includes(user.email),
-            route.roleAccessDenied.includes(user.role),
-            route.userAccessDenied.includes(user.email)
+            route?.roleAccessSuccess ? !route.roleAccessSuccess.includes(user.role) : false,
+            route?.userAccessSuccess ? !route.userAccessSuccess.includes(user.email) : false,
+            route?.roleAccessDenied ? route.roleAccessDenied.includes(user.role) : true,
+            route?.userAccessDenied ? route.userAccessDenied.includes(user.email) : true
         )
 
         // useLogin - параметр, который говорит системе, что необходимо в начале пройти логин
