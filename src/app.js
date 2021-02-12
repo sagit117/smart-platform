@@ -47,7 +47,8 @@ app.use(Helmet.contentSecurityPolicy({
     directives: {
         defaultSrc: [ "'self'" ],
         scriptSrc: [ "'self'", "'unsafe-eval'" ],
-        styleSrc: [ "'self'", "'unsafe-inline'" ]
+        styleSrc: [ "'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'fonts.gstatic.com' ],
+        fontSrc: ["'self'",  'fonts.googleapis.com', 'fonts.gstatic.com'],
     }
 }))
 // app.use(helmet.referrerPolicy({
