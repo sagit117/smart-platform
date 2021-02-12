@@ -1,15 +1,27 @@
 {
   "compilerOptions": {
-//    "outDir": "./dist/",
-//    "noImplicitAny": true,
-//    "module": "es6",
-//    "target": "es5",
-//    "allowJs": true
-    "target": "esnext",
-    "module": "esnext",
-    // this enables stricter inference for data properties on `this`
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "module": "es2015",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noLib": false,
+    "sourceMap": true,
     "strict": true,
-    "jsx": "preserve",
-    "moduleResolution": "node"
-  }
+    "strictPropertyInitialization": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "es2015",
+    "baseUrl": ".",
+  },
+  "exclude": [
+    "./node_modules"
+  ],
+  "include": [
+    "./public/js/**/*.ts",
+    "./public/js/**/*.vue",
+    "**/*"
+  ],
 }

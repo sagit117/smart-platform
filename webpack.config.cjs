@@ -31,7 +31,7 @@ module.exports = {
         ],
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.js', '.css'],
+        extensions: ['.tsx', '.ts', '.js', '.css', '.vue', '.json'],
     },
     plugins: [
         new VueLoaderPlugin(),
