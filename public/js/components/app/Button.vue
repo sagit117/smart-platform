@@ -20,7 +20,7 @@ export default defineComponent({
   button {
     text-transform: uppercase;
     border-radius: .25rem;
-    padding: .5rem;
+    padding: .75rem;
     cursor: pointer;
     border: 2px solid;
     font-weight: bold;
