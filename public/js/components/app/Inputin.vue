@@ -7,10 +7,11 @@
       </div>
 
       <input
+          index="0"
           :type="type"
           :value="value"
-          @input="event => $emit('update:value', event.target.value)"
           :class="{ 'padding-ico': isPaddingIco }"
+          @input="event => $emit('update:value', event.target.value)"
       >
     </div>
   </div>
@@ -32,10 +33,10 @@ export default defineComponent({
     },
     value: {
       type: String
-    }
+    },
   },
 
-  emits: [ 'input' ],
+  emits: [ 'update:value' ],
 
   setup(props, { emit, slots }) {
     const isPaddingIco = ref<boolean>(!!slots.ico)
