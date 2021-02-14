@@ -3,6 +3,8 @@
 :root {
     --primary: #0d6efd;
     --primary-active: #0b57c7;
+    --success: #47ab1d;
+    --success-active: #198754;
     --background-active: rgba(255, 255, 255, 1);
     --background-no-active: rgba(0, 0, 0, 0.5);
 }
@@ -13,9 +15,22 @@ body {
 }
 
 /* margin */
+.mt-0 {
+    margin-top: 0 !important;
+}
 .mt-1 {
-    margin-top: 4px !important;
+    margin-top: .25rem !important;
 }
 .mt-2 {
-    margin-top: 8px !important;
+    margin-top: .5rem !important;
+}
+
+.mr-0 {
+    margin-right: 0 !important;
+}
+.mr-1 {
+    margin-right: .25rem !important;
+}
+.mr-2 {
+    margin-right: .5rem !important;
 }

@@ -38,9 +38,7 @@ export default defineComponent({
   emits: [ 'input' ],
 
   setup(props, { emit, slots }) {
-    const isPaddingIco = ref(!!slots.ico)
-
-    console.log(isPaddingIco.value)
+    const isPaddingIco = ref<boolean>(!!slots.ico)
 
     return {
       isPaddingIco

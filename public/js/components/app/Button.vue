@@ -30,12 +30,23 @@ export default defineComponent({
   .primary {
     background-color: var(--primary);
     color: #fff;
-    border-color: #0d6efd;
+    border-color: var(--primary);
   }
   .primary:active {
     background-color: var(--primary-active);
   }
   .primary:focus {
     box-shadow: 0px 0px 0px .25rem rgba(49, 132, 253, 0.5);
+  }
+  .success {
+    background-color: var(--success);
+    color: #fff;
+    border-color: var(--success);
+  }
+  .success:active {
+    background-color: var(--success-active);
+  }
+  .success:focus {
+    box-shadow: 0px 0px 0px .25rem rgba(60, 153, 110, 0.5);
   }
 </style>
