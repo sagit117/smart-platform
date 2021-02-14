@@ -10,6 +10,7 @@
             <Inputin
                 type="text"
                 label="Введите email:"
+                :validation="isValid(dataField.email.validation, dataField.email.value)"
                 v-model:value.trim="dataField.email.value"
                 @keypress.enter="loginHandler"
             >
@@ -23,6 +24,7 @@
             <Inputin
                 type="password"
                 label="Введите пароль:"
+                :validation="isValid(dataField.password.validation, dataField.password.value)"
                 v-model:value.trim="dataField.password.value"
                 @keypress.enter="loginHandler"
             >
@@ -54,6 +56,7 @@
             <Inputin
                 type="text"
                 label="Введите email:"
+                :validation="isValid(dataField.email.validation, dataField.email.value)"
                 v-model:value.trim="dataField.email.value"
                 @keypress.enter="registrationHandler"
             >
@@ -67,6 +70,7 @@
             <Inputin
                 type="password"
                 label="Введите пароль:"
+                :validation="isValid(dataField.password.validation, dataField.password.value)"
                 v-model:value.trim="dataField.password.value"
                 @keypress.enter="registrationHandler"
             >
@@ -80,7 +84,8 @@
             <Inputin
                 type="password"
                 label="Введите пароль еще раз:"
-                v-model:value.trim="dataField.confirmPassword.value"
+                :validation="isValid(confirmPassword.validation, confirmPassword.value)"
+                v-model:value.trim="confirmPassword.value"
                 @keypress.enter="registrationHandler"
             >
               <template v-slot:ico>
@@ -105,19 +110,17 @@
         </div>
       </transition>
 
-      <pre>{{isValid(dataField.email.validation, dataField.email.value)}}</pre>
-
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, reactive, ref} from 'vue'
+import { defineComponent, reactive, ref, computed } from 'vue'
 
 import Button from './app/Button.vue'
 import Inputin from './app/Inputin.vue'
 
-import { require, isValid, minLength, email, ValidationInterface } from "./utils/validation";
+import { require, isValid, minLength, email, equal, ValidationInterface } from "./utils/validation";
 
 interface DataField {
   email: {
@@ -128,10 +131,11 @@ interface DataField {
     value: string,
     validation?: ValidationInterface
   },
-  confirmPassword?: {
-    value: string,
-    validation?: ValidationInterface
-  }
+}
+
+interface ConfirmPass {
+  value: string,
+  validation?: ValidationInterface
 }
 
 export default defineComponent({
@@ -170,9 +174,21 @@ export default defineComponent({
             method: require
           },
         }
-      },
-      confirmPassword: {
-        value: ''
+      }
+    })
+
+    const confirmPassword = reactive<ConfirmPass>({
+      value: '',
+      validation: {
+        require: {
+          errorMessage: 'Необходимо заполнить поле',
+          method: require
+        },
+        equal: {
+          value: computed(() => dataField.password.value),
+          errorMessage: 'Поле не совпадает с введенным паролем',
+          method: equal
+        }
       }
     })
 
@@ -189,6 +205,7 @@ export default defineComponent({
     return {
       dataField,
       state,
+      confirmPassword,
       loginHandler,
       registrationHandler,
       isValid

@@ -5,6 +5,8 @@
     --primary-active: #0b57c7;
     --success: #47ab1d;
     --success-active: #198754;
+    --danger: #dc3545;
+    --danger-active: #a02a35;
     --background-active: rgba(255, 255, 255, 1);
     --background-no-active: rgba(0, 0, 0, 0.5);
 }
