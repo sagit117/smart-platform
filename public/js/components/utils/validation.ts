@@ -29,11 +29,12 @@ type MinLength = (value: string, length: number) => boolean
 type Email = (value: string) => boolean
 type Equal = (value: string | number, expectValue: string | number) => boolean
 type GetIsValid = (validator: ValidationInterface) => boolean
+type GetMethod = (method, ...args) => boolean
 
 // выполняет метод валидации и возвращает отвалидированный объект
 function isValid(validation: ValidationInterface, valueField): ValidationInterface {
     const keys: string[] = Object.keys(validation || {})
-    const getMethod = (method, ...args) => method ? method(...args) : true
+    const getMethod: GetMethod = (method, ...args): boolean => method ? method(...args) : true
 
     keys.map(key => validation[key].isValid = getMethod(validation[key].method, valueField, validation[key].value))
 

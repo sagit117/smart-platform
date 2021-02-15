@@ -145,7 +145,7 @@ export default defineComponent({
     Inputin
   },
 
-  setup(_, context) {
+  setup() {
     // данные полей
     const dataField = reactive({
       email: {
