@@ -29,12 +29,12 @@ type MinLength = (value: string, length: number) => boolean
 type Email = (value: string) => boolean
 type Equal = (value: string | number, expectValue: string | number) => boolean
 type GetIsValid = (validator: ValidationInterface) => boolean
-type GetMethod = (method, ...args) => boolean
+type GetMethod = (method: any, ...args: (string | number)[]) => boolean
 
 // выполняет метод валидации и возвращает отвалидированный объект
-function isValid(validation: ValidationInterface, valueField): ValidationInterface {
+function isValid(validation: ValidationInterface, valueField: string): ValidationInterface {
     const keys: string[] = Object.keys(validation || {})
-    const getMethod: GetMethod = (method, ...args): boolean => method ? method(...args) : true
+    const getMethod: GetMethod = (method, ...args) => method ? method(...args) : true
 
     keys.map(key => validation[key].isValid = getMethod(validation[key].method, valueField, validation[key].value))
 
@@ -46,7 +46,7 @@ function checkValid(objectData: object): boolean {
     let isValid: boolean = true
     const keys: string[] = Object.keys(objectData || {})
 
-    const getIsValid: GetIsValid = (validator: ValidationInterface): boolean => {
+    const getIsValid: GetIsValid = (validator) => {
         const keysValidator: string[] = Object.keys(validator || {})
         let valid: boolean = true
 
@@ -65,9 +65,9 @@ function checkValid(objectData: object): boolean {
 }
 
 // блок с функциями валидации
-const require: Require = (value: string): boolean => !!value.trim()
-const minLength: MinLength = (value: string, length: number): boolean => value.length >= (length || 0)
-const email: Email = (value: string): boolean => /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/.test(value)
-const equal: Equal = (value: string | number, expectValue: string | number): boolean => expectValue ? value === expectValue : true
+const require: Require = (value) => !!value.trim()
+const minLength: MinLength = (value, length) => value.length >= (length || 0)
+const email: Email = (value) => /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/.test(value)
+const equal: Equal = (value, expectValue) => expectValue ? value === expectValue : true
 
 export { require, minLength, isValid, email, equal, checkValid, ValidationInterface }

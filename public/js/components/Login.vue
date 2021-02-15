@@ -248,6 +248,7 @@ export default defineComponent({
   .login-wrapper {
     width: 40%;
     min-width: 350px;
+    max-width: 400px;
     display: flex;
     background-color: var(--background-active);
     border-radius: 15px;
