@@ -11,6 +11,7 @@
                 type="text"
                 label="Введите email:"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
+                :onValidation="sendHandler"
                 v-model:value.trim="dataField.email.value"
                 @keypress.enter="loginHandler"
             >
@@ -25,6 +26,7 @@
                 type="password"
                 label="Введите пароль:"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
+                :onValidation="sendHandler"
                 v-model:value.trim="dataField.password.value"
                 @keypress.enter="loginHandler"
             >
@@ -57,6 +59,7 @@
                 type="text"
                 label="Введите email:"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
+                :onValidation="sendHandler"
                 v-model:value.trim="dataField.email.value"
                 @keypress.enter="registrationHandler"
             >
@@ -71,6 +74,7 @@
                 type="password"
                 label="Введите пароль:"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
+                :onValidation="sendHandler"
                 v-model:value.trim="dataField.password.value"
                 @keypress.enter="registrationHandler"
             >
@@ -85,6 +89,7 @@
                 type="password"
                 label="Введите пароль еще раз:"
                 :validation="isValid(confirmPassword.validation, confirmPassword.value)"
+                :onValidation="sendHandler"
                 v-model:value.trim="confirmPassword.value"
                 @keypress.enter="registrationHandler"
             >
@@ -115,12 +120,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed } from 'vue'
+import { defineComponent, reactive, ref, computed, nextTick } from 'vue'
 
 import Button from './app/Button.vue'
 import Inputin from './app/Inputin.vue'
 
-import { require, isValid, minLength, email, equal, ValidationInterface } from "./utils/validation";
+import { require, isValid, minLength, email, equal, checkValid, ValidationInterface } from "./utils/validation";
 
 interface DataField {
   email: {
@@ -146,7 +151,8 @@ export default defineComponent({
     Inputin
   },
 
-  setup() {
+  setup(_, context) {
+    // данные полей
     const dataField = reactive<DataField>({
       email: {
         value: '',
@@ -176,7 +182,6 @@ export default defineComponent({
         }
       }
     })
-
     const confirmPassword = reactive<ConfirmPass>({
       value: '',
       validation: {
@@ -192,23 +197,39 @@ export default defineComponent({
       }
     })
 
+    // выбор какое окно отобразить login / registration
     const state = ref<string>('login')
 
+    // флаг для проверки валидации при нажатие кнопки логин или регистрация
+    const sendHandler = ref<boolean>(false)
+
+    // обработчики логина и регистрации
     function loginHandler(): void {
-      console.log('login')
+      sendHandler.value = true
+
+      console.log(checkValid(dataField))
+
+      nextTick(() => {
+        sendHandler.value = false
+      })
     }
 
     function registrationHandler(): void {
-      console.log('registration')
+      sendHandler.value = true
+
+      nextTick(() => {
+        sendHandler.value = false
+      })
     }
 
     return {
       dataField,
       state,
       confirmPassword,
+      sendHandler,
       loginHandler,
       registrationHandler,
-      isValid
+      isValid,
     }
   }
 

@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, watch } from 'vue'
 
 export default defineComponent({
   name: 'smart-input',
@@ -45,10 +45,13 @@ export default defineComponent({
     },
     validation: {
       type: Object
+    },
+    onValidation: {
+      type: Boolean
     }
   },
 
-  emits: [ 'update:value' ],
+  emits: [ 'update:value', 'errorMessages' ],
 
   setup(props, { emit, slots }) {
     const isPaddingIco = ref<boolean>(!!slots.ico)
@@ -67,6 +70,10 @@ export default defineComponent({
       })
 
       return messages
+    })
+
+    watch(() => props.onValidation, (onValidation, oldOnValidation) => {
+      if (onValidation) onShowError.value = true
     })
 
     return {
