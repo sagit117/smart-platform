@@ -127,18 +127,12 @@ import Inputin from './app/Inputin.vue'
 
 import { require, isValid, minLength, email, equal, checkValid, ValidationInterface } from "./utils/validation";
 
-interface DataField {
-  email: {
-    value: string,
-    validation?: ValidationInterface
-  },
-  password: {
-    value: string,
-    validation?: ValidationInterface
-  },
+interface IDataField {
+  email: IField,
+  password: IField,
 }
 
-interface ConfirmPass {
+interface IField {
   value: string,
   validation?: ValidationInterface
 }
@@ -153,7 +147,7 @@ export default defineComponent({
 
   setup(_, context) {
     // данные полей
-    const dataField = reactive<DataField>({
+    const dataField = reactive({
       email: {
         value: '',
         validation: {
@@ -181,8 +175,8 @@ export default defineComponent({
           },
         }
       }
-    })
-    const confirmPassword = reactive<ConfirmPass>({
+    }) as IDataField
+    const confirmPassword = reactive({
       value: '',
       validation: {
         require: {
@@ -195,7 +189,7 @@ export default defineComponent({
           method: equal
         }
       }
-    })
+    }) as IField
 
     // выбор какое окно отобразить login / registration
     const state = ref<string>('login')
@@ -216,6 +210,8 @@ export default defineComponent({
 
     function registrationHandler(): void {
       sendHandler.value = true
+
+      console.log(checkValid({ dataField, confirmPassword }))
 
       nextTick(() => {
         sendHandler.value = false
