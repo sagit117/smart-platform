@@ -110,7 +110,7 @@ async function onRequest(request, response, next) {
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
     // 3. Проверить доступ к маршруту
-    const getRoutes = (url = '') => {
+    const getRoutes = async (url = '') => {
         const urls = url.split('/')
 
         /** если последний элемент в маршруте число, сохраняем его как '*'
@@ -122,7 +122,7 @@ async function onRequest(request, response, next) {
         return RoutesModel.findOne({ url: urls.join('/') })
     }
 
-    const route = await getRoutes(clientInfo.requestUrl)
+    const route = await getRoutes(clientInfo.requestUrl) // маршрут из базы | null
 
     const checkAccess = (route = {
         roleAccessSuccess: [],
@@ -132,12 +132,24 @@ async function onRequest(request, response, next) {
     }, user = {}) => {
         const denied = []
 
+        const checkDeniedAccess = arrayAccess => role => {
+            if (arrayAccess.length) return role ? arrayAccess.includes(role) : false
+            return false
+        }
+
+        const checkSuccessAccess = arrayAccess => role => {
+            if (arrayAccess.length) return role ? arrayAccess.includes(role) : true
+            return false
+        }
+
         denied.push(
-            route?.roleAccessSuccess ? !route.roleAccessSuccess.includes(user.role) : false,
-            route?.userAccessSuccess ? !route.userAccessSuccess.includes(user.email) : false,
-            route?.roleAccessDenied ? route.roleAccessDenied.includes(user.role) : false,
-            route?.userAccessDenied ? route.userAccessDenied.includes(user.email) : false
+            (checkSuccessAccess(route?.roleAccessSuccess))(user?.role),
+            (checkSuccessAccess(route?.userAccessSuccess))(user?.email),
+            (checkDeniedAccess(route?.roleAccessDenied))(user?.role),
+            (checkDeniedAccess(route?.userAccessDenied))(user?.email),
         )
+        // console.log(denied.reduce((acc, value) => acc + value))
+        // console.log('result:', {access: !denied.reduce((acc, value) => acc + value), useLogin: !user.email})
 
         // useLogin - параметр, который говорит системе, что необходимо в начале пройти логин
         return { access: !denied.reduce((acc, value) => acc + value), useLogin: !user.email }

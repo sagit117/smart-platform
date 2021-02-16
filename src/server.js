@@ -13,24 +13,30 @@ Mongoose.connect(APP.connect.URL, {
     useNewUrlParser: true,
     useCreateIndex: true
 })
-    .then(async result => {
+    .then(result => {
         // 1. Логируем подключение к БД
         console.log('Соединение с mongodb установлено')
 
         // 2. Создаем первичные записи маршрутов
         const checkRoute = checkFindRecord(RoutesModel)
 
-        const constructorRecord = {
-            url: '/constructor',
+        const routeRecord = []
+
+        routeRecord.push({
+            url: '/configurator',
             updatedAt: new Date(),
             // access
-        }
-        if (!await checkRoute({ url: constructorRecord.url })) { // маршрут не найден
-            new RoutesModel(constructorRecord).save(error => {
-                if (error) console.error(error)
-            })
-        }
+        })
 
+        routeRecord.forEach(async record => {
+            if (!await checkRoute({ url: record.url })) { // маршрут не найден
+                new RoutesModel(record).save(error => {
+                    if (error) return console.error(error)
+
+                    console.log('Создана запись маршрута: ', record)
+                })
+            }
+        })
 
         // 3. Включаем прослушивание порта
         app.listen(APP.address.PORT, () => {

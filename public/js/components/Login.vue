@@ -125,7 +125,8 @@ import { defineComponent, reactive, ref, computed, nextTick } from 'vue'
 import Button from './app/Button.vue'
 import Inputin from './app/Inputin.vue'
 
-import { require, isValid, minLength, email, equal, checkValid, ValidationInterface } from "./utils/validation";
+import { require, isValid, minLength, email, equal, checkValid, IValidation } from "./utils/validation.ts";
+import UserAPI from "../api/userApi";
 
 interface IDataField {
   email: IField,
@@ -134,7 +135,7 @@ interface IDataField {
 
 interface IField {
   value: string,
-  validation?: ValidationInterface
+  validation?: IValidation
 }
 
 export default defineComponent({
@@ -197,8 +198,11 @@ export default defineComponent({
     // флаг для проверки валидации при нажатие кнопки логин или регистрация
     const sendHandler = ref<boolean>(false)
 
+    // API users
+    const userAPI: UserAPI = new UserAPI()
+
     // обработчики логина и регистрации
-    function loginHandler(): void {
+    function loginHandler(): void { // логин
       sendHandler.value = true
 
       // все поля корректно заполнены
@@ -211,12 +215,15 @@ export default defineComponent({
       })
     }
 
-    function registrationHandler(): void {
+    function registrationHandler(): void { // регистрация
       sendHandler.value = true
 
       // все поля корректно заполнены
       if (checkValid({ dataField, confirmPassword })) {
-
+        // пытаемся зарегистрироваться
+        userAPI.registrationWithEmail({ email: dataField.email.value, password: dataField.password.value })
+          .then(response => console.log(response))
+          .catch(error => console.error(error))
       }
 
       nextTick(() => {

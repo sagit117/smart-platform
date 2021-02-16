@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "checkJs": true,
     "allowSyntheticDefaultImports": true,
     "declaration": false,
     "esModuleInterop": true,
@@ -15,13 +16,18 @@
     "suppressImplicitAnyIndexErrors": true,
     "target": "es6",
     "baseUrl": ".",
+    "removeComments": true,
+//    "noEmitOnError": true, // не компилируем, если есть ошибка
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
   },
   "exclude": [
     "./node_modules"
   ],
   "include": [
     "./public/js/**/*.ts",
-    "./public/js/**/*.vue",
+    "./public/js/**/*.vue"
 //    "**/*"
-  ],
+  ]
 }

@@ -1,4 +1,4 @@
-interface ValidationInterface { // Интерфейс для объекта валидации
+interface IValidation { // Интерфейс для объекта валидации
     require?: {
         errorMessage?: string,
         method?: Require,
@@ -23,16 +23,18 @@ interface ValidationInterface { // Интерфейс для объекта ва
     }
 }
 
-// custom types
+// ValidateMethods types
 type Require = (value: string) => boolean
-type MinLength = (value: string, length: number) => boolean
+type MinLength = (value: string, length?: number) => boolean
 type Email = (value: string) => boolean
 type Equal = (value: string | number, expectValue: string | number) => boolean
-type GetIsValid = (validator: ValidationInterface) => boolean
-type GetMethod = (method: any, ...args: (string | number)[]) => boolean
+type ValidateMethods = Require | MinLength | Email | Equal
+// other types
+type GetIsValid = (validator: IValidation) => boolean
+type GetMethod = (method: ValidateMethods, ...args: [string, number]) => boolean
 
 // выполняет метод валидации и возвращает отвалидированный объект
-function isValid(validation: ValidationInterface, valueField: string): ValidationInterface {
+function isValid(validation: IValidation, valueField: string): IValidation {
     const keys: string[] = Object.keys(validation || {})
     const getMethod: GetMethod = (method, ...args) => method ? method(...args) : true
 
@@ -70,4 +72,4 @@ const minLength: MinLength = (value, length) => value.length >= (length || 0)
 const email: Email = (value) => /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/.test(value)
 const equal: Equal = (value, expectValue) => expectValue ? value === expectValue : true
 
-export { require, minLength, isValid, email, equal, checkValid, ValidationInterface }
+export { require, minLength, isValid, email, equal, checkValid, IValidation }

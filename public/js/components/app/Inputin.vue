@@ -53,7 +53,7 @@ export default defineComponent({
 
   emits: [ 'update:value', 'errorMessages' ],
 
-  setup(props, { emit, slots }) {
+  setup(props, { slots }) {
     const isPaddingIco = ref<boolean>(!!slots.ico)
     const onShowError = ref<boolean>(false)
     const invalidMessage = computed(() => {
@@ -72,7 +72,7 @@ export default defineComponent({
       return messages
     })
 
-    watch(() => props.onValidation, (onValidation, oldOnValidation) => {
+    watch(() => props.onValidation, (onValidation) => {
       if (onValidation) onShowError.value = true
     })
 
