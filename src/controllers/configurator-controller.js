@@ -1,6 +1,6 @@
-import SmartController from './smart-controllers.js'
+import SmartController from './smart-controller.js'
 
-export default class Configurator extends SmartController{
+export default class ConfiguratorController extends SmartController{
     constructor(request, response) {
         super(request, response)
     }

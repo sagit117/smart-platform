@@ -1,6 +1,7 @@
 interface IDataLogin {
     email: string,
-    password: string | number
+    password: string,
+    antiSpam: string
 }
 
 export default class UserAPI {

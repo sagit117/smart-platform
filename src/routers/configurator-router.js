@@ -1,5 +1,5 @@
 import Express from 'express'
-import ConfiguratorController from '../controllers/configurator-controllers.js'
+import ConfiguratorController from '../controllers/configurator-controller.js'
 
 const configuratorRouter = Express.Router()
 

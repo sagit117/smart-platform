@@ -6,6 +6,7 @@ import ExpressHbs from "express-handlebars"
 import Helmet from 'helmet'
 import CORS from 'cors'
 import Compression from 'compression'
+import BodyParser from "body-parser"
 
 // config
 import APP from './configs/server-config.js'
@@ -16,10 +17,11 @@ import RoutesModel from  './models/routes-model.js'
 import RequestLogsModel from './models/request-log-model.js'
 
 // routers
-import configuratorRouter from "./routers/configurator-router.js";
+import configuratorRouter from "./routers/configurator-router.js"
+import usersApiRouters from "./routers/api/users-api-router.js"
 
 // utils
-import { isNumber } from "./utils/is-type.js";
+import { isNumber } from "./utils/is-type.js"
 
 const app = Express() // создаем экземпляр експресс
 
@@ -74,6 +76,10 @@ app.use(Compression())
 
 // парсеры
 app.use(CookieParse(APP.secure.KEY_FOR_COOKIE)) // Передаем строку шифрования для cookie
+const urlencodedParser = BodyParser.urlencoded({ limit: '50mb', extended: false, parameterLimit: 50000 }) // чтение данных из форм
+const jsonParser = BodyParser.json({ limit: '50mb' }) // чтение данных из json
+app.use(urlencodedParser)
+app.use(jsonParser)
 
 // middleware function
 app.use(onRequest)
@@ -81,6 +87,14 @@ app.use(onRequest)
 // routes
 app.use('/configurator', configuratorRouter)
 
+// routers API
+app.use('/api/users', usersApiRouters)
+
+// обработка не существующего маршрута
+app.use(function (request, response) { // not found
+    console.log('Not Found', request.method, request.originalUrl, 'user:', request.dataMain?.user?.email)
+    response.status(404).send("Not Found")
+})
 // Вспомогательные функции
 async function onRequest(request, response, next) {
     // 1. Собрать данные о подключение
@@ -132,12 +146,12 @@ async function onRequest(request, response, next) {
     }, user = {}) => {
         const denied = []
 
-        const checkDeniedAccess = arrayAccess => role => {
+        const checkDeniedAccess = (arrayAccess = []) => role => {
             if (arrayAccess.length) return role ? arrayAccess.includes(role) : false
             return false
         }
 
-        const checkSuccessAccess = arrayAccess => role => {
+        const checkSuccessAccess = (arrayAccess = []) => role => {
             if (arrayAccess.length) return role ? arrayAccess.includes(role) : true
             return false
         }
@@ -169,5 +183,7 @@ async function onRequest(request, response, next) {
     // передаем управление следующему middleware
     next()
 }
+
+
 
 export default app

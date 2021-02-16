@@ -29,6 +29,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue'
 
+import { IValidation } from "../utils/validation";
+
 export default defineComponent({
   name: 'smart-input',
 
@@ -59,7 +61,7 @@ export default defineComponent({
     const invalidMessage = computed(() => {
       // иначе TS ругается
       const json: string = JSON.stringify(props?.validation || {})
-      const obj: object = JSON.parse(json)
+      const obj: IValidation = JSON.parse(json)
       // ---
 
       const keys: string[] = Object.keys(obj)
