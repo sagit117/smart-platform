@@ -201,7 +201,10 @@ export default defineComponent({
     function loginHandler(): void {
       sendHandler.value = true
 
-      console.log(checkValid(dataField))
+      // все поля корректно заполнены
+      if (checkValid(dataField)) {
+
+      }
 
       nextTick(() => {
         sendHandler.value = false
@@ -211,7 +214,10 @@ export default defineComponent({
     function registrationHandler(): void {
       sendHandler.value = true
 
-      console.log(checkValid({ dataField, confirmPassword }))
+      // все поля корректно заполнены
+      if (checkValid({ dataField, confirmPassword })) {
+
+      }
 
       nextTick(() => {
         sendHandler.value = false

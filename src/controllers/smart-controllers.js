@@ -26,11 +26,11 @@ export default class SmartController {
     }
 
     _checkAccessRoute() {
-        return this.objectAccess.accessRoute
+        return this.objectAccess?.access
     }
 
     _checkUseLogin() {
-        return this.objectAccess.useLogin
+        return this.objectAccess?.useLogin
     }
 
 }
