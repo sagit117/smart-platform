@@ -11,6 +11,8 @@ const SchemaRequestLogs = new Mongoose.Schema({ // Описание схемы �
     requestSignedCookies: Object,
     requestIP: String,
     requestID: String,
+    body: Object,
+    params: Object,
     user: {
         email: String,
     },

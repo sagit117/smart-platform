@@ -104,7 +104,9 @@ async function onRequest(request, response, next) {
             requestUrl: request.url,
             requestMethod: request.method,
             requestCookies: request.cookies,
-            requestSignedCookies: request.signedCookies
+            requestSignedCookies: request.signedCookies,
+            body: request.body,
+            params: request.params
         }
     }
 
@@ -125,7 +127,8 @@ async function onRequest(request, response, next) {
 
     // 3. Проверить доступ к маршруту
     const getRoutes = async (url = '') => {
-        const urls = url.split('/')
+        const requestUrl = url.split('?') // игнорируем параметры переданные после знака '?'
+        const urls = requestUrl[0].split('/')
 
         /** если последний элемент в маршруте число, сохраняем его как '*'
          * так как это параметр маршрута
@@ -183,7 +186,5 @@ async function onRequest(request, response, next) {
     // передаем управление следующему middleware
     next()
 }
-
-
 
 export default app

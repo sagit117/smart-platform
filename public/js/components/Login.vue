@@ -226,7 +226,11 @@ export default defineComponent({
       // все поля корректно заполнены
       if (checkValid({ dataField, confirmPassword })) {
         // пытаемся зарегистрироваться
-        userAPI.registrationWithEmail({ email: dataField.email.value, password: dataField.password.value, antiSpam: antiSpam.value })
+        userAPI.registrationWithEmail({
+          email: dataField.email.value,
+          password: dataField.password.value,
+          antiSpam: antiSpam.value
+        })
           .then(response => console.log(response))
           .catch(error => console.error(error))
       }
