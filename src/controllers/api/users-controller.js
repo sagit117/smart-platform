@@ -12,8 +12,8 @@ export default class UsersApiController extends SmartApiController {
 
         const data = this.request.body
 
-        // 1. TODO: Проверить анти-спам поле
-        console.log(data)
+        // 1. Проверить анти-спам поле
+        if (data.antiSpam) return this.errorHandler('В доступе отказано')
 
         // 2. TODO: Проверить количество попыток регистрации с IP
 
