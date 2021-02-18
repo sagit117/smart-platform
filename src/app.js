@@ -105,6 +105,7 @@ async function onRequest(request, response, next) {
             requestMethod: request.method,
             requestCookies: request.cookies,
             requestSignedCookies: request.signedCookies,
+            requestIP: request.ip,
             body: request.body,
             params: request.params
         }
@@ -126,7 +127,7 @@ async function onRequest(request, response, next) {
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
     // 3. Проверить доступ к маршруту
-    const getRoutes = async (url = '') => {
+    const getRoutes = (url = '') => {
         const requestUrl = url.split('?') // игнорируем параметры переданные после знака '?'
         const urls = requestUrl[0].split('/')
 
