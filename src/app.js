@@ -178,7 +178,7 @@ async function onRequest(request, response, next) {
 
     // 4. Залогировать подключение
     new RequestLogsModel(clientInfo).save(error => {
-        if (error) console.error(error)
+        if (error) console.error('Ошибка при сохранение данных в лог подключения: ', error)
     })
 
     // 5. Записать данные подключения в request

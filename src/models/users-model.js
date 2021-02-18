@@ -15,7 +15,13 @@ const SchemaUsers = new Mongoose.Schema({
         index: true,
         unique: true
     },
-    emails: Array,
+    confirmEmail: Boolean,
+    emails: [
+        {
+            value: String,
+            confirm: Boolean
+        }
+    ],
     name: String,
     lastName: String,
     patronymic: String,

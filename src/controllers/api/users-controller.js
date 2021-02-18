@@ -1,5 +1,6 @@
 import SmartApiController from './smart-api-controller.js'
 import RequestLogsModel from '../../models/request-log-model.js'
+import UsersModel from '../../models/users-model.js'
 
 import LIMIT from '../../configs/limits-config.js'
 import { testEmail } from "../../utils/validate.js";
@@ -21,7 +22,8 @@ export default class UsersApiController extends SmartApiController {
 
         // 2. Проверить количество попыток регистрации с IP за указанное время
         const getLastTryRegistration = IP => {
-            return RequestLogsModel.find({ requestIP: IP }).sort({ date: 'desc', _id: -1 }).limit(2);
+            return RequestLogsModel.find({ requestIP: IP }).sort({ date: 'desc', _id: -1 }).limit(2)
+                .catch(error => console.log('Ошибка при запросе попследней попытке регистрации: ', error))
         }
         const records = await getLastTryRegistration(this.request.dataMain.requestIP) || [] // 2 записи последней регистрации по IP
 
@@ -34,9 +36,27 @@ export default class UsersApiController extends SmartApiController {
         // 3. Проверить на корректность email
         if (!testEmail(data.email)) return this.errorHandler('Введите корректный email')
 
-        // 4. TODO: Проверить на существование email
+        // 4. Проверить на существование email
+        const getUserWithEmail = email => {
+            return UsersModel.findOne({
+                $or: [
+                    { mainEmail: email },
+                    { "emails.value": email }
+                ]
+            })
+                .catch(error => console.log('Ошибка при запросе поиска пользователей по email: ', error))
+        }
 
-        // 5. TODO: Создать запись
+        if (await getUserWithEmail(data.email)) return this.errorHandler('Указанный email уже зарегистрирован')
+
+        // 5. Создать запись
+        new UsersModel({
+            mainEmail: data.email,
+            password: data.password,
+            updatedAt: new Date()
+        }).save(error => {
+            if (error) console.error('Ошибка при сохранение данных пользователя: ', error)
+        })
 
         // 6. TODO: Выслать письмо для подтверждения email
 
