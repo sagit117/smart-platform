@@ -64,9 +64,10 @@ export default class UsersApiController extends SmartApiController {
         // 6. Выслать письмо для подтверждения email
         events.emit('sendMail', data.email, 'Подтверждение адреса электронной почты', confirmEmailTemplate())
 
-        // 7. TODO: Установить куки
+        // 7. Логировать event
+        events.emit('saveEventLogs', 'Регистрация пользователя', data.email)
 
-        // 8. TODO: Логировать event
-
+        // 8. Выслать ответ
+        this.response.status(200).send({ message: 'Регистрация прошла успешно', status: 'ok', data: { email: data.email } })
     }
 }
