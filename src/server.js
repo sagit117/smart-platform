@@ -6,6 +6,9 @@ import APP from './configs/server-config.js'
 // models
 import RoutesModel from  './models/routes-model.js'
 
+// emitters
+import events from "./utils/emitters.js";
+
 const checkFindRecord = model => param => model.findOne(param) // возвращает найденную запись
 
 Mongoose.connect(APP.connect.URL, {
@@ -31,7 +34,7 @@ Mongoose.connect(APP.connect.URL, {
         routeRecord.forEach(async record => {
             if (!await checkRoute({ url: record.url })) { // маршрут не найден
                 new RoutesModel(record).save(error => {
-                    if (error) return console.error(error)
+                    if (error) return events.emit('onError', 'Ошибка при создание записи маршрута: ', error)
 
                     console.log('Создана запись маршрута: ', record)
                 })

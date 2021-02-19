@@ -4,6 +4,9 @@ import UsersModel from '../../models/users-model.js'
 
 import LIMIT from '../../configs/limits-config.js'
 import { testEmail } from "../../utils/validate.js";
+import { confirmEmailTemplate } from "../../templates/emails-templates.js";
+
+import events from '../../utils/emitters.js'
 
 export default class UsersApiController extends SmartApiController {
     constructor(request, response) {
@@ -44,7 +47,7 @@ export default class UsersApiController extends SmartApiController {
                     { "emails.value": email }
                 ]
             })
-                .catch(error => console.log('Ошибка при запросе поиска пользователей по email: ', error))
+                .catch(error => events.emit('onError', 'Ошибка при запросе поиска пользователей по email: ', error))
         }
 
         if (await getUserWithEmail(data.email)) return this.errorHandler('Указанный email уже зарегистрирован')
@@ -55,10 +58,11 @@ export default class UsersApiController extends SmartApiController {
             password: data.password,
             updatedAt: new Date()
         }).save(error => {
-            if (error) console.error('Ошибка при сохранение данных пользователя: ', error)
+            if (error) events.emit('onError', 'Ошибка при сохранение данных пользователя: ', error)
         })
 
-        // 6. TODO: Выслать письмо для подтверждения email
+        // 6. Выслать письмо для подтверждения email
+        events.emit('sendMail', data.email, 'Подтверждение адреса электронной почты', confirmEmailTemplate())
 
         // 7. TODO: Установить куки
 

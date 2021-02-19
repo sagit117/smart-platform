@@ -1,6 +1,8 @@
+process.env.NODE_ENV = 'development' // TODO: поменять на продакшене
+
 export default {
     address: {
-        HOST: 'localhost',
+        HOST: process.env.NODE_ENV === 'production' ? 'production-host' : 'localhost', // TODO: поменять на продакшене
         PORT: 3333,
         PROTOCOL: 'http',
     },
