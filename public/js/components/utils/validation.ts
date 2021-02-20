@@ -36,7 +36,7 @@ type GetMethod = (method: ValidateMethods, ...args: [string, number]) => boolean
 // выполняет метод валидации и возвращает отвалидированный объект
 function isValid(validation: IValidation, valueField: string): IValidation {
     const keys: string[] = Object.keys(validation || {})
-    const getMethod: GetMethod = (method, ...args) => method ? method(...args) : true
+    const getMethod: GetMethod = (method, ...args): boolean => method ? method(...args) : true
 
     keys.map(key => validation[key].isValid = getMethod(validation[key].method, valueField, validation[key].value))
 

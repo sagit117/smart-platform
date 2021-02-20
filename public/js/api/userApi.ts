@@ -16,7 +16,7 @@ export default class UserAPI {
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
+            .then((response): object => response.json())
     }
 
     public registrationWithEmail(data: IDataLogin): Promise<object> {
@@ -28,6 +28,6 @@ export default class UserAPI {
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
+            .then((response): object => response.json())
     }
 }

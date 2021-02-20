@@ -1,16 +1,25 @@
 <template>
-  <button index="0">{{ caption }}</button>
+  <button index="0" :class="{ noActive: loading }">{{ caption }}<Spiner v-if="loading"/></button>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
+import Spiner from './Spiner.vue'
+
 export default defineComponent({
   name: 'smart-button',
+
+  components: {
+    Spiner
+  },
 
   props: {
     caption: {
       type: String
+    },
+    loading: {
+      type: Boolean
     }
   },
 })
@@ -18,6 +27,9 @@ export default defineComponent({
 
 <style>
   button {
+    display: flex;
+    position: relative;
+    justify-content: center;
     text-transform: uppercase;
     border-radius: .25rem;
     padding: .75rem;
@@ -26,6 +38,9 @@ export default defineComponent({
     font-weight: bold;
     outline: none;
     user-select: none;
+  }
+  .noActive {
+    cursor: not-allowed;
   }
   .primary {
     background-color: var(--primary);

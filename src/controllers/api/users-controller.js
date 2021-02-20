@@ -68,6 +68,6 @@ export default class UsersApiController extends SmartApiController {
         events.emit('saveEventLogs', 'Регистрация пользователя', data.email)
 
         // 8. Выслать ответ
-        this.response.status(200).send({ message: 'Регистрация прошла успешно', status: 'ok', data: { email: data.email } })
+        return this.response.status(200).send({ message: 'Регистрация прошла успешно', status: 'ok', data: { email: data.email } })
     }
 }
