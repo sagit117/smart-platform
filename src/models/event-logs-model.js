@@ -6,7 +6,12 @@ const SchemaEventLogs = new Mongoose.Schema({
         default: new Date()
     },
     eventName: String,
-    text: String
+    text: String,
+    user: {
+        type: Mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    requestIP: String
 })
 
 export default Mongoose.model('eventLog', SchemaEventLogs)
