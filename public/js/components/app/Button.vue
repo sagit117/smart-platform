@@ -1,5 +1,9 @@
 <template>
-  <button index="0" :class="{ noActive: loading }">{{ caption }}<Spiner v-if="loading"/></button>
+  <button index="0" :class="{ noActive: loading }">
+    {{ caption }}
+    <Spiner v-if="loading"/>
+    <slot></slot>
+  </button>
 </template>
 
 <script lang="ts">

@@ -4,7 +4,12 @@ interface IDataLogin {
     antiSpam: string
 }
 
-export default class UserAPI {
+interface IResponse {
+    message: string,
+    success: boolean
+}
+
+export class UserAPI {
     protected baseURL: string = '/api/users'
 
     public loginWithEmail(data: IDataLogin): Promise<object> {
@@ -19,7 +24,7 @@ export default class UserAPI {
             .then((response): object => response.json())
     }
 
-    public registrationWithEmail(data: IDataLogin): Promise<object> {
+    public registrationWithEmail(data: IDataLogin): Promise<IResponse> {
         return fetch(this.baseURL + '/registration', {
             method: 'POST',
             body: JSON.stringify(data),
@@ -28,6 +33,6 @@ export default class UserAPI {
                 'Content-Type': 'application/json'
             }
         })
-            .then((response): object => response.json())
+            .then((response): Promise<IResponse> => response.json())
     }
 }

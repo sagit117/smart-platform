@@ -1,7 +1,13 @@
 <template>
   <div class="container">
-    <div class="login-wrapper">
 
+    <Message
+        :message="message"
+        v-if="message.show"
+        @close="message.show = false"
+    />
+
+    <div class="login-wrapper">
       <transition name="fade" mode="out-in">
         <div class="login-form" v-if="state === 'login'" key="login">
           <h3 class="mt-0">Вход в систему</h3>
@@ -131,9 +137,11 @@ import { defineComponent, reactive, ref, computed, nextTick } from 'vue'
 import Button from './app/Button.vue'
 import Inputin from './app/Inputin.vue'
 import Spiner from  './app/Spiner.vue'
+import Message from './app/Message.vue'
 
 import { require, isValid, minLength, email, equal, checkValid, IValidation } from "./utils/validation";
-import UserAPI from "../api/userApi";
+import * as API from "../api/userApi"
+import * as I from './interfaces/messages-interfaces'
 
 interface IDataField {
   email: IField,
@@ -145,133 +153,155 @@ interface IField {
   validation?: IValidation
 }
 
+type stateWindow = 'login' | 'registration'
+
 export default defineComponent({
-  name: 'smart-login',
+    name: 'smart-login',
 
-  components: {
-    Button,
-    Inputin,
-    Spiner
-  },
+    components: {
+      Button,
+      Inputin,
+      Spiner,
+      Message
+    },
 
-  setup() {
-    // данные полей
-    const dataField = reactive({
-      email: {
-        value: '',
-        validation: {
-          require: {
-            errorMessage: 'Необходимо заполнить поле',
-            method: require
-          },
-          minLength: {
-            value: 6,
-            errorMessage: `В поле введено мало символов!`,
-            method: minLength
-          },
-          email: {
-            errorMessage: 'Необходимо ввести корректный email',
-            method: email
+    setup() {
+      // данные полей
+      const dataField = reactive({
+        email: {
+          value: '',
+          validation: {
+            require: {
+              errorMessage: 'Необходимо заполнить поле',
+              method: require
+            },
+            minLength: {
+              value: 6,
+              errorMessage: `В поле введено мало символов!`,
+              method: minLength
+            },
+            email: {
+              errorMessage: 'Необходимо ввести корректный email',
+              method: email
+            }
+          }
+        },
+        password: {
+          value: '',
+          validation: {
+            require: {
+              errorMessage: 'Необходимо заполнить поле',
+              method: require
+            },
           }
         }
-      },
-      password: {
+      }) as IDataField
+      const confirmPassword = reactive({
         value: '',
         validation: {
           require: {
             errorMessage: 'Необходимо заполнить поле',
             method: require
           },
+          equal: {
+            value: computed(() => dataField.password.value),
+            errorMessage: 'Поле не совпадает с введенным паролем',
+            method: equal
+          }
         }
-      }
-    }) as IDataField
-    const confirmPassword = reactive({
-      value: '',
-      validation: {
-        require: {
-          errorMessage: 'Необходимо заполнить поле',
-          method: require
-        },
-        equal: {
-          value: computed(() => dataField.password.value),
-          errorMessage: 'Поле не совпадает с введенным паролем',
-          method: equal
+      }) as IField
+      const antiSpam = ref<string>('') // анти-спам поле
+
+      // выбор какое окно отобразить login / registration
+      const state = ref<stateWindow>('login')
+
+      // флаг для проверки валидации при нажатие кнопки логин или регистрация
+      const sendHandler = ref<boolean>(false)
+
+      // API users
+      const userAPI: API.UserAPI = new API.UserAPI()
+
+      // Индикатор загрузки
+      const loading = ref<boolean>(false)
+
+      // обработчики логина и регистрации
+      const message = reactive({
+        title: '',
+        text: '',
+        status: 'success',
+        show: false
+      }) as I.IMessage
+
+      function loginHandler(): void { // логин
+        sendHandler.value = true
+
+        // все поля корректно заполнены
+        if (checkValid(dataField)) {
+
         }
-      }
-    }) as IField
-    const antiSpam = ref<string>('') // анти-спам поле
 
-    // выбор какое окно отобразить login / registration
-    const state = ref<string>('login')
-
-    // флаг для проверки валидации при нажатие кнопки логин или регистрация
-    const sendHandler = ref<boolean>(false)
-
-    // API users
-    const userAPI: UserAPI = new UserAPI()
-
-    // Индикатор загрузки
-    const loading = ref<boolean>(false)
-
-    // обработчики логина и регистрации
-    function loginHandler(): void { // логин
-      sendHandler.value = true
-
-      // все поля корректно заполнены
-      if (checkValid(dataField)) {
-
-      }
-
-      nextTick(() => {
-        sendHandler.value = false
-      })
-    }
-
-    function registrationHandler(): void { // регистрация
-      if (loading.value) return
-
-      sendHandler.value = true
-
-      // все поля корректно заполнены
-      if (checkValid({ dataField, confirmPassword })) {
-        // пытаемся зарегистрироваться
-        loading.value = true
-
-        userAPI.registrationWithEmail({
-          email: dataField.email.value,
-          password: dataField.password.value,
-          antiSpam: antiSpam.value
+        nextTick(() => {
+          sendHandler.value = false
         })
-          .then(response => {
-            loading.value = false
-            console.log('Ответ от сервера при регистрации: ', response)
-
-          })
-          .catch(error => {
-            loading.value = false
-            console.error('Ошибка при регистрации: ', error)
-          })
       }
 
-      nextTick(() => {
-        sendHandler.value = false
-      })
+      function registrationHandler(): void { // регистрация
+        if (loading.value) return
+
+        sendHandler.value = true
+
+        // все поля корректно заполнены
+        if (checkValid({dataField, confirmPassword})) {
+          // пытаемся зарегистрироваться
+          loading.value = true
+
+          userAPI.registrationWithEmail({
+            email: dataField.email.value,
+            password: dataField.password.value,
+            antiSpam: antiSpam.value
+          })
+              .then((response): void => {
+                loading.value = false
+                console.log('Ответ от сервера при регистрации: ', response.message)
+
+                if (response.success) {
+                  // регистрация завершена
+                  Object.assign(message, {
+                    show: true,
+                    title: 'Вы успешно зарегистрировались',
+                    text: `На адрес электронной почты <span style="color: var(--primary);">${dataField.email.value}</span> выслано письмо для окончания регистрации`,
+                    status: 'success'
+                  })
+
+                  state.value = 'login'
+                }
+              })
+              .catch(error => {
+                loading.value = false
+                console.error('Ошибка при регистрации: ', error)
+              })
+        }
+
+        nextTick(() => {
+          sendHandler.value = false
+        })
+      }
+
+      return {
+        dataField,
+        state,
+        confirmPassword,
+        sendHandler,
+        antiSpam,
+        loading,
+        message,
+        loginHandler,
+        registrationHandler,
+        isValid,
+      }
     }
 
-    return {
-      dataField,
-      state,
-      confirmPassword,
-      sendHandler,
-      antiSpam,
-      loading,
-      loginHandler,
-      registrationHandler,
-      isValid,
-    }
-  }
-
-})
+  })
 </script>
 
 <style scoped>

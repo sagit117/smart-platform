@@ -1,4 +1,4 @@
-interface IValidation { // Интерфейс для объекта валидации
+export interface IValidation { // Интерфейс для объекта валидации
     require?: {
         errorMessage?: string,
         method?: Require,
@@ -34,7 +34,7 @@ type GetIsValid = (validator: IValidation) => boolean
 type GetMethod = (method: ValidateMethods, ...args: [string, number]) => boolean
 
 // выполняет метод валидации и возвращает отвалидированный объект
-function isValid(validation: IValidation, valueField: string): IValidation {
+export function isValid(validation: IValidation, valueField: string): IValidation {
     const keys: string[] = Object.keys(validation || {})
     const getMethod: GetMethod = (method, ...args): boolean => method ? method(...args) : true
 
@@ -44,7 +44,7 @@ function isValid(validation: IValidation, valueField: string): IValidation {
 }
 
 // проверка корректного заполнения полей
-function checkValid(objectData: object): boolean {
+export function checkValid(objectData: object): boolean {
     let isValid: boolean = true
     const keys: string[] = Object.keys(objectData || {})
 
@@ -67,9 +67,7 @@ function checkValid(objectData: object): boolean {
 }
 
 // блок с функциями валидации
-const require: Require = (value) => !!value.trim()
-const minLength: MinLength = (value, length) => value.length >= (length || 0)
-const email: Email = (value) => /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/.test(value)
-const equal: Equal = (value, expectValue) => expectValue ? value === expectValue : true
-
-export { require, minLength, isValid, email, equal, checkValid, IValidation }
+export const require: Require = (value) => !!value.trim()
+export const minLength: MinLength = (value, length) => value.length >= (length || 0)
+export const email: Email = (value) => /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/.test(value)
+export const equal: Equal = (value, expectValue) => expectValue ? value === expectValue : true

@@ -7,6 +7,6 @@ export default class SmartApiController {
     }
 
     errorHandler(message = 'access denied') {
-        return this.response.status(403).send({ message })
+        return this.response.status(403).send({ message, success: false })
     }
 }
