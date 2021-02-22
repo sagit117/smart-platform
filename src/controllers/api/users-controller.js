@@ -1,5 +1,5 @@
 import SmartApiController from './smart-api-controller.js'
-import RequestLogsModel from '../../models/request-log-model.js'
+// import RequestLogsModel from '../../models/request-log-model.js'
 import EventLogsModel from '../../models/event-logs-model.js'
 import UsersModel from '../../models/users-model.js'
 
@@ -42,14 +42,15 @@ export default class UsersApiController extends SmartApiController {
 
         // 4. Проверить количество попыток регистрации с IP за указанное время
         const getLastTryRegistration = IP => {
-            return EventLogsModel.find({ eventName: 'Регистрация пользователя', requestIP: IP }).sort({ date: 'desc', _id: -1 }).limit(2)
+            return EventLogsModel.find({ eventName: 'Регистрация пользователя', requestIP: IP }).sort({ date: -1, _id: -1 }).limit(2)
                 .catch(error => events.emit('onError', 'Ошибка при запросе попследней попытке регистрации: ', error))
         }
         const records = await getLastTryRegistration(this.request.dataMain.requestIP) || [] // 2 записи последней регистрации по IP
+        // console.log(records)
 
         if (records.length === 2) {
             const delta = new Date() - new Date(records[1].date)
-            // console.log(delta, new Date(), new Date(records[1].date))
+            // console.log(delta, new Date(), new Date(records[1].date), delta / 1000 / 60)
             if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler('Перед повторной регистрацией должно пройти некоторое время')
         }
 

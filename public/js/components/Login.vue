@@ -274,6 +274,13 @@ export default defineComponent({
                   })
 
                   state.value = 'login'
+                } else {
+                  Object.assign(message, {
+                    show: true,
+                    title: 'Ошибка при регистрации',
+                    text: response.message,
+                    status: 'error'
+                  })
                 }
               })
               .catch(error => {
