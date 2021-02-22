@@ -55,9 +55,12 @@ export default class UsersApiController extends SmartApiController {
         }
 
         // 5. Создать запись
+
+        // TODO: закодировать пароль
+        const password = data.password // ?
         const user = new UsersModel({
             mainEmail: data.email,
-            password: data.password,
+            password,
             updatedAt: new Date()
         })
         user.save(error => {

@@ -9,7 +9,7 @@
     "module": "es6",
     "moduleResolution": "node",
     "noImplicitAny": false,
-    "noLib": false,
+//    "noLib": false,
     "sourceMap": true,
     "strict": true,
     "strictPropertyInitialization": false,
@@ -21,6 +21,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "skipLibCheck": true
   },
   "exclude": [
     "./node_modules"

@@ -233,11 +233,32 @@ export default defineComponent({
       }) as I.IMessage
 
       function loginHandler(): void { // логин
+        if (loading.value) return
+
         sendHandler.value = true
 
         // все поля корректно заполнены
         if (checkValid(dataField)) {
+          userAPI.loginWithEmail({
+            email: dataField.email.value,
+            password: dataField.password.value,
+            antiSpam: antiSpam.value
+          })
+            .then((response): void => {
+              loading.value = false
 
+              console.log('Ответ от сервера при логина: ', response.message)
+
+              if (response.success) {
+                // логин успешный
+              } else {
+
+              }
+            })
+            .catch(error => {
+              loading.value = false
+              console.error('Ошибка при логине: ', error)
+            })
         }
 
         nextTick(() => {
@@ -265,7 +286,7 @@ export default defineComponent({
                 console.log('Ответ от сервера при регистрации: ', response.message)
 
                 if (response.success) {
-                  // регистрация завершена
+                  // регистрация успешна
                   Object.assign(message, {
                     show: true,
                     title: 'Вы успешно зарегистрировались',
@@ -275,6 +296,7 @@ export default defineComponent({
 
                   state.value = 'login'
                 } else {
+                  // ошибка при регистрации
                   Object.assign(message, {
                     show: true,
                     title: 'Ошибка при регистрации',

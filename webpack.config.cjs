@@ -1,5 +1,6 @@
 const path = require('path')
 const { VueLoaderPlugin } = require("vue-loader");
+// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -8,13 +9,14 @@ module.exports = {
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, './dist'),
+        clean: true
     },
     mode: 'development',
     module: {
         rules: [
             {
                 test: /\.css$/i,
-                use: [/*"style-loader",*/ "css-loader"],
+                use: ["style-loader", "css-loader"],
             },
             {
                 test: /\.tsx?$/,
@@ -35,5 +37,6 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
+        // new CleanWebpackPlugin()
     ],
 }

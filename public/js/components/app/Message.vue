@@ -76,6 +76,8 @@ export default defineComponent({
     min-width: 40%;
     background-color: #fff;
     color: #0e0e0e;
+    border-radius: 5px;
+    box-shadow: 2px 2px 6px black;
   }
   .success {
     border-left: 1rem solid var(--success);

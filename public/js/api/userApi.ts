@@ -12,7 +12,7 @@ interface IResponse {
 export class UserAPI {
     protected baseURL: string = '/api/users'
 
-    public loginWithEmail(data: IDataLogin): Promise<object> {
+    public loginWithEmail(data: IDataLogin): Promise<IResponse> {
         return fetch(this.baseURL + '/login', {
             method: 'POST',
             body: JSON.stringify(data),
@@ -21,7 +21,7 @@ export class UserAPI {
                 'Content-Type': 'application/json'
             }
         })
-            .then((response): object => response.json())
+            .then((response): Promise<IResponse> => response.json())
     }
 
     public registrationWithEmail(data: IDataLogin): Promise<IResponse> {
