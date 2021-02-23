@@ -17,6 +17,7 @@ const SchemaUsers = new Mongoose.Schema({
         unique: true
     },
     confirmEmail: Boolean,
+    hash: String,
     emails: [
         {
             value: String,
@@ -48,30 +49,22 @@ const SchemaUsers = new Mongoose.Schema({
 SchemaUsers.index({ mainEmail: 1 })
 
 SchemaUsers.pre('save', function(next) {
-    const user = this;
+    if(!this.isModified("password")) return next()
 
-    // only hash the password if it has been modified (or is new)
-    if (!user.isModified('password')) return next();
-
-    // generate a salt
-    Bcrypt.genSalt(10, function(err, salt) {
-        if (err) return next(err)
-
-        // hash the password using our new salt
-        Bcrypt.hash(user.password, salt, function(err, hash) {
-            if (err) return next(err)
-            // override the cleartext password with the hashed one
-            user.password = hash
-            next()
-        })
-    })
+    this.password = Bcrypt.hashSync(this.password, 10)
+    next()
 })
 
-SchemaUsers.methods.comparePassword = function(candidatePassword, cb) {
-    Bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-        if (err) return cb(err)
-        cb(null, isMatch)
-    })
+// SchemaUsers.methods.comparePassword = function(candidatePassword, cb) {
+//     Bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+//         if (err) return cb(err)
+//         cb(null, isMatch)
+//     })
+// }
+
+// TODO: протестировать
+SchemaUsers.methods.comparePassword = function(plaintext, callback) {
+    return callback(null, Bcrypt.compareSync(plaintext, this.password))
 }
 
 export default Mongoose.model('users', SchemaUsers)

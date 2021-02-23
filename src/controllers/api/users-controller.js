@@ -1,13 +1,12 @@
 import SmartApiController from './smart-api-controller.js'
-// import RequestLogsModel from '../../models/request-log-model.js'
 import EventLogsModel from '../../models/event-logs-model.js'
 import UsersModel from '../../models/users-model.js'
 
 import LIMIT from '../../configs/limits-config.js'
-import { testEmail } from "../../utils/validate.js";
-import { confirmEmailTemplate } from "../../templates/emails-templates.js";
-
+import { testEmail } from "../../utils/validate.js"
+import { confirmEmailTemplate } from "../../templates/emails-templates.js"
 import events from '../../utils/emitters.js'
+import { randomKeyGenerator } from '../../utils/generators.js'
 
 export default class UsersApiController extends SmartApiController {
     constructor(request, response) {
@@ -55,20 +54,21 @@ export default class UsersApiController extends SmartApiController {
         }
 
         // 5. Создать запись
+        const hash = randomKeyGenerator() // хеш для подтверждения email
 
-        // TODO: закодировать пароль
-        const password = data.password // ?
         const user = new UsersModel({
             mainEmail: data.email,
-            password,
-            updatedAt: new Date()
+            password: data.password, // шифрование пароля происходит в моделе
+            updatedAt: new Date(),
+            hash,
+            roles: [{ name: 'temp-role' }]
         })
         user.save(error => {
             if (error) events.emit('onError', 'Ошибка при сохранение данных пользователя: ', error)
         })
 
         // 6. Выслать письмо для подтверждения email
-        events.emit('sendMail', data.email, 'Подтверждение адреса электронной почты', confirmEmailTemplate(), this.request)
+        events.emit('sendMail', data.email, 'Подтверждение адреса электронной почты', confirmEmailTemplate(hash), this.request)
 
         // 7. Логировать event
         this.request.dataMain.user = user

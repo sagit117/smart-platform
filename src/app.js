@@ -26,6 +26,9 @@ import { isNumber } from "./utils/is-type.js"
 // emitters
 import events from "./utils/emitters.js";
 
+// controllers
+import ConfirmEmailController from "./controllers/confirm-email-controller.js";
+
 const app = Express() // создаем экземпляр експресс
 
 // настройка hbs, helpers
@@ -89,6 +92,10 @@ app.use(onRequest)
 
 // routes
 app.use('/configurator', configuratorRouter)
+app.get('/confirm_email/:hash', (request, response) => {
+    // подтверждение email
+    return new ConfirmEmailController(request, response).confirm()
+})
 
 // routers API
 app.use('/api/users', usersApiRouters)
