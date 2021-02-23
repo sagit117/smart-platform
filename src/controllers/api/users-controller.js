@@ -1,12 +1,15 @@
 import SmartApiController from './smart-api-controller.js'
 import EventLogsModel from '../../models/event-logs-model.js'
 import UsersModel from '../../models/users-model.js'
+import JWT from 'jsonwebtoken'
 
 import LIMIT from '../../configs/limits-config.js'
 import { testEmail } from "../../utils/validate.js"
 import { confirmEmailTemplate } from "../../templates/emails-templates.js"
 import events from '../../utils/emitters.js'
 import { randomKeyGenerator } from '../../utils/generators.js'
+
+import APP from '../../configs/server-config.js'
 
 export default class UsersApiController extends SmartApiController {
     constructor(request, response) {
@@ -76,5 +79,63 @@ export default class UsersApiController extends SmartApiController {
 
         // 8. Выслать ответ
         return this.response.status(200).send({ message: 'Регистрация прошла успешно', success: true, data: { email: data.email } })
+    }
+
+    async loginWithEmail() {
+        /* логин пользователя по email
+         * data = { email, password }
+         **/
+
+        const data = this.request.dataMain.body
+
+        // 1. Проверить анти-спам поле
+        if (data.antiSpam) return this.errorHandler('В доступе отказано')
+
+        // 2. Проверить на существование email
+        const getUserWithEmail = email => {
+            return UsersModel.findOne({ mainEmail: email })
+                .catch(error => events.emit('onError', 'Ошибка при запросе поиска пользователей по email: ', error))
+        }
+
+        const user = await getUserWithEmail(data.email)
+        if (!user) return this.errorHandler('Указанный email или пароль не совпадает')
+
+        // 3. Проверить пароль
+        user.comparePassword(data.password, (error, match) => {
+            if (!match) {
+                console.log('match', match)
+                return this.errorHandler('Указанный email или пароль не совпадает')
+            }
+            if (error) {
+                events.emit('onError', 'Ошибка при проверки пароля во время логина: ', error)
+            }
+        })
+        console.log('pot match')
+
+        // 4. TODO: Установить куки
+        // const date = new Date()
+        // date.setDate(date.getDate() + 30);
+        //
+        // const jwt = JWT.sign({
+        //     user: user.mainEmail,
+        //     id: user._id,
+        //     exp: parseInt(String(date.getTime() / 1000), 10),
+        // }, APP.secure.KEY_FOR_JWT)
+
+        // this.response.cookie('token', jwt,  {
+        //     maxAge: parseInt(String(date.getTime() / 1000), 10),
+        //     secure: APP.cookie.COOKIE_SECURE,
+        //     httpOnly: true,
+        //     signed: true,
+        //     domain: APP.address.HOST,
+        //     sameSite: "lax"
+        // })
+
+        // 5. TODO: Выслать подтверждение на email
+
+        // 6. TODO: Логировать вход
+
+        // 7. TODO: Вернуть ответ
+        // return this.response.status(200).send({ message: 'Вход в систему прошел успешно', success: true, data: user })
     }
 }

@@ -12,5 +12,8 @@ export default {
     },
     connect: { // связь с монго ДБ
         URL: 'mongodb://localhost:27017/smart_shop'
+    },
+    cookie: {
+        COOKIE_SECURE: false // false - http || true - https
     }
 }

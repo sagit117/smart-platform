@@ -178,7 +178,7 @@ export default defineComponent({
             minLength: {
               value: 6,
               errorMessage: `В поле введено мало символов!`,
-              method: minLength
+              method: minLength,
             },
             email: {
               errorMessage: 'Необходимо ввести корректный email',
@@ -329,7 +329,6 @@ export default defineComponent({
         isValid,
       }
     }
-
   })
 </script>
 

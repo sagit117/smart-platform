@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue'
+import { defineComponent, ref, computed, watch, PropType } from 'vue'
 
 import { IValidation } from "../utils/validation";
 
@@ -46,7 +46,7 @@ export default defineComponent({
       type: String
     },
     validation: {
-      type: Object
+      type: Object as PropType<IValidation>
     },
     onValidation: {
       type: Boolean
@@ -59,9 +59,7 @@ export default defineComponent({
     const isPaddingIco = ref<boolean>(!!slots.ico)
     const onShowError = ref<boolean>(false)
     const invalidMessage = computed(() => {
-      // иначе TS ругается
-      const json: string = JSON.stringify(props?.validation || {})
-      const obj: IValidation = JSON.parse(json)
+      const obj: IValidation = props?.validation || {}
       // ---
 
       const keys: string[] = Object.keys(obj)
