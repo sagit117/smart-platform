@@ -1,5 +1,6 @@
 import SmartController from './smart-controller.js'
 import UsersModel from '../models/users-model.js'
+import events from "../utils/emitters.js"
 
 export default class ConfirmEmailController extends SmartController{
     constructor(request, response) {
@@ -8,26 +9,40 @@ export default class ConfirmEmailController extends SmartController{
 
     optionsRender = {
         title: 'Подтверждение email',
+        isConfirmSuccess: false
     }
 
     layout = 'confirm-email.hbs'
 
     confirm() {
         // проверка хеша
-        UsersModel.findOne({ hash: this.request.params.hash })
+        // 1. Проверить найден ли пользователь
+        UsersModel.findOne({
+            hash: this.request.params.hash,
+            confirmEmail: false
+        })
             .then(user => {
-                // 1. TODO: Проверить найден ли пользователь
-                console.log(user)
+                // console.log(user)
+                if (user) {
+                    // 2. Если пользователь найден и email не подтвержден, сменить временну роль на постоянную и подтвердить email
+                    user.roles.map(role => {
+                        if (role.name === 'temp-role') {
+                            return role.name = 'user'
+                        }
+                    })
 
-                // 2. TODO: Если пользователь найден и роль временная, сменить временну роль на постоянную
+                    user.confirmEmail = true
 
-                // 3. TODO: Иначе вернуть ошибку
+                    new UsersModel(user).save().catch(error => events.emit('onError', 'Ошибка при попытке сменить роль пользователя: ', error))
+                    this.optionsRender.isConfirmSuccess = true
+                } else {
+                    // 3. Иначе вернуть ошибку
+                    this.optionsRender.isConfirmSuccess = false
+                }
 
                 // 4. Отрендерить
                 return this.render()
             })
-            .catch(error => {
-
-            })
+            .catch(error => events.emit('onError', 'Ошибка при попытке подтвердить email: ', error))
     }
 }

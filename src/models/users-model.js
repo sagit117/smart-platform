@@ -16,7 +16,10 @@ const SchemaUsers = new Mongoose.Schema({
         index: true,
         unique: true
     },
-    confirmEmail: Boolean,
+    confirmEmail: {
+        type: Boolean,
+        default: false
+    },
     hash: String,
     emails: [
         {
