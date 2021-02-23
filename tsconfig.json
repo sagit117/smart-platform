@@ -6,22 +6,22 @@
     "declaration": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "module": "es6",
+    "module": "esnext",
     "moduleResolution": "node",
     "noImplicitAny": false,
-//    "noLib": false,
+    "noLib": false,
     "sourceMap": true,
     "strict": true,
     "strictPropertyInitialization": false,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "es6",
+    "target": "esnext",
     "baseUrl": ".",
     "removeComments": true,
 //    "noEmitOnError": true, // не компилируем, если есть ошибка
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "skipLibCheck": true
+//    "skipLibCheck": true
   },
   "exclude": [
     "./node_modules"

@@ -9,7 +9,7 @@
 
     <div class="login-wrapper">
       <transition name="fade" mode="out-in">
-        <div class="login-form" v-if="state === 'login'" key="login">
+        <div class="login-form" v-if="state === 'login'">
           <h3 class="mt-0">Вход в систему</h3>
 
           <div class="login-form--items">
@@ -59,7 +59,7 @@
           </div>
         </div>
 
-        <div class="login-form" v-else-if="state === 'registration'" key="registration">
+        <div class="login-form" v-else-if="state === 'registration'">
           <h3 class="mt-0">Регистрация в системе</h3>
 
           <div class="login-form--items">
@@ -247,7 +247,7 @@ export default defineComponent({
             .then((response): void => {
               loading.value = false
 
-              console.log('Ответ от сервера при логина: ', response.message)
+              console.log('Ответ от сервера при логине: ', response.message)
 
               if (response.success) {
                 // логин успешный
