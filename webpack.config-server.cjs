@@ -1,20 +1,19 @@
 const path = require('path')
-// const HandlebarsPlugin = require("handlebars-webpack-plugin");
 
-const {
-    NODE_ENV = 'production',
-} = process.env;
+const { NODE_ENV = 'production' } = process.env;
 
 module.exports = {
-    entry: './src/server.ts',
+    entry: {
+        server: './src/server.js'
+    },
     mode: NODE_ENV,
     target: 'node',
     output: {
         path: path.resolve(__dirname, '/build-server'),
-        filename: 'index.js'
+        filename: '[name].js'
     },
     resolve: {
-        extensions: ['.ts', '.js', '.hbs'],
+        extensions: [ '.ts', '.js' ],
     },
     module: {
         rules: [
@@ -24,16 +23,16 @@ module.exports = {
                 exclude: [/node_modules/, /public/]
             },
             {
-                test: /\.handlebars$/,
+                test: /\.hbs$/,
                 loader:  "handlebars-loader",
-                // query: {
-                //     partialDirs: [
-                //         path.join(__dirname, 'views', 'partials')
-                //     ],
-                //     // helperDirs: [
-                //     //     path.join(__dirname, 'views', 'helpers')
-                //     // ]
-                // }
+            },
+            {
+                // Transpiles ES6-8 into ES5
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader"
+                }
             }
         ]
     },

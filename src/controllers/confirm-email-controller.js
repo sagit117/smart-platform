@@ -2,15 +2,17 @@ import SmartController from './smart-controller.js'
 import UsersModel from '../models/users-model.js'
 import events from "../utils/emitters.js"
 
+// import confirmEmail from '../../views/confirm-email.hbs'
+
 export default class ConfirmEmailController extends SmartController{
     constructor(request, response) {
         super(request, response)
     }
 
-    optionsRender = {
-        title: 'Подтверждение email',
-        isConfirmSuccess: false
-    }
+    // optionsRender = {
+    //     title: 'Подтверждение email',
+    //     isConfirmSuccess: false
+    // }
 
     layout = 'confirm-email.hbs'
 

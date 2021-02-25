@@ -1,3 +1,6 @@
+import login from '../../views/login.hbs'
+import accessDenied from '../../views/access-denied.hbs'
+
 export default class SmartController {
     constructor(request, response) {
         this.request = request
@@ -6,20 +9,20 @@ export default class SmartController {
         this.objectAccess = this.request.dataMain.accessRoute
     }
 
-    optionsRender = {
-        /**
-         * свойства переданные в рендер
-         * title: '',
-         * layout: '...hbs'
-         * ...
-         * */
-    }
+    // optionsRender = {
+    //     /**
+    //      * свойства переданные в рендер
+    //      * title: '',
+    //      * layout: '...hbs'
+    //      * ...
+    //      * */
+    // }
 
     layout = ''
 
     render() {
         if (!this._checkAccessRoute()) {
-            this.layout = this._checkUseLogin() ? 'login.hbs' : 'access-denied.hbs'
+            this.layout = this._checkUseLogin() ? login : accessDenied
         }
 
         return this.response.status(200).render(this.layout, this.optionsRender)
