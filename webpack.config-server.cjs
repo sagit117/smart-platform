@@ -14,25 +14,9 @@ module.exports = {
         filename: 'index.js'
     },
     resolve: {
-        extensions: ['.ts', '.js'],
+        extensions: ['.ts', '.js', 'hbs'],
     },
     plugins: [
         new HandlebarsPlugin()
     ]
 }
-//
-// module.exports = {
-//     entry: './src/server.ts',
-//     output: {
-//         filename: 'server.js',
-//         path: path.resolve(__dirname, './server'),
-//     },
-//     mode: 'development',
-//     target: 'node',
-//     resolve: {
-//         extensions: ['.ts', '.js', '.json'],
-//     },
-//     plugins: [
-//         new HandlebarsPlugin()
-//     ]
-// }
