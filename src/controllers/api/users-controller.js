@@ -120,11 +120,11 @@ export default class UsersApiController extends SmartApiController {
         const jwt = JWT.sign({
             user: user.mainEmail,
             id: user._id,
-            exp: parseInt(String(date.getTime() / 1000), 10),
+            exp: date.getTime()
         }, APP.secure.KEY_FOR_JWT)
 
         this.response.cookie('token', jwt,  {
-            maxAge: parseInt(String(date.getTime() / 1000), 10),
+            maxAge: 1000 * 60 * 60 * 24 * 30,
             secure: APP.cookie.COOKIE_SECURE,
             httpOnly: true,
             signed: true,
