@@ -15,7 +15,6 @@ export default class ConfirmEmailController extends SmartController{
     layout = 'confirm-email.hbs'
 
     confirm() { // проверка хеша
-
         // 1. Проверить найден ли пользователь
         UsersModel.findOne({
             hash: this.request.params.hash,

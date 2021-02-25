@@ -48,20 +48,14 @@ const SchemaUsers = new Mongoose.Schema({
 SchemaUsers.index({ mainEmail: 1 })
 
 SchemaUsers.pre('save', function(next) {
+    // хеширование пароля перед сохранением
     if(!this.isModified("password")) return next()
 
     this.password = Bcrypt.hashSync(this.password, 10)
     next()
 })
 
-// SchemaUsers.methods.comparePassword = function(candidatePassword, cb) {
-//     Bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-//         if (err) return cb(err)
-//         cb(null, isMatch)
-//     })
-// }
-
-// TODO: протестировать
+// Метод для проверки пароля
 SchemaUsers.methods.comparePassword = function(plaintext, callback) {
     return callback(null, Bcrypt.compareSync(plaintext, this.password))
 }
