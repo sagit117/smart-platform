@@ -127,12 +127,14 @@ async function onRequest(request, response, next) {
     const token = clientInfo.requestSignedCookies?.token
         ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
         : false
+    // console.log(token)
 
     const getUser = (email = '') => {
-        return UsersModel.findOne({ email })
+        return UsersModel.findOne({ mainEmail: email })
     }
 
     const user = await getUser(token.email)
+    // console.log(user)
 
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
@@ -166,15 +168,16 @@ async function onRequest(request, response, next) {
         }
 
         const checkSuccessAccess = (arrayAccess = []) => role => {
+            console.log(role, arrayAccess)
             if (arrayAccess.length) return role ? arrayAccess.includes(role) : true
             return false
         }
 
         denied.push(
-            (checkSuccessAccess(route?.roleAccessSuccess))(user?.role),
-            (checkSuccessAccess(route?.userAccessSuccess))(user?.email),
-            (checkDeniedAccess(route?.roleAccessDenied))(user?.role),
-            (checkDeniedAccess(route?.userAccessDenied))(user?.email),
+            (checkSuccessAccess(route?.roleAccessSuccess))(user?.roles),
+            (checkSuccessAccess(route?.userAccessSuccess))(user?.mainEmail),
+            (checkDeniedAccess(route?.roleAccessDenied))(user?.roles),
+            (checkDeniedAccess(route?.userAccessDenied))(user?.mainEmail),
         )
         // console.log(denied.reduce((acc, value) => acc + value))
         // console.log('result:', {access: !denied.reduce((acc, value) => acc + value), useLogin: !user.email})
@@ -184,6 +187,7 @@ async function onRequest(request, response, next) {
     }
 
     // записываем в clientInfo данные о доступности маршрута
+    // console.log(clientInfo, route)
     Object.assign(clientInfo, { accessRoute: checkAccess(route, clientInfo.user) })
 
     // 4. Залогировать подключение

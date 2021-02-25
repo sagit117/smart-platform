@@ -41,12 +41,8 @@ const SchemaUsers = new Mongoose.Schema({
         houseNumber: String,
         apartmentNumber: String
     }],
-    phones: [{
-        number: String,
-    }],
-    roles: [{
-        name: String,
-    }]
+    phones: [String],
+    roles: [String]
 })
 
 SchemaUsers.index({ mainEmail: 1 })

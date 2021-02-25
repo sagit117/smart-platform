@@ -25,9 +25,9 @@ export default class ConfirmEmailController extends SmartController{
                 // console.log(user)
                 if (user) {
                     // 2. Если пользователь найден и email не подтвержден, сменить временну роль на постоянную и подтвердить email
-                    user.roles.map(role => {
-                        if (role.name === 'temp-role') {
-                            return role.name = 'user'
+                    user.roles = user.roles.map(role => {
+                        if (role === 'temp-role') {
+                            return 'user'
                         }
                     })
 
