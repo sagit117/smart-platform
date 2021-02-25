@@ -127,12 +127,14 @@ async function onRequest(request, response, next) {
     const token = clientInfo.requestSignedCookies?.token
         ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
         : false
+    // console.log(token)
 
     const getUser = (email = '') => {
-        return UsersModel.findOne({ email })
+        return UsersModel.findOne({ mainEmail: email })
     }
 
     const user = await getUser(token.email)
+    // console.log(user)
 
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
@@ -160,30 +162,32 @@ async function onRequest(request, response, next) {
     }, user = {}) => {
         const denied = []
 
-        const checkDeniedAccess = (arrayAccess = []) => role => {
-            if (arrayAccess.length) return role ? arrayAccess.includes(role) : false
+        const checkDeniedAccess = (arrayAccess = []) => (arrayRoles = []) => {
+            if (arrayAccess.length) return arrayRoles.length ? arrayRoles.filter(role => arrayAccess.includes(role)).length > 0 : false
             return false
         }
 
-        const checkSuccessAccess = (arrayAccess = []) => role => {
-            if (arrayAccess.length) return role ? arrayAccess.includes(role) : true
+        const checkSuccessAccess = (arrayAccess = []) => (arrayRoles = []) => {
+            // console.log(arrayRoles, arrayAccess, arrayRoles.filter(role => arrayAccess.includes(role)).length === 0)
+            if (arrayAccess.length) return arrayRoles.length ? arrayRoles.filter(role => arrayAccess.includes(role)).length === 0 : true
             return false
         }
 
         denied.push(
-            (checkSuccessAccess(route?.roleAccessSuccess))(user?.role),
-            (checkSuccessAccess(route?.userAccessSuccess))(user?.email),
-            (checkDeniedAccess(route?.roleAccessDenied))(user?.role),
-            (checkDeniedAccess(route?.userAccessDenied))(user?.email),
+            (checkSuccessAccess(route?.roleAccessSuccess))(user?.roles),
+            (checkSuccessAccess(route?.userAccessSuccess))([user?.mainEmail]),
+            (checkDeniedAccess(route?.roleAccessDenied))(user?.roles),
+            (checkDeniedAccess(route?.userAccessDenied))([user?.mainEmail]),
         )
-        // console.log(denied.reduce((acc, value) => acc + value))
-        // console.log('result:', {access: !denied.reduce((acc, value) => acc + value), useLogin: !user.email})
+        // console.log(denied)
+        // console.log('result:', {access: !denied.reduce((acc, value) => acc + value), useLogin: !user.mainEmail})
 
         // useLogin - параметр, который говорит системе, что необходимо в начале пройти логин
-        return { access: !denied.reduce((acc, value) => acc + value), useLogin: !user.email }
+        return { access: !denied.reduce((acc, value) => acc + value), useLogin: !user.mainEmail }
     }
 
     // записываем в clientInfo данные о доступности маршрута
+    // console.log(clientInfo, route)
     Object.assign(clientInfo, { accessRoute: checkAccess(route, clientInfo.user) })
 
     // 4. Залогировать подключение
