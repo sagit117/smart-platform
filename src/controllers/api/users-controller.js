@@ -101,41 +101,42 @@ export default class UsersApiController extends SmartApiController {
         if (!user) return this.errorHandler('Указанный email или пароль не совпадает')
 
         // 3. Проверить пароль
-        user.comparePassword(data.password, (error, match) => {
-            if (!match) {
-                console.log('match', match)
-                return this.errorHandler('Указанный email или пароль не совпадает')
-            }
+        const sLoginSuccess = user.comparePassword(data.password, (error, match) => {
+            if (!match) return false
             if (error) {
                 events.emit('onError', 'Ошибка при проверки пароля во время логина: ', error)
+                return false
             }
+
+            return true
         })
-        console.log('pot match')
 
-        // 4. TODO: Установить куки
-        // const date = new Date()
-        // date.setDate(date.getDate() + 30);
-        //
-        // const jwt = JWT.sign({
-        //     user: user.mainEmail,
-        //     id: user._id,
-        //     exp: parseInt(String(date.getTime() / 1000), 10),
-        // }, APP.secure.KEY_FOR_JWT)
+        if (!sLoginSuccess) return this.errorHandler('Указанный email или пароль не совпадает')
 
-        // this.response.cookie('token', jwt,  {
-        //     maxAge: parseInt(String(date.getTime() / 1000), 10),
-        //     secure: APP.cookie.COOKIE_SECURE,
-        //     httpOnly: true,
-        //     signed: true,
-        //     domain: APP.address.HOST,
-        //     sameSite: "lax"
-        // })
+        // 4. Установить куки
+        const date = new Date()
+        date.setDate(date.getDate() + 30);
+
+        const jwt = JWT.sign({
+            user: user.mainEmail,
+            id: user._id,
+            exp: parseInt(String(date.getTime() / 1000), 10),
+        }, APP.secure.KEY_FOR_JWT)
+
+        this.response.cookie('token', jwt,  {
+            maxAge: parseInt(String(date.getTime() / 1000), 10),
+            secure: APP.cookie.COOKIE_SECURE,
+            httpOnly: true,
+            signed: true,
+            domain: APP.address.HOST,
+            sameSite: "lax"
+        })
 
         // 5. TODO: Выслать подтверждение на email
 
         // 6. TODO: Логировать вход
 
         // 7. TODO: Вернуть ответ
-        // return this.response.status(200).send({ message: 'Вход в систему прошел успешно', success: true, data: user })
+        return this.response.status(200).send({ message: 'Вход в систему прошел успешно', success: true, data: user })
     }
 }
