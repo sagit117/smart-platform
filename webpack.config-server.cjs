@@ -1,16 +1,18 @@
 const path = require('path')
+const nodeExternals = require('webpack-node-externals');
 
-const { NODE_ENV = 'production' } = process.env;
+// const { NODE_ENV = 'production' } = process.env;
 
 module.exports = {
     entry: {
         server: './src/server.js'
     },
-    mode: NODE_ENV,
+    mode: 'development', // TODO:  поменять на проде
     target: 'node',
+    externals: [nodeExternals()],
     output: {
-        path: path.resolve(__dirname, '/build-server'),
-        filename: '[name].js'
+        path: path.resolve(__dirname, './build-server'),
+        filename: '[name].cjs'
     },
     resolve: {
         extensions: [ '.ts', '.js' ],
@@ -28,7 +30,7 @@ module.exports = {
             },
             {
                 // Transpiles ES6-8 into ES5
-                test: /\.js$/,
+                test: /\.m?js$/,
                 exclude: /node_modules/,
                 use: {
                     loader: "babel-loader"

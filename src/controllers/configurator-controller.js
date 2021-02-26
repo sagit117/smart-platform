@@ -1,5 +1,5 @@
 import SmartController from './smart-controller.js'
-import configurator from '../../views/configurator.hbs'
+// import configurator from '../../views/configurator.hbs'
 
 export default class ConfiguratorController extends SmartController{
     constructor(request, response) {
@@ -10,5 +10,5 @@ export default class ConfiguratorController extends SmartController{
         title: 'Конфигуратор',
     }
 
-    layout = configurator
+    layout = 'configurator.hbs'
 }

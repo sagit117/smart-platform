@@ -9,10 +9,10 @@ export default class ConfirmEmailController extends SmartController{
         super(request, response)
     }
 
-    // optionsRender = {
-    //     title: 'Подтверждение email',
-    //     isConfirmSuccess: false
-    // }
+    optionsRender = {
+        title: 'Подтверждение email',
+        isConfirmSuccess: false
+    }
 
     layout = 'confirm-email.hbs'
 

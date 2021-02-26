@@ -6,11 +6,12 @@
   "author": "Axel <sagit117@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon --trace-warnings src/server.js ",
-    "build": "webpack-cli --config webpack.config.cjs",
-    "buildts": "webpack --config webpack.config-server.cjs"
+    "start": "nodemon --trace-warnings build-server/server.cjs ",
+    "buildfe": "webpack-cli --config webpack.config.cjs",
+    "buildbe": "webpack --config webpack.config-server.cjs"
   },
   "dependencies": {
+    "@babel/runtime": "^7.13.7",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
@@ -24,6 +25,7 @@
     "mongodb": "^3.6.4",
     "mongoose": "^5.11.15",
     "nodemailer": "^6.4.18",
+    "regenerator-runtime": "^0.13.7",
     "vue": "^3.0.5"
   },
   "keywords": [
@@ -32,6 +34,7 @@
   "type": "module",
   "devDependencies": {
     "@babel/core": "^7.13.1",
+    "@babel/plugin-transform-runtime": "^7.13.7",
     "@babel/preset-env": "^7.13.5",
     "@types/node": "^14.14.31",
     "@vue/compiler-sfc": "^3.0.5",
@@ -48,6 +51,7 @@
     "typescript": "^4.1.5",
     "vue-loader": "^16.1.2",
     "webpack": "^5.21.2",
-    "webpack-cli": "^4.5.0"
+    "webpack-cli": "^4.5.0",
+    "webpack-node-externals": "^2.5.2"
   }
 }

@@ -1,4 +1,5 @@
 import Mongoose from 'mongoose' // библиотека для подключение к mongodb
+import regeneratorRuntime from "regenerator-runtime"
 
 import app from './app.js' // файл инициализации приложения
 import APP from './configs/server-config.js'

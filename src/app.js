@@ -33,7 +33,7 @@ const app = Express() // создаем экземпляр експресс
 
 // настройка hbs, helpers
 app.engine("hbs", ExpressHbs({
-        layoutsDir: "views/layouts",
+        layoutsDir: "build-server/views/layouts",
         defaultLayout: "main-layout",
         extname: "hbs",
         helpers: {
@@ -45,8 +45,8 @@ app.set("view engine", "hbs")
 HBS.registerPartials("/partials")
 
 // статика
-app.use(Express.static("./dist"))
-app.use(Express.static("./public/css"))
+app.use(Express.static("build-server/dist"))
+app.use(Express.static("build-server/public/css"))
 
 // защита сервера
 app.use(Helmet())
@@ -70,6 +70,7 @@ const corsOptions = {
         if (whitelist.indexOf(origin) !== -1 || !origin || origin === 'null') {
             return callback(null, true)
         } else {
+            console.log(origin)
             return callback(new Error('Not allowed by CORS'))
         }
     },
