@@ -9,25 +9,28 @@ import Compression from 'compression'
 import BodyParser from "body-parser"
 
 // config
-import APP from './configs/server-config.js'
+import APP from './configs/server-config'
 
 // models
-import UsersModel from './models/users-model.js'
-import RoutesModel from  './models/routes-model.js'
-import RequestLogsModel from './models/request-log-model.js'
+import UsersModel, { IUsersModel } from './models/users-model'
+import RoutesModel, { IRoutesModel } from  './models/routes-model'
+import RequestLogsModel from './models/request-log-model'
 
 // routers
-import configuratorRouter from "./routers/configurator-router.js"
-import usersApiRouters from "./routers/api/users-api-router.js"
+import configuratorRouter from "./routers/configurator-router"
+import usersApiRouters from "./routers/api/users-api-router"
 
 // utils
-import { isNumber } from "./utils/is-type.js"
+import { isNumber } from "./utils/is-type"
 
 // emitters
-import events from "./utils/emitters.js";
+import events from "./utils/emitters";
 
 // controllers
-import ConfirmEmailController from "./controllers/confirm-email-controller.js";
+import ConfirmEmailController from "./controllers/confirm-email-controller";
+
+// interfaces
+
 
 const app = Express() // создаем экземпляр експресс
 
@@ -130,7 +133,7 @@ async function onRequest(request, response, next) {
         : false
     // console.log(token)
 
-    const getUser = (email = '') => {
+    const getUser = (email: string = '') => {
         return UsersModel.findOne({ mainEmail: email })
     }
 
@@ -140,9 +143,9 @@ async function onRequest(request, response, next) {
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
     // 3. Проверить доступ к маршруту
-    const getRoutes = (url = '') => {
-        const requestUrl = url.split('?') // игнорируем параметры переданные после знака '?'
-        const urls = requestUrl[0].split('/')
+    const getRoutes = (url: string = '') => {
+        const requestUrl: string[] = url.split('?') // игнорируем параметры переданные после знака '?'
+        const urls: Array<string | number | undefined> = requestUrl[0].split('/')
 
         /** если последний элемент в маршруте число, сохраняем его как '*'
          * так как это параметр маршрута
@@ -153,25 +156,21 @@ async function onRequest(request, response, next) {
         return RoutesModel.findOne({ url: urls.join('/') })
     }
 
-    const route = await getRoutes(clientInfo.requestUrl) // маршрут из базы | null
+    const route: IRoutesModel | null = await getRoutes(clientInfo.requestUrl) // маршрут из базы | null
 
-    const checkAccess = (route = {
-        roleAccessSuccess: [],
-        userAccessSuccess: [],
-        roleAccessDenied: [],
-        userAccessDenied: []
-    }, user = {}) => {
-        const denied = []
+    const checkAccess = (route: IRoutesModel, user: IUsersModel) => {
+        if (!route || !user) return { access: true, useLogin: false }
 
-        const checkDeniedAccess = (arrayAccess = []) => (arrayRoles = []) => {
+        const denied: boolean[] = []
+
+        const checkDeniedAccess: boolean = (arrayAccess: string[] = []) => (arrayRoles: string[] = []) => {
             if (arrayAccess.length) return arrayRoles.length ? arrayRoles.filter(role => arrayAccess.includes(role)).length > 0 : false
-            return false
+            else return false
         }
 
-        const checkSuccessAccess = (arrayAccess = []) => (arrayRoles = []) => {
-            // console.log(arrayRoles, arrayAccess, arrayRoles.filter(role => arrayAccess.includes(role)).length === 0)
+        const checkSuccessAccess: boolean = (arrayAccess: string[] = []) => (arrayRoles: string[] = []) => {
             if (arrayAccess.length) return arrayRoles.length ? arrayRoles.filter(role => arrayAccess.includes(role)).length === 0 : true
-            return false
+            else return false
         }
 
         denied.push(

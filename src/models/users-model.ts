@@ -1,7 +1,29 @@
-import Mongoose from 'mongoose' // библиотека для подключение к mongodb
+import Mongoose, { Schema, Document } from 'mongoose' // библиотека для подключение к mongodb
 import Bcrypt from 'bcrypt'
 
-const SchemaUsers = new Mongoose.Schema({
+export interface IUsersModel extends Document {
+    date: Date
+    updatedAt: Date
+    mainEmail: string
+    confirmEmail: boolean
+    hash: string
+    emails: string[]
+    password: string
+    name: string
+    lastName: string
+    patronymic: string
+    addresses: Array<{
+        country: string,
+        city: string,
+        street: string,
+        houseNumber: string,
+        apartmentNumber: string
+    }>
+    phones: string[]
+    roles: string[]
+}
+
+const SchemaUsers: Schema<IUsersModel> = new Mongoose.Schema({
     date: {
         type: Date,
         default: new Date()
@@ -60,4 +82,4 @@ SchemaUsers.methods.comparePassword = function(plaintext, callback) {
     return callback(null, Bcrypt.compareSync(plaintext, this.password))
 }
 
-export default Mongoose.model('users', SchemaUsers)
+export default Mongoose.model<IUsersModel>('users', SchemaUsers)
