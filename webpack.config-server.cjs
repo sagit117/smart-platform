@@ -5,7 +5,7 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
     entry: {
-        server: './src/server.js'
+        server: './src/server.ts'
     },
     mode: 'development', // TODO:  поменять на проде
     target: 'node',

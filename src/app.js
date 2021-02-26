@@ -33,7 +33,7 @@ const app = Express() // создаем экземпляр експресс
 
 // настройка hbs, helpers
 app.engine("hbs", ExpressHbs({
-        layoutsDir: "build-server/views/layouts",
+        layoutsDir: "views/layouts",
         defaultLayout: "main-layout",
         extname: "hbs",
         helpers: {
