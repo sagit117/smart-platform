@@ -2,6 +2,7 @@ import Mongoose, { Schema, Document } from 'mongoose' // библиотека д
 import Bcrypt from 'bcrypt'
 
 export interface IUsersModel extends Document {
+    _id: string
     date: Date
     updatedAt: Date
     mainEmail: string
@@ -21,6 +22,7 @@ export interface IUsersModel extends Document {
     }>
     phones: string[]
     roles: string[]
+    comparePassword: boolean
 }
 
 const SchemaUsers: Schema<IUsersModel> = new Mongoose.Schema({

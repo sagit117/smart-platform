@@ -1,4 +1,4 @@
-function isNumber(value) {
+function isNumber(value: string) {
     return typeof value === 'number' && isFinite(value)
 }
 

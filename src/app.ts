@@ -30,7 +30,23 @@ import events from "./utils/emitters";
 import ConfirmEmailController from "./controllers/confirm-email-controller";
 
 // interfaces
+interface IClientInfo {
+    date: Date
+    requestUrl: string
+    requestMethod: string
+    requestCookies: { token?: string }
+    requestSignedCookies: { token?: string }
+    requestIP: string
+    body: object
+    params: string[]
+    user?: IUsersModel | null | undefined
+}
 
+// interface IRequestMain extends Express.Request {
+//     dataMain: {
+//         user: IUsersModel | null | undefined
+//     }
+// }
 
 const app = Express() // создаем экземпляр експресс
 
@@ -105,39 +121,38 @@ app.get('/confirm_email/:hash', (request, response) => {
 app.use('/api/users', usersApiRouters)
 
 // обработка не существующего маршрута
-app.use(function (request, response) { // not found
-    console.log('Not Found', request.method, request.originalUrl, 'user:', request.dataMain?.user?.email)
-    response.status(404).send("Not Found")
+app.use(function(request, response) { // not found
+    console.log('⚡️[server]: Not Found', request.method, request.originalUrl, 'user:', request.dataMain?.user?.mainEmail)
+    return response.status(404).send("Not Found")
 })
+
 // Вспомогательные функции
 async function onRequest(request, response, next) {
     // 1. Собрать данные о подключение
-    const getClientInfo = () => {
-        return {
-            date: new Date(),
-            requestUrl: request.url,
-            requestMethod: request.method,
-            requestCookies: request.cookies,
-            requestSignedCookies: request.signedCookies,
-            requestIP: request.ip,
-            body: request.body,
-            params: request.params
-        }
+    const clientInfo: IClientInfo = {
+        date: new Date(),
+        requestUrl: request.url,
+        requestMethod: request.method,
+        requestCookies: request.cookies,
+        requestSignedCookies: request.signedCookies,
+        requestIP: request.ip,
+        body: request.body,
+        params: request.params
     }
 
-    const clientInfo = getClientInfo()
+    // const clientInfo = getClientInfo()
 
     // 2. Проверить пользователя
-    const token = clientInfo.requestSignedCookies?.token
+    const token: { email?: string } = clientInfo.requestSignedCookies?.token
         ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
-        : false
+        : {}
     // console.log(token)
 
     const getUser = (email: string = '') => {
         return UsersModel.findOne({ mainEmail: email })
     }
 
-    const user = await getUser(token.email)
+    const user: (IUsersModel | null) = await getUser(token?.email)
     // console.log(user)
 
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
@@ -158,17 +173,17 @@ async function onRequest(request, response, next) {
 
     const route: IRoutesModel | null = await getRoutes(clientInfo.requestUrl) // маршрут из базы | null
 
-    const checkAccess = (route: IRoutesModel, user: IUsersModel) => {
+    const checkAccess = (route: IRoutesModel | null, user: IUsersModel | null | undefined) => {
         if (!route || !user) return { access: true, useLogin: false }
 
         const denied: boolean[] = []
 
-        const checkDeniedAccess: boolean = (arrayAccess: string[] = []) => (arrayRoles: string[] = []) => {
+        const checkDeniedAccess = (arrayAccess: string[] = []) => (arrayRoles: string[] = []) => {
             if (arrayAccess.length) return arrayRoles.length ? arrayRoles.filter(role => arrayAccess.includes(role)).length > 0 : false
             else return false
         }
 
-        const checkSuccessAccess: boolean = (arrayAccess: string[] = []) => (arrayRoles: string[] = []) => {
+        const checkSuccessAccess = (arrayAccess: string[] = []) => (arrayRoles: string[] = []) => {
             if (arrayAccess.length) return arrayRoles.length ? arrayRoles.filter(role => arrayAccess.includes(role)).length === 0 : true
             else return false
         }
@@ -183,6 +198,7 @@ async function onRequest(request, response, next) {
         // console.log('result:', {access: !denied.reduce((acc, value) => acc + value), useLogin: !user.mainEmail})
 
         // useLogin - параметр, который говорит системе, что необходимо в начале пройти логин
+        // @ts-ignore
         return { access: !denied.reduce((acc, value) => acc + value), useLogin: !user.mainEmail }
     }
 

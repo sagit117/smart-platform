@@ -20,7 +20,7 @@
 //    "noEmitOnError": true, // не компилируем, если есть ошибка
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true,
+    "noImplicitReturns": true
 //    "skipLibCheck": true
   },
   "exclude": [
@@ -30,5 +30,8 @@
     "./public/js/**/*.ts",
     "./public/js/**/*.vue"
 //    "**/*"
+  ],
+  "files": [
+    "custom.d.ts"
   ]
 }

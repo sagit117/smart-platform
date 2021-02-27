@@ -1,5 +1,5 @@
 import Express from 'express'
-import UsersApiController from '../../controllers/api/users-controller.js'
+import UsersApiController from '../../controllers/api/users-controller'
 
 const usersApiRouters = Express.Router()
 

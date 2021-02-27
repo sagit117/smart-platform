@@ -1,5 +1,5 @@
 import SmartController from './smart-controller.js'
-import UsersModel from '../models/users-model.js'
+import UsersModel from '../models/users-model'
 import events from "../utils/emitters.js"
 
 // import confirmEmail from '../../views/confirm-email.hbs'

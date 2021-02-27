@@ -15,7 +15,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "target": "es6",
     "baseUrl": ".",
-    "outDir": "../server",
+    "outDir": "../server"
   },
   "exclude": [
     "./node_modules",
@@ -25,6 +25,7 @@
   "include": [
     "./src/**/*.ts",
     "./src/**/*.js",
-    "**/*"
-  ],
+    "**/*",
+    "../custom.d.ts"
+  ]
 }
