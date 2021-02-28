@@ -3,6 +3,7 @@ declare namespace Express {
         dataMain?: {
             accessRoute?: { access: true, useLogin: false }
             user?: {
+                _id: string | number;
                 mainEmail?: string
             },
             body?: {

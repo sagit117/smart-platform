@@ -1,4 +1,4 @@
-import SmartController from './smart-controller.js'
+import SmartController from './smart-controller'
 // import configurator from '../../views/configurator.hbs'
 
 export default class ConfiguratorController extends SmartController{

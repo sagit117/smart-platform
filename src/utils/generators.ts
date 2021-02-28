@@ -1,4 +1,4 @@
-export function randomKeyGenerator() {
+export function randomKeyGenerator(): string {
     // Генератор случайного хеша
     const letters = 'abcdefghijklmnopqrstuvwxyz0123456789'
     let word = ''
@@ -7,7 +7,7 @@ export function randomKeyGenerator() {
         word += letters.charAt(Math.floor(Math.random() * letters.length))
     }
 
-    let randomKey = word.substr(0, 5) + '-' + word.substr(5, 5) + '-' + word.substr(10, 5)
+    const randomKey = word.substr(0, 5) + '-' + word.substr(5, 5) + '-' + word.substr(10, 5)
 
     return randomKey.toUpperCase()
 }

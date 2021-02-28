@@ -1,6 +1,6 @@
-import SmartController from './smart-controller.js'
+import SmartController from './smart-controller'
 import UsersModel from '../models/users-model'
-import events from "../utils/emitters.js"
+import events from "../utils/emitters"
 
 // import confirmEmail from '../../views/confirm-email.hbs'
 
@@ -24,8 +24,9 @@ export default class ConfirmEmailController extends SmartController{
         })
             .then(user => {
                 // console.log(user)
-                if (user) {
+                if (user && Array.isArray(user.roles)) {
                     // 2. Если пользователь найден и email не подтвержден, сменить временну роль на постоянную и подтвердить email
+                    // @ts-ignore
                     user.roles = user.roles.map(role => {
                         if (role === 'temp-role') {
                             return 'user'

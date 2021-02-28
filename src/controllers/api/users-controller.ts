@@ -72,21 +72,21 @@ export default class UsersApiController extends SmartApiController {
             hash,
             roles: [ 'temp-role' ]
         })
-        const isSave = user.save(error => {
+
+        let isSave: boolean = true
+        user.save(error => {
             if (error) {
                 events.emit('onError', 'Ошибка при сохранение данных пользователя: ', error)
-                return false
+                isSave = false
             }
         })
 
-        // @ts-ignore
         if (!isSave) return this.errorHandler('Произошла ошибка во время регистрации')
 
         // 6. Выслать письмо для подтверждения email
         events.emit('sendMail', data?.email, 'Подтверждение адреса электронной почты', confirmEmailTemplate(hash), this.request)
 
         // 7. Логировать event
-        // @ts-ignore
         this.request.dataMain.user = user
         events.emit('saveEventLogs', 'Регистрация пользователя', data?.email, this.request)
 

@@ -1,15 +1,16 @@
+import { Request } from "express"
 import EventEmitter from 'events'
 import Mongoose from "mongoose";
-import mailer from './mailer.js'
-import ModelErrorLogs from '../models/error-logs-model.js'
-import ModelEventLogs from '../models/event-logs-model.js'
+import mailer from './mailer'
+import ModelErrorLogs from '../models/error-logs-model'
+import ModelEventLogs from '../models/event-logs-model'
 
 // Создаем экземпляр слушателя событий
 class Emitter extends EventEmitter {}
 const events = new Emitter()
 
 // mail
-const sendMail = (to, subject, html, request) => {
+const sendMail = (to: string, subject: string, html: string, request: Request): void => {
     // console.log(`to: ${to}, subject: ${subject}, html: ${html}`)
 
     mailer(to, subject, html)
@@ -20,15 +21,16 @@ const sendMail = (to, subject, html, request) => {
 }
 
 // log error
-const logError = (textDescription, textError) => {
+const logError = (textDescription: string, textError: string): void => {
     new ModelErrorLogs({ textDescription, textError }).save(error => {
-        if (error) console.error(error)
+        if (error) console.error('⚡️[DB]: Ошибка при попытке сохранить в БД лог ошибки: ', error)
     })
-    console.error(textDescription, textError)
+
+    console.error('⚡️[server]:', textDescription, textError)
 }
 
 // log events
-const logEvents = (eventName, text, request) => {
+const logEvents = (eventName: string, text: string, request: Request): void => {
     // console.log('dm', request)
     new ModelEventLogs({
         eventName,

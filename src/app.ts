@@ -160,12 +160,12 @@ async function onRequest(request, response, next) {
     // 3. Проверить доступ к маршруту
     const getRoutes = (url: string = '') => {
         const requestUrl: string[] = url.split('?') // игнорируем параметры переданные после знака '?'
-        const urls: Array<string | number | undefined> = requestUrl[0].split('/')
+        const urls: Array<string> = requestUrl[0].split('/')
 
         /** если последний элемент в маршруте число, сохраняем его как '*'
          * так как это параметр маршрута
          */
-        const lastValue = urls.pop()
+        const lastValue: string = urls.pop() || ''
         urls.push(isNumber(lastValue) ? '*' : lastValue)
 
         return RoutesModel.findOne({ url: urls.join('/') })

@@ -1,6 +1,6 @@
-import APP from '../configs/server-config.js'
+import APP from '../configs/server-config'
 
-export function confirmEmailTemplate(hash = '') {
+export function confirmEmailTemplate(hash: string = ''): string {
     if (!hash) return ``
 
     return `
