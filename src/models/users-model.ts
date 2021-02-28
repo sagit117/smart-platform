@@ -22,7 +22,7 @@ export interface IUsersModel extends Document {
     }>
     phones: string[]
     roles: string[]
-    comparePassword: boolean
+    comparePassword: (plaintext: string | undefined, callback: Function) => boolean
 }
 
 const SchemaUsers: Schema<IUsersModel> = new Mongoose.Schema({
@@ -73,14 +73,15 @@ SchemaUsers.index({ mainEmail: 1 })
 
 SchemaUsers.pre('save', function(next) {
     // хеширование пароля перед сохранением
-    if(!this.isModified("password")) return next()
+    if (!this.isModified("password")) return next()
 
+    console.log(this.password, this)
     this.password = Bcrypt.hashSync(this.password, 10)
     next()
 })
 
 // Метод для проверки пароля
-SchemaUsers.methods.comparePassword = function(plaintext, callback) {
+SchemaUsers.methods.comparePassword = function(plaintext: string = '', callback: Function) {
     return callback(null, Bcrypt.compareSync(plaintext, this.password))
 }
 

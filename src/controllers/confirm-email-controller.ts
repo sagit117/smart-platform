@@ -22,21 +22,26 @@ export default class ConfirmEmailController extends SmartController{
             hash: this.request.params.hash,
             confirmEmail: false
         })
-            .then(user => {
+            .then(async user => {
                 // console.log(user)
                 if (user && Array.isArray(user.roles)) {
                     // 2. Если пользователь найден и email не подтвержден, сменить временну роль на постоянную и подтвердить email
+
                     // @ts-ignore
-                    user.roles = user.roles.map(role => {
+                    const roles: string[] = user.roles.map(role => {
                         if (role === 'temp-role') {
                             return 'user'
                         }
                     })
 
-                    user.confirmEmail = true
+                    const { ok } = await new UsersModel(user).updateOne({
+                        roles,
+                        confirmEmail: true
+                    })
+                        .catch(error => events.emit('onError', 'Ошибка при попытке сменить роль пользователя: ', error))
 
-                    new UsersModel(user).save().catch(error => events.emit('onError', 'Ошибка при попытке сменить роль пользователя: ', error))
-                    this.optionsRender.isConfirmSuccess = true
+                    if (ok) this.optionsRender.isConfirmSuccess = true
+                    else this.optionsRender.isConfirmSuccess = false
                 } else {
                     // 3. Иначе вернуть ошибку
                     this.optionsRender.isConfirmSuccess = false

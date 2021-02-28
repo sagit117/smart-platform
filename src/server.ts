@@ -15,7 +15,7 @@ interface IRouteRecord {
     updatedAt: Date
 }
 
-const checkFindRecord = (model: Model<IRoutesModel>) => (param: object) => model.findOne(param) // возвращает найденную запись
+const checkFindRecord = (model: Model<IRoutesModel>) => (param: { url: string }) => model.findOne(param) // возвращает найденную запись
 
 Mongoose.connect(APP.connect.URL, {
     useUnifiedTopology: true,
@@ -49,7 +49,7 @@ Mongoose.connect(APP.connect.URL, {
         // 3. Включаем прослушивание порта
         app.listen(APP.address.PORT, () => {
             console.log(`⚡️[server]: Сервер запущен на ${APP.address.HOST}:${APP.address.PORT}`);
-            console.log("⚡️[server]: Сервер ожидает подключения...");
+            console.log('⚡️[server]: Сервер ожидает подключения...')
         })
     })
     .catch(error => console.error('⚡️[DB]: Ошибка подключения к mongodb', error))

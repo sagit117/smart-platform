@@ -2,7 +2,7 @@ import JWT from 'jsonwebtoken'
 
 import SmartApiController from './smart-api-controller'
 import EventLogsModel, { IEventLogs } from '../../models/event-logs-model'
-import UsersModel from '../../models/users-model'
+import UsersModel, {IUsersModel} from '../../models/users-model'
 
 import LIMIT from '../../configs/limits-config'
 import { testEmail } from "../../utils/validate"
@@ -114,12 +114,11 @@ export default class UsersApiController extends SmartApiController {
                 .catch(error => events.emit('onError', 'Ошибка при запросе поиска пользователей по email: ', error))
         }
 
-        const user = await getUserWithEmail(data?.email)
+        const user = await getUserWithEmail(data?.email) as IUsersModel
         if (!user) return this.errorHandler('Указанный email или пароль не совпадает')
 
         // 3. Проверить пароль
-        // @ts-ignore
-        const isLoginSuccess = user.comparePassword(data.password, (error, match) => {
+        const isLoginSuccess = (<IUsersModel>user).comparePassword(data?.password, (error, match) => {
             if (!match) return false
             if (error) {
                 events.emit('onError', 'Ошибка при проверки пароля во время логина: ', error)
@@ -136,9 +135,7 @@ export default class UsersApiController extends SmartApiController {
         date.setDate(date.getDate() + 30);
 
         const jwt = JWT.sign({
-            // @ts-ignore
             email: user.mainEmail,
-            // @ts-ignore
             id: user._id,
             exp: date.getTime()
         }, APP.secure.KEY_FOR_JWT)
