@@ -106,7 +106,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \**********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"setDictionary\": () => (/* binding */ setDictionary)\n/* harmony export */ });\n/* harmony import */ var _ru__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ru */ \"./src/dictionary/ru.ts\");\n\nconst LANG = {\n    RU: new _ru__WEBPACK_IMPORTED_MODULE_0__.default()\n};\nfunction setDictionary(lang = 'RU') {\n    return LANG[lang.toUpperCase()];\n}\n\n\n//# sourceURL=webpack://smart-platform/./src/dictionary/connect-dictionary.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"setDictionary\": () => (/* binding */ setDictionary)\n/* harmony export */ });\n/* harmony import */ var _ru__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ru */ \"./src/dictionary/ru.ts\");\n\nconst LANG = {\n    RU: new _ru__WEBPACK_IMPORTED_MODULE_0__.default()\n};\nfunction setDictionary(lang = 'RU') {\n    var _a;\n    return (_a = LANG[lang.toUpperCase()]) !== null && _a !== void 0 ? _a : LANG.RU;\n}\n\n\n//# sourceURL=webpack://smart-platform/./src/dictionary/connect-dictionary.ts?");
 
 /***/ }),
 

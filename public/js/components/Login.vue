@@ -15,7 +15,7 @@
           <div class="login-form--items">
             <Inputin
                 type="text"
-                label="Введите email:"
+                :label="labelsMessage.inputEmail"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
                 :onValidation="sendHandler"
                 v-model:value.trim="dataField.email.value"
@@ -30,7 +30,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                label="Введите пароль:"
+                :label="labelsMessage.inputPassword"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
                 :onValidation="sendHandler"
                 v-model:value.trim="dataField.password.value"
@@ -47,25 +47,25 @@
           <div class="login-form--events mt-2">
             <Button
                 class="success mr-2"
-                caption="Регистрация"
+                :caption="labelsMessage.registration"
                 @click="state = 'registration'"
             />
 
             <Button
                 class="primary"
-                caption="Войти"
+                :caption="labelsMessage.entry"
                 @click="loginHandler"
             />
           </div>
         </div>
 
         <div class="login-form" v-else-if="state === 'registration'">
-          <h3 class="mt-0">Регистрация в системе</h3>
+          <h3 class="mt-0">{{ labelsMessage.regOfSystem }}</h3>
 
           <div class="login-form--items">
             <Inputin
                 type="text"
-                label="Введите email:"
+                :label="labelsMessage.inputEmail"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
                 :onValidation="sendHandler"
                 v-model:value.trim="dataField.email.value"
@@ -80,7 +80,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                label="Введите пароль:"
+                :label="labelsMessage.inputPassword"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
                 :onValidation="sendHandler"
                 v-model:value.trim="dataField.password.value"
@@ -95,7 +95,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                label="Введите пароль еще раз:"
+                :label="labelsMessage.confirmPassword"
                 :validation="isValid(confirmPassword.validation, confirmPassword.value)"
                 :onValidation="sendHandler"
                 v-model:value.trim="confirmPassword.value"
@@ -112,13 +112,13 @@
           <div class="login-form--events mt-2">
             <Button
                 class="success mr-2"
-                caption="Войти"
+                :caption="labelsMessage.entry"
                 @click="state = 'login'"
             />
 
             <Button
                 class="primary"
-                caption="Завершить регистрацию"
+                :caption="labelsMessage.endRegistration"
                 :loading="loading"
                 @click="registrationHandler"
             />
@@ -143,6 +143,8 @@ import { require, isValid, minLength, email, equal, checkValid, IValidation } fr
 import * as API from "../api/userApi"
 import * as I from './interfaces/messages-interfaces'
 
+import { getDictionary } from "./dictionary/connect-dictionary";
+
 interface IDataField {
   email: IField,
   password: IField,
@@ -166,22 +168,28 @@ export default defineComponent({
     },
 
     setup() {
+      // языковой пакет
+      const lang = getDictionary()
+      const labelsMessage = lang.getLabels()
+      const validateErrorMessages = lang.getErrorValidateMessages()
+      const serverErrorMessages = lang.getErrorServerMessages()
+
       // данные полей
       const dataField = reactive({
         email: {
           value: '',
           validation: {
             require: {
-              errorMessage: 'Необходимо заполнить поле',
+              errorMessage: validateErrorMessages.require,
               method: require
             },
             minLength: {
               value: 6,
-              errorMessage: `В поле введено мало символов!`,
+              errorMessage: validateErrorMessages.minLength,
               method: minLength,
             },
             email: {
-              errorMessage: 'Необходимо ввести корректный email',
+              errorMessage: validateErrorMessages.wrongEmail,
               method: email
             }
           }
@@ -190,7 +198,7 @@ export default defineComponent({
           value: '',
           validation: {
             require: {
-              errorMessage: 'Необходимо заполнить поле',
+              errorMessage: validateErrorMessages.require,
               method: require
             },
           }
@@ -200,12 +208,12 @@ export default defineComponent({
         value: '',
         validation: {
           require: {
-            errorMessage: 'Необходимо заполнить поле',
+            errorMessage: validateErrorMessages.require,
             method: require
           },
           equal: {
             value: computed(() => dataField.password.value),
-            errorMessage: 'Поле не совпадает с введенным паролем',
+            errorMessage: validateErrorMessages.equalPassword,
             method: equal
           }
         }
@@ -219,7 +227,7 @@ export default defineComponent({
       const sendHandler = ref<boolean>(false)
 
       // API users
-      const userAPI: API.UserAPI = new API.UserAPI()
+      const userAPI = new API.UserAPI()
 
       // Индикатор загрузки
       const loading = ref<boolean>(false)
@@ -247,7 +255,7 @@ export default defineComponent({
             .then((response): void => {
               loading.value = false
 
-              console.log('Ответ от сервера при логине: ', response.message)
+              console.log(serverErrorMessages.auth, response.message)
 
               if (response.success) {
                 // логин успешный
@@ -324,6 +332,7 @@ export default defineComponent({
         antiSpam,
         loading,
         message,
+        labelsMessage,
         loginHandler,
         registrationHandler,
         isValid,

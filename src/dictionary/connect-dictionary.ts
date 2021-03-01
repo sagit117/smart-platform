@@ -8,5 +8,5 @@ const LANG = {
 }
 
 export function setDictionary(lang: string = 'RU'): IDictionary {
-    return LANG[lang.toUpperCase()]
+    return LANG[lang.toUpperCase()] ?? LANG.RU
 }
