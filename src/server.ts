@@ -58,7 +58,7 @@ Mongoose.connect(APP.connect.URL, {
 
         // 3. Включаем прослушивание порта
         app.listen(APP.address.PORT, () => {
-            console.log(serverSuccessMessage.serverIsRunning(APP.address.HOST, APP.address.PORT))
+            console.log(serverSuccessMessage.serverIsRunning)
             console.log(serverSuccessMessage.serverIsWaiting)
         })
     })

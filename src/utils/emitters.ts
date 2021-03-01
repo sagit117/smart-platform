@@ -5,6 +5,20 @@ import mailer from './mailer'
 import ModelErrorLogs from '../models/error-logs-model'
 import ModelEventLogs from '../models/event-logs-model'
 
+import APP from '../configs/server-config'
+import { setDictionary } from '../dictionary/connect-dictionary' // словарь переводов
+
+const Lang = setDictionary(APP.LANG)
+const serverSuccessMessage = Lang.getServerSuccessMessage()
+const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
+const eventsName = Lang.getEventsName()
+const serverErrorMessage = Lang.getServerErrorMessage()
+const authErrorMessage = Lang.getAuthErrorMessage()
+const authSuccessMessage = Lang.getAuthSuccessMessage()
+const emailSubjects = Lang.getEmailSubjects()
+const emailTemplates = Lang.getEmailTemplates()
+const errorsMessage = Lang.getErrorMessage()
+
 // Создаем экземпляр слушателя событий
 class Emitter extends EventEmitter {}
 const events = new Emitter()
@@ -15,15 +29,15 @@ const sendMail = (to: string, subject: string, html: string, request: Request): 
 
     mailer(to, subject, html)
         .then(() => {
-            events.emit('saveEventLogs', 'Отправки письма', `to: ${to}, subject: ${subject}, html: ${html}`, request)
+            events.emit('saveEventLogs', eventsName.sendEmail, `to: ${to}, subject: ${subject}, html: ${html}`, request)
         })
-            .catch(error => events.emit('onError', `Ошибка при отправке email получателю ${to}: `, error))
+            .catch(error => events.emit('onError', errorsMessage.sendEmail(to), error))
 }
 
 // log error
 const logError = (textDescription: string, textError: string): void => {
     new ModelErrorLogs({ textDescription, textError }).save(error => {
-        if (error) console.error('⚡️[DB]: Ошибка при попытке сохранить в БД лог ошибки: ', error)
+        if (error) console.error(dataBaseErrorMessage.createErrorsLog, error)
     })
 
     console.error('⚡️[server]:', textDescription, textError)
@@ -38,7 +52,7 @@ const logEvents = (eventName: string, text: string, request: Request): void => {
         requestIP: request?.dataMain?.requestIP || '',
         user: Mongoose.Types.ObjectId(request?.dataMain?.user?._id || 0)
     }).save(error => {
-        if (error) events.emit('onError', 'Ошибка во время сохранения лога события: ', error)
+        if (error) events.emit('onError', dataBaseErrorMessage.createErrorsLog, error)
     })
 }
 

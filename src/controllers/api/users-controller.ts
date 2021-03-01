@@ -7,7 +7,6 @@ import UsersModel, {IUsersModel} from '../../models/users-model'
 
 import LIMIT from '../../configs/limits-config'
 import { testEmail } from "../../utils/validate"
-import { confirmEmailTemplate } from "../../templates/emails-templates"
 import events from '../../utils/emitters'
 import { randomKeyGenerator } from '../../utils/generators'
 
@@ -22,6 +21,7 @@ const serverErrorMessage = Lang.getServerErrorMessage()
 const authErrorMessage = Lang.getAuthErrorMessage()
 const authSuccessMessage = Lang.getAuthSuccessMessage()
 const emailSubjects = Lang.getEmailSubjects()
+const emailTemplates = Lang.getEmailTemplates()
 
 export default class UsersApiController extends SmartApiController {
     constructor(request: Request, response: Response) {
@@ -94,7 +94,7 @@ export default class UsersApiController extends SmartApiController {
         if (!isSave) return this.errorHandler(authErrorMessage.registry)
 
         // 6. Выслать письмо для подтверждения email
-        events.emit('sendMail', data?.email, emailSubjects.confirmEmail, confirmEmailTemplate(hash), this.request)
+        events.emit('sendMail', data?.email, emailSubjects.confirmEmail, emailTemplates.confirmEmailTemplate(hash), this.request)
 
         // 7. Логировать event
         this.request.dataMain.user = user

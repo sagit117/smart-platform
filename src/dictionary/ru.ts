@@ -1,3 +1,5 @@
+import APP from "../configs/server-config";
+
 export default class Ru {
     private _errorMessage = {
         server: {
@@ -14,7 +16,9 @@ export default class Ru {
             searchForUsersByEmail: '⚡️[DB]: Ошибка при запросе поиска пользователей по email: ',
             checkingPassDuringLogin: '⚡️[DB]: Ошибка при проверки пароля во время логина: ',
             changeRoleUser: '⚡️[DB]: Ошибка при попытке сменить роль пользователя: ',
-            confirmEmail: '⚡️[DB]: Ошибка при попытке подтвердить email: '
+            confirmEmail: '⚡️[DB]: Ошибка при попытке подтвердить email: ',
+            createErrorsLog: '⚡️[DB]: Ошибка при попытке сохранить в БД лог ошибки: ',
+            createEventsLog: '⚡️[DB]: Ошибка во время сохранения лога события: '
         },
         auth: {
             emailExists: 'Указанный email уже зарегистрирован!',
@@ -22,14 +26,17 @@ export default class Ru {
             lastTryRegistry: 'Перед повторной регистрацией должно пройти некоторое время!',
             registry: 'Произошла ошибка во время регистрации!',
             passwordOrEmailIsWrong: 'Указанный email или пароль не совпадает!'
+        },
+        errors: {
+            sendEmail(to: string): string {
+                return `Ошибка при отправке email получателю ${to}: `
+            }
         }
-    }
+}
 
     private _successMessage = {
         server: {
-            serverIsRunning(host: string, port: number | string) {
-                return `⚡️[server]: Сервер запущен на ${host}:${port}`
-            },
+            serverIsRunning: `⚡️[server]: Сервер запущен на ${APP.address.HOST}:${APP.address.PORT}`,
             serverIsWaiting: `⚡️[server]: Сервер ожидает подключения...`,
             accessSuccess: '⚡️[server]: Пользователь авторизован!'
         },
@@ -43,17 +50,39 @@ export default class Ru {
         }
     }
 
-    private _eventsName: {
-        registryUser: 'Регистрация пользователя'
+    private _eventsName = {
+        registryUser: 'Регистрация пользователя',
+        sendEmail: 'Отправки письма',
     }
 
-    private _emailSubjects: {
+    private _emailSubjects = {
         confirmEmail: 'Подтверждение адреса электронной почты'
     }
 
-    private _routeTitles: {
+    private _routeTitles = {
         configurator: 'Конфигуратор',
         confirmEmail: 'Подтверждение email'
+    }
+
+    private _emailTemplates = {
+        confirmEmailTemplate(hash: string = ''): string {
+            if (!hash) return ``
+
+            return `
+                <h3> Здравствуйте! </h3>
+                <p> Для подтверждения регистрации на сайте www.${APP.address.HOST}, перейдите по 
+                    <b>
+                        <a 
+                            href="${APP.address.PROTOCOL}://${APP.address.HOST}${APP.address.PORT
+                        ? ':' + APP.address.PORT
+                        : ''}/confirm_email/${hash}">
+                                ссылке
+                       </a>
+                    </b>. 
+                </p>
+                <p> Если Вы не регистрировались на сайте www.${APP.address.HOST}, просто проигнорируйте данное письмо.</p>
+            `
+        }
     }
 
     // getters
@@ -91,5 +120,13 @@ export default class Ru {
 
     public getRouteTitles() {
         return this._routeTitles
+    }
+
+    public getEmailTemplates() {
+        return this._emailTemplates
+    }
+
+    public getErrorMessage() {
+        return this._errorMessage.errors
     }
 }
