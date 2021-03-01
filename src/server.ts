@@ -1,7 +1,8 @@
-import Mongoose, { Model } from 'mongoose' // библиотека для подключение к mongodb
+import Mongoose, { Model, Query } from 'mongoose' // библиотека для подключение к mongodb
 
 import app from './app' // файл инициализации приложения
 import APP from './configs/server-config'
+import { setDictionary } from './dictionary/connect-dictionary' // словарь переводов
 
 // models
 import RoutesModel, { IRoutesModel } from  './models/routes-model'
@@ -15,7 +16,16 @@ interface IRouteRecord {
     updatedAt: Date
 }
 
-const checkFindRecord = (model: Model<IRoutesModel>) => (param: { url: string }) => model.findOne(param) // возвращает найденную запись
+interface IParam {
+    url: string
+}
+
+const Lang = setDictionary(APP.LANG)
+const serverSuccessMessage = Lang.getServerSuccessMessage()
+const dataBaseSuccessMessage = Lang.getDataBaseSuccessMessage()
+const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
+
+const checkFindRecord = (model: Model<IRoutesModel>) => (param: IParam) => model.findOne(param) // возвращает найденную запись
 
 Mongoose.connect(APP.connect.URL, {
     useUnifiedTopology: true,
@@ -24,7 +34,7 @@ Mongoose.connect(APP.connect.URL, {
 })
     .then(() => {
         // 1. Логируем подключение к БД
-        console.log('⚡️[server]: Соединение с mongodb установлено')
+        console.log(dataBaseSuccessMessage.connectionOn)
 
         // 2. Создаем первичные записи маршрутов
         const checkRoute = checkFindRecord(RoutesModel)
@@ -39,17 +49,17 @@ Mongoose.connect(APP.connect.URL, {
         routeRecord.forEach(async record => {
             if (!await checkRoute({ url: record.url })) { // маршрут не найден
                 new RoutesModel(record).save(error => {
-                    if (error) return events.emit('onError', '⚡️[DB]: Ошибка при создание записи маршрута: ', error)
+                    if (error) return events.emit('onError', dataBaseErrorMessage.createRoute , error)
 
-                    console.log('⚡️[DB]: Создана запись маршрута: ', record)
+                    console.log(dataBaseSuccessMessage.createRoute, record)
                 })
             }
         })
 
         // 3. Включаем прослушивание порта
         app.listen(APP.address.PORT, () => {
-            console.log(`⚡️[server]: Сервер запущен на ${APP.address.HOST}:${APP.address.PORT}`);
-            console.log('⚡️[server]: Сервер ожидает подключения...')
+            console.log(serverSuccessMessage.serverIsRunning(APP.address.HOST, APP.address.PORT))
+            console.log(serverSuccessMessage.serverIsWaiting)
         })
     })
-    .catch(error => console.error('⚡️[DB]: Ошибка подключения к mongodb', error))
+    .catch(error => console.error(dataBaseErrorMessage.connectionOn, error))

@@ -1,3 +1,3 @@
 export default {
-    limitTimeOfRegistration: 1 // min
+    limitTimeOfRegistration: 1 // minute
 }

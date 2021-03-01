@@ -12,6 +12,14 @@ import events from '../../utils/emitters'
 import { randomKeyGenerator } from '../../utils/generators'
 
 import APP from '../../configs/server-config'
+import { setDictionary } from '../../dictionary/connect-dictionary' // словарь переводов
+
+const Lang = setDictionary(APP.LANG)
+const serverSuccessMessage = Lang.getServerSuccessMessage()
+const dataBaseSuccessMessage = Lang.getDataBaseSuccessMessage()
+const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
+const serverErrorMessage = Lang.getServerErrorMessage()
+const authErrorMessage = Lang.getAuthErrorMessage()
 
 export default class UsersApiController extends SmartApiController {
     constructor(request: Request, response: Response) {
@@ -20,16 +28,16 @@ export default class UsersApiController extends SmartApiController {
 
     async registrationWithEmail() { // регистрация пользователя по email
         // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
-        if (this.request.dataMain?.user) return this.errorHandler('Пользователь авторизован!')
-        if (!this.request.dataMain?.body) return this.errorHandler('В доступе отказано')
+        if (this.request.dataMain?.user) return this.errorHandler(serverSuccessMessage.accessSuccess)
+        if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body
 
         // 1. Проверить анти-спам поле
-        if (data?.antiSpam) return this.errorHandler('В доступе отказано')
+        if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
 
         // 2. Проверить на корректность email
-        if (!testEmail(data?.email)) return this.errorHandler('Введите корректный email')
+        if (!testEmail(data?.email)) return this.errorHandler(authErrorMessage.emailIsWrong)
 
         // 3. Проверить на существование email
         const getUserWithEmail = (email: string = '') => {
@@ -39,10 +47,10 @@ export default class UsersApiController extends SmartApiController {
                     { "emails.value": email }
                 ]
             })
-                .catch(error => events.emit('onError', 'Ошибка при запросе поиска пользователей по email: ', error))
+                .catch(error => events.emit('onError', authErrorMessage.searchForUsersByEmail, error))
         }
 
-        if (await getUserWithEmail(data?.email)) return this.errorHandler('Указанный email уже зарегистрирован')
+        if (await getUserWithEmail(data?.email)) return this.errorHandler(authErrorMessage.emailExists)
 
         // 4. Проверить количество попыток регистрации с IP за указанное время
         const getLastTryRegistration = (IP: string = '') => {

@@ -10,6 +10,7 @@ import BodyParser from "body-parser"
 
 // config
 import APP from './configs/server-config'
+import { setDictionary } from './dictionary/connect-dictionary' // словарь переводов
 
 // models
 import UsersModel, { IUsersModel } from './models/users-model'
@@ -43,6 +44,10 @@ interface IClientInfo {
 }
 
 const app = Express() // создаем экземпляр експресс
+
+const Lang = setDictionary(APP.LANG)
+const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
+const serverErrorMessage = Lang.getServerErrorMessage()
 
 // настройка hbs, helpers
 app.engine("hbs", ExpressHbs({
@@ -83,8 +88,8 @@ const corsOptions = {
         if (whitelist.indexOf(origin) !== -1 || !origin || origin === 'null') {
             return callback(null, true)
         } else {
-            console.log(origin)
-            return callback(new Error('Not allowed by CORS'))
+            // console.log('origin', origin)
+            return callback(new Error(serverErrorMessage.notAllowedCORS))
         }
     },
     optionsSuccessStatus: 200
@@ -116,8 +121,9 @@ app.use('/api/users', usersApiRouters)
 
 // обработка не существующего маршрута
 app.use(function(request, response) { // not found
-    console.log('⚡️[server]: Not Found', request.method, request.originalUrl, 'user:', request.dataMain?.user?.mainEmail)
-    return response.status(404).send("Not Found")
+    console.log(serverErrorMessage.notFound, request.method, request.originalUrl, 'user:', request.dataMain?.user?.mainEmail)
+
+    return response.status(404).send(serverErrorMessage.notFound)
 })
 
 // Вспомогательные функции
@@ -198,7 +204,7 @@ async function onRequest(request, response, next) {
 
     // 4. Залогировать подключение
     new RequestLogsModel(clientInfo).save(error => {
-        if (error) events.emit('onError', 'Ошибка при сохранение данных в лог подключения: ', error)
+        if (error) events.emit('onError', dataBaseErrorMessage.createRequestLog, error)
     })
 
     // 5. Записать данные подключения в request
