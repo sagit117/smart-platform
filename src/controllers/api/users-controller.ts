@@ -16,10 +16,12 @@ import { setDictionary } from '../../dictionary/connect-dictionary' // слов�
 
 const Lang = setDictionary(APP.LANG)
 const serverSuccessMessage = Lang.getServerSuccessMessage()
-const dataBaseSuccessMessage = Lang.getDataBaseSuccessMessage()
 const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
+const eventsName = Lang.getEventsName()
 const serverErrorMessage = Lang.getServerErrorMessage()
 const authErrorMessage = Lang.getAuthErrorMessage()
+const authSuccessMessage = Lang.getAuthSuccessMessage()
+const emailSubjects = Lang.getEmailSubjects()
 
 export default class UsersApiController extends SmartApiController {
     constructor(request: Request, response: Response) {
@@ -47,15 +49,18 @@ export default class UsersApiController extends SmartApiController {
                     { "emails.value": email }
                 ]
             })
-                .catch(error => events.emit('onError', authErrorMessage.searchForUsersByEmail, error))
+                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
         }
 
         if (await getUserWithEmail(data?.email)) return this.errorHandler(authErrorMessage.emailExists)
 
         // 4. Проверить количество попыток регистрации с IP за указанное время
         const getLastTryRegistration = (IP: string = '') => {
-            return EventLogsModel.find({ eventName: 'Регистрация пользователя', requestIP: IP }).sort({ date: -1, _id: -1 }).limit(2)
-                .catch(error => events.emit('onError', 'Ошибка при запросе попследней попытке регистрации: ', error))
+            return EventLogsModel
+                .find({ eventName: eventsName.registryUser, requestIP: IP })
+                    .sort({ date: -1, _id: -1 })
+                        .limit(2)
+                .catch(error => events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error))
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRegistration(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
         // console.log(records)
@@ -64,7 +69,7 @@ export default class UsersApiController extends SmartApiController {
             // @ts-ignore
             const delta: number = new Date() - new Date(records[1].date)
             // console.log(delta, new Date(), new Date(records[1].date), delta / 1000 / 60)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler('Перед повторной регистрацией должно пройти некоторое время')
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(authErrorMessage.lastTryRegistry)
         }
 
         // 5. Создать запись
@@ -81,55 +86,55 @@ export default class UsersApiController extends SmartApiController {
         let isSave: boolean = true
         user.save(error => {
             if (error) {
-                events.emit('onError', 'Ошибка при сохранение данных пользователя: ', error)
+                events.emit('onError', dataBaseErrorMessage.createUser, error)
                 isSave = false
             }
         })
 
-        if (!isSave) return this.errorHandler('Произошла ошибка во время регистрации')
+        if (!isSave) return this.errorHandler(authErrorMessage.registry)
 
         // 6. Выслать письмо для подтверждения email
-        events.emit('sendMail', data?.email, 'Подтверждение адреса электронной почты', confirmEmailTemplate(hash), this.request)
+        events.emit('sendMail', data?.email, emailSubjects.confirmEmail, confirmEmailTemplate(hash), this.request)
 
         // 7. Логировать event
         this.request.dataMain.user = user
-        events.emit('saveEventLogs', 'Регистрация пользователя', data?.email, this.request)
+        events.emit('saveEventLogs', eventsName.registryUser, data?.email, this.request)
 
         // 8. Выслать ответ
-        return this.response.status(200).send({ message: 'Регистрация прошла успешно', success: true, data: { email: data?.email } })
+        return this.response.status(200).send({ message: authSuccessMessage.registry, success: true, data: { email: data?.email } })
     }
 
     async loginWithEmail() { // логин пользователя по email
         // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
-        if (this.request.dataMain?.user) return this.errorHandler('Пользователь авторизован!')
-        if (!this.request.dataMain?.body) return this.errorHandler('В доступе отказано')
+        if (this.request.dataMain?.user) return this.errorHandler(authSuccessMessage.auth)
+        if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body
 
         // 2. Проверить анти-спам поле
-        if (data?.antiSpam) return this.errorHandler('В доступе отказано')
+        if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
 
         // 3. Проверить на существование email
         const getUserWithEmail = (email: string = '') => {
             return UsersModel.findOne({ mainEmail: email })
-                .catch(error => events.emit('onError', 'Ошибка при запросе поиска пользователей по email: ', error))
+                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
         }
 
         const user = await getUserWithEmail(data?.email) as IUsersModel
-        if (!user) return this.errorHandler('Указанный email или пароль не совпадает')
+        if (!user) return this.errorHandler(authErrorMessage.passwordOrEmailIsWrong)
 
         // 4. Проверить пароль
         const isLoginSuccess = (<IUsersModel>user).comparePassword(data?.password, (error, match) => {
             if (!match) return false
             if (error) {
-                events.emit('onError', 'Ошибка при проверки пароля во время логина: ', error)
+                events.emit('onError', dataBaseErrorMessage.checkingPassDuringLogin, error)
                 return false
             }
 
             return true
         })
 
-        if (!isLoginSuccess) return this.errorHandler('Указанный email или пароль не совпадает')
+        if (!isLoginSuccess) return this.errorHandler(authErrorMessage.passwordOrEmailIsWrong)
 
         // 5. Установить куки
         const date = new Date()
@@ -156,6 +161,6 @@ export default class UsersApiController extends SmartApiController {
         // 7. TODO: Логировать вход
 
         // 8. TODO: Вернуть ответ
-        return this.response.status(200).send({ message: 'Вход в систему прошел успешно', success: true, data: user })
+        return this.response.status(200).send({ message: authSuccessMessage.auth, success: true, data: user })
     }
 }
