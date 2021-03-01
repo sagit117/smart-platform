@@ -24,6 +24,10 @@ export default class RU {
         }
     }
 
+    private _errors = {
+        auth: 'Ошибка при авторизации: '
+    }
+
     // getters
     public getLabels() {
         return this._labels
@@ -35,5 +39,9 @@ export default class RU {
 
     public getErrorServerMessages() {
         return this._serverMessages.errorMessages
+    }
+
+    public getErrorMessages() {
+        return this._errors
     }
 }

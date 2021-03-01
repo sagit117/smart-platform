@@ -173,6 +173,7 @@ export default defineComponent({
       const labelsMessage = lang.getLabels()
       const validateErrorMessages = lang.getErrorValidateMessages()
       const serverErrorMessages = lang.getErrorServerMessages()
+      const errorMessages = lang.getErrorMessages()
 
       // данные полей
       const dataField = reactive({
@@ -265,7 +266,7 @@ export default defineComponent({
             })
             .catch(error => {
               loading.value = false
-              console.error('Ошибка при логине: ', error)
+              console.error(errorMessages.auth, error)
             })
         }
 
