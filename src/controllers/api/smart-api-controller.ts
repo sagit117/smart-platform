@@ -5,7 +5,7 @@ export default class SmartApiController {
     protected response: Response
     protected objectAccess: { access: true, useLogin: false } | undefined
 
-    constructor(request, response) {
+    constructor(request: Request, response: Response) {
         this.request = request
         this.response = response
 

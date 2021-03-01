@@ -1,11 +1,11 @@
+import { Request, Response} from "express"
+
 import SmartController from './smart-controller'
 import UsersModel from '../models/users-model'
 import events from "../utils/emitters"
 
-// import confirmEmail from '../../views/confirm-email.hbs'
-
 export default class ConfirmEmailController extends SmartController{
-    constructor(request, response) {
+    constructor(request: Request, response: Response) {
         super(request, response)
     }
 
@@ -34,7 +34,7 @@ export default class ConfirmEmailController extends SmartController{
                         }
                     })
 
-                    const { ok } = await new UsersModel(user).updateOne({
+                    const { ok }: { ok: boolean } = await new UsersModel(user).updateOne({
                         roles,
                         confirmEmail: true
                     })

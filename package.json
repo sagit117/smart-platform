@@ -8,7 +8,7 @@
   "scripts": {
     "start": "nodemon --trace-warnings build-server/server.cjs ",
     "buildfe": "webpack-cli --config webpack.config.cjs",
-    "buildbe": "webpack --config webpack.config-server.cjs"
+    "buildbe": "webpack --config webpack.config-server.cjs --watch"
   },
   "dependencies": {
     "@babel/runtime": "^7.13.7",

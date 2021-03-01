@@ -1,4 +1,5 @@
 import JWT from 'jsonwebtoken'
+import { Request, Response} from "express"
 
 import SmartApiController from './smart-api-controller'
 import EventLogsModel, { IEventLogs } from '../../models/event-logs-model'
@@ -13,18 +14,14 @@ import { randomKeyGenerator } from '../../utils/generators'
 import APP from '../../configs/server-config'
 
 export default class UsersApiController extends SmartApiController {
-    constructor(request, response) {
+    constructor(request: Request, response: Response) {
         super(request, response)
     }
 
-    async registrationWithEmail() {
-        /* регистрация пользователя по email
-         * data = { email, password }
-         **/
+    async registrationWithEmail() { // регистрация пользователя по email
+        // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
+        if (this.request.dataMain?.user) return this.errorHandler('Пользователь авторизован!')
         if (!this.request.dataMain?.body) return this.errorHandler('В доступе отказано')
-
-        // TODO: если пользователь авторизован, повторную регистрацию не проводить
-        console.log(this.request.dataMain)
 
         const data = this.request.dataMain.body
 
@@ -94,21 +91,17 @@ export default class UsersApiController extends SmartApiController {
         return this.response.status(200).send({ message: 'Регистрация прошла успешно', success: true, data: { email: data?.email } })
     }
 
-    async loginWithEmail() {
-        /* логин пользователя по email
-         * data = { email, password }
-         **/
+    async loginWithEmail() { // логин пользователя по email
+        // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
+        if (this.request.dataMain?.user) return this.errorHandler('Пользователь авторизован!')
         if (!this.request.dataMain?.body) return this.errorHandler('В доступе отказано')
-
-        // TODO: если пользователь авторизован, повторную авторизацию не проводить
-        console.log(this.request.dataMain)
 
         const data = this.request.dataMain.body
 
-        // 1. Проверить анти-спам поле
+        // 2. Проверить анти-спам поле
         if (data?.antiSpam) return this.errorHandler('В доступе отказано')
 
-        // 2. Проверить на существование email
+        // 3. Проверить на существование email
         const getUserWithEmail = (email: string = '') => {
             return UsersModel.findOne({ mainEmail: email })
                 .catch(error => events.emit('onError', 'Ошибка при запросе поиска пользователей по email: ', error))
@@ -117,7 +110,7 @@ export default class UsersApiController extends SmartApiController {
         const user = await getUserWithEmail(data?.email) as IUsersModel
         if (!user) return this.errorHandler('Указанный email или пароль не совпадает')
 
-        // 3. Проверить пароль
+        // 4. Проверить пароль
         const isLoginSuccess = (<IUsersModel>user).comparePassword(data?.password, (error, match) => {
             if (!match) return false
             if (error) {
@@ -130,7 +123,7 @@ export default class UsersApiController extends SmartApiController {
 
         if (!isLoginSuccess) return this.errorHandler('Указанный email или пароль не совпадает')
 
-        // 4. Установить куки
+        // 5. Установить куки
         const date = new Date()
         date.setDate(date.getDate() + 30);
 
@@ -149,12 +142,12 @@ export default class UsersApiController extends SmartApiController {
             sameSite: "lax"
         })
 
-        // 5. TODO: Выслать подтверждение на email
+        // 6. TODO: Выслать подтверждение на email
         console.log(this.request.dataMain)
 
-        // 6. TODO: Логировать вход
+        // 7. TODO: Логировать вход
 
-        // 7. TODO: Вернуть ответ
+        // 8. TODO: Вернуть ответ
         return this.response.status(200).send({ message: 'Вход в систему прошел успешно', success: true, data: user })
     }
 }

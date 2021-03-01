@@ -1,8 +1,9 @@
+import { Request, Response} from "express"
+
 import SmartController from './smart-controller'
-// import configurator from '../../views/configurator.hbs'
 
 export default class ConfiguratorController extends SmartController{
-    constructor(request, response) {
+    constructor(request: Request, response: Response) {
         super(request, response)
     }
 

@@ -42,12 +42,6 @@ interface IClientInfo {
     user?: IUsersModel | null | undefined
 }
 
-// interface IRequestMain extends Express.Request {
-//     dataMain: {
-//         user: IUsersModel | null | undefined
-//     }
-// }
-
 const app = Express() // создаем экземпляр експресс
 
 // настройка hbs, helpers
@@ -140,20 +134,16 @@ async function onRequest(request, response, next) {
         params: request.params
     }
 
-    // const clientInfo = getClientInfo()
-
     // 2. Проверить пользователя
     const token: { email?: string } = clientInfo.requestSignedCookies?.token
         ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
         : {}
-    // console.log(token)
 
     const getUser = (email: string = '') => {
         return UsersModel.findOne({ mainEmail: email })
     }
 
-    const user: (IUsersModel | null) = await getUser(token?.email)
-    // console.log(user)
+    const user: IUsersModel | null = await getUser(token?.email)
 
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
@@ -203,7 +193,7 @@ async function onRequest(request, response, next) {
     }
 
     // записываем в clientInfo данные о доступности маршрута
-    // console.log(clientInfo, route)
+    console.log(clientInfo, route)
     Object.assign(clientInfo, { accessRoute: checkAccess(route, clientInfo.user) })
 
     // 4. Залогировать подключение
