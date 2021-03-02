@@ -21,16 +21,15 @@ import {
 } from '../../utils/language'
 import APP from '../../configs/server-config'
 
-
 export default class UsersApiController extends SmartApiController {
     constructor(request: Request, response: Response) {
         super(request, response)
     }
 
-    async registrationWithEmail() { // регистрация пользователя по email
+    public async registrationWithEmail() { // регистрация пользователя по email
         /**
          * 1. если пользователь авторизован или запрос пуст,
-         *    повторную авторизацию не проводить
+         *    регистрацию не проводить
          */
 
         if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(serverSuccessMessage.accessSuccess)
@@ -155,7 +154,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
     }
 
-    async loginWithEmail() { // логин пользователя по email
+    public async loginWithEmail() { // логин пользователя по email
         /**
          * 1. если пользователь авторизован или запрос пуст,
          *    повторную авторизацию не проводить
@@ -261,6 +260,44 @@ export default class UsersApiController extends SmartApiController {
          */
 
         return this.response.status(200).send({ message: authSuccessMessage.auth, success: true, data: user })
+
+        // =================
+    }
+
+    public async sendEmailForRestorePath() { // высылаем письмо с сылкой для востановления пароля
+        /**
+         * 1. если пользователь авторизован или запрос пуст,
+         *    востановление не проводим
+         */
+
+        const email: string = this.request.params?.email
+
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(authSuccessMessage.auth)
+        if (!email) return this.errorHandler(serverErrorMessage.accessDenied)
+
+        // =================
+
+        /**
+         * 2. TODO: Проверяем email на существование
+         */
+
+        // =================
+
+        /**
+         * 3. TODO: Высылаем письмо
+         */
+
+        // =================
+
+        /**
+         * 4. TODO: Логируем событие
+         */
+
+        // =================
+
+        /**
+         * 5. TODO: Возвращаем ответ
+         */
 
         // =================
     }
