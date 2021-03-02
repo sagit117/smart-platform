@@ -281,6 +281,14 @@ export default class UsersApiController extends SmartApiController {
          * 2. TODO: Проверяем email на существование
          */
 
+        const getUserWithEmail = (email: string = '') => {
+            return UsersModel.findOne({ mainEmail: email })
+                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
+        }
+
+        const user = await getUserWithEmail(email) as IUsersModel
+        if (!user) return this.errorHandler(authErrorMessage.emailNotExists)
+
         // =================
 
         /**

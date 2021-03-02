@@ -22,6 +22,7 @@ export default class Ru {
         },
         auth: {
             emailExists: 'Указанный email уже зарегистрирован!',
+            emailNotExists: 'Указанный email не существует',
             emailIsWrong: 'Введите корректный email!',
             lastTryRegistry: 'Перед повторной регистрацией должно пройти некоторое время!',
             registry: 'Произошла ошибка во время регистрации!',

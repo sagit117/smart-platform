@@ -148,8 +148,6 @@
             </Inputin>
           </div>
 
-          <input type="hidden" v-model="antiSpam">
-
           <div class="login-form--events mt-2">
             <Button
                 class="success mr-2"
