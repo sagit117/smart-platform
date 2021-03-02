@@ -35,4 +35,11 @@ export class UserAPI {
         })
             .then((response): Promise<IResponse> => response.json())
     }
+
+    public restorePassword(email: string = ''): Promise<IResponse> {
+        return fetch(this.baseURL + `/restore-password/${email}`, {
+            credentials: 'include',
+        })
+            .then((response): Promise<IResponse> => response.json())
+    }
 }

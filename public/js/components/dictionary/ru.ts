@@ -6,7 +6,11 @@ export default class RU {
         entry: 'Войти',
         regOfSystem: 'Регистрация в системе',
         confirmPassword: 'Введите пароль еще раз:',
-        endRegistration: 'Завершить регистрацию'
+        endRegistration: 'Завершить регистрацию',
+        relocate: 'Через несколько секунд Вы будете перенаправлены на нужный ресурс',
+        errorAuth: 'Попробуйте снова ввести логин и пароль или нажмите "Забыли пароль?"',
+        resetPass: 'Забыли пароль?',
+        restorePass: 'Запросить пароль'
     }
 
     private _validateMessages = {
@@ -21,21 +25,25 @@ export default class RU {
     private _serverMessages = {
         titles: {
             auth: 'Ответ от сервера при авторизации: ',
-            registry: 'Ответ от сервера при регистрации: '
+            registry: 'Ответ от сервера при регистрации: ',
+            restorePass: 'Ответ от сервера при востановление пароля: ',
         }
     }
 
     private _errors = {
         auth: 'Ошибка при авторизации: ',
+        authTitle: 'Не верный логин или пароль',
         registryTitle: 'Ошибка при регистрации',
-        registry: 'Ошибка при регистрации: '
+        registry: 'Ошибка при регистрации: ',
+        restorePass: 'Ошибка при востановление пароля: '
     }
 
     private _success = {
-        auth: 'Вы успешно зарегистрировались',
+        registry: 'Вы успешно зарегистрировались',
+        auth: 'Вы успешно вошли в систему',
         sendEmailByAuth(email: string = ''): string {
             return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано письмо для окончания регистрации`
-        }
+        },
     }
 
     // getters

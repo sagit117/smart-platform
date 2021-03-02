@@ -37,6 +37,7 @@ export default class UsersApiController extends SmartApiController {
         if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body
+        const errors: string[] = []
 
         // =================
 
@@ -67,7 +68,11 @@ export default class UsersApiController extends SmartApiController {
                     { "emails.value": email }
                 ]
             })
-                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
+                .catch(error => {
+                    events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error)
+                    errors.push(error)
+                    return false
+                })
         }
 
         if (await getUserWithEmail(data?.email)) return this.errorHandler(authErrorMessage.emailExists)
@@ -83,7 +88,11 @@ export default class UsersApiController extends SmartApiController {
                 .find({ eventName: eventsName.registryUser, requestIP: IP })
                     .sort({ date: -1, _id: -1 })
                         .limit(2)
-                .catch(error => events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error))
+                .catch(error => {
+                    events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error)
+                    errors.push(error)
+                    return false
+                })
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRegistration(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
 
@@ -96,7 +105,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 6. Создать запись
+         * 6. Создать запись и проверить на ошибки предыдущие действия
          */
 
         const hash: string = randomKeyGenerator() // хеш для подтверждения email
@@ -109,15 +118,14 @@ export default class UsersApiController extends SmartApiController {
             roles: [ 'temp-role' ]
         })
 
-        let isSave: boolean = true
-        user.save(error => {
-            if (error) {
+        await user.save()
+            .catch(error => {
                 events.emit('onError', dataBaseErrorMessage.createUser, error)
-                isSave = false
-            }
-        })
+                errors.push(error)
+                return false
+            })
 
-        if (!isSave) return this.errorHandler(authErrorMessage.registry)
+        if (errors.length) return this.errorHandler(authErrorMessage.registry + ' ' + errors.join(', '))
 
         // =================
 

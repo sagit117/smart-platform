@@ -17,7 +17,7 @@
                 type="text"
                 :label="labelsMessage.inputEmail"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
-                :onValidation="sendHandler"
+                :onValidation="onValidation"
                 v-model:value.trim="dataField.email.value"
                 @keypress.enter="loginHandler"
             >
@@ -32,7 +32,7 @@
                 type="password"
                 :label="labelsMessage.inputPassword"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
-                :onValidation="sendHandler"
+                :onValidation="onValidation"
                 v-model:value.trim="dataField.password.value"
                 @keypress.enter="loginHandler"
             >
@@ -45,6 +45,11 @@
           <input type="hidden" v-model="antiSpam">
 
           <div class="login-form--events mt-2">
+            <div class="change-pass">
+              <span @click="state = 'reset'">{{ labelsMessage.resetPass }}</span>
+            </div>
+
+
             <Button
                 class="success mr-2"
                 :caption="labelsMessage.registration"
@@ -67,7 +72,7 @@
                 type="text"
                 :label="labelsMessage.inputEmail"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
-                :onValidation="sendHandler"
+                :onValidation="onValidation"
                 v-model:value.trim="dataField.email.value"
                 @keypress.enter="registrationHandler"
             >
@@ -82,7 +87,7 @@
                 type="password"
                 :label="labelsMessage.inputPassword"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
-                :onValidation="sendHandler"
+                :onValidation="onValidation"
                 v-model:value.trim="dataField.password.value"
                 @keypress.enter="registrationHandler"
             >
@@ -97,7 +102,7 @@
                 type="password"
                 :label="labelsMessage.confirmPassword"
                 :validation="isValid(confirmPassword.validation, confirmPassword.value)"
-                :onValidation="sendHandler"
+                :onValidation="onValidation"
                 v-model:value.trim="confirmPassword.value"
                 @keypress.enter="registrationHandler"
             >
@@ -122,8 +127,44 @@
                 :loading="loading"
                 @click="registrationHandler"
             />
-
           </div>
+        </div>
+
+        <div class="login-form" v-else-if="state === 'reset'">
+          <h3 class="mt-0">{{ labelsMessage.resetPass }}</h3>
+
+          <div class="login-form--items">
+            <Inputin
+                type="text"
+                :label="labelsMessage.inputEmail"
+                :validation="isValid(dataField.email.validation, dataField.email.value)"
+                :onValidation="onValidation"
+                v-model:value.trim="dataField.email.value"
+                @keypress.enter="restorePassHandler"
+            >
+              <template v-slot:ico>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM7.07 18.28c.43-.9 3.05-1.78 4.93-1.78s4.51.88 4.93 1.78C15.57 19.36 13.86 20 12 20s-3.57-.64-4.93-1.72zm11.29-1.45c-1.43-1.74-4.9-2.33-6.36-2.33s-4.93.59-6.36 2.33C4.62 15.49 4 13.82 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8c0 1.82-.62 3.49-1.64 4.83zM12 6c-1.94 0-3.5 1.56-3.5 3.5S10.06 13 12 13s3.5-1.56 3.5-3.5S13.94 6 12 6zm0 5c-.83 0-1.5-.67-1.5-1.5S11.17 8 12 8s1.5.67 1.5 1.5S12.83 11 12 11z"/></svg>
+              </template>
+            </Inputin>
+          </div>
+
+          <input type="hidden" v-model="antiSpam">
+
+          <div class="login-form--events mt-2">
+            <Button
+                class="success mr-2"
+                :caption="labelsMessage.entry"
+                @click="state = 'login'"
+            />
+
+            <Button
+                class="primary"
+                :caption="labelsMessage.restorePass"
+                :loading="loading"
+                @click="restorePassHandler"
+            />
+          </div>
+
         </div>
       </transition>
 
@@ -154,7 +195,7 @@ interface IField {
   validation?: IValidation
 }
 
-type stateWindow = 'login' | 'registration'
+type stateWindow = 'login' | 'registration' | 'reset'
 
 export default defineComponent({
     name: 'smart-login',
@@ -217,7 +258,7 @@ export default defineComponent({
       const state = ref<stateWindow>('login')
 
       // флаг для проверки валидации при нажатие кнопки логин или регистрация
-      const sendHandler = ref<boolean>(false)
+      const onValidation = ref<boolean>(false)
 
       // API users
       const userAPI = new API.UserAPI()
@@ -236,7 +277,7 @@ export default defineComponent({
       function loginHandler(): void { // логин
         if (loading.value) return
 
-        sendHandler.value = true
+        onValidation.value = true
 
         // все поля корректно заполнены
         if (checkValid(dataField)) {
@@ -251,9 +292,21 @@ export default defineComponent({
               console.log(serverTitlesMessages.auth, response.message)
 
               if (response.success) {
-                // логин успешный
-              } else {
+                Object.assign(message, {
+                  show: true,
+                  title: successMessages.auth,
+                  text: labelsMessage.relocate,
+                  status: 'success'
+                })
 
+                setTimeout(() => location.replace(location.pathname), 5000)
+              } else {
+                Object.assign(message, {
+                  show: true,
+                  title: errorMessages.authTitle,
+                  text: labelsMessage.errorAuth,
+                  status: 'error'
+                })
               }
             })
             .catch(error => {
@@ -263,17 +316,17 @@ export default defineComponent({
         }
 
         nextTick(() => {
-          sendHandler.value = false
+          onValidation.value = false
         })
       }
 
       function registrationHandler(): void { // регистрация
         if (loading.value) return
 
-        sendHandler.value = true
+        onValidation.value = true
 
         // все поля корректно заполнены
-        if (checkValid({dataField, confirmPassword})) {
+        if (checkValid({ dataField, confirmPassword })) {
           // пытаемся зарегистрироваться
           loading.value = true
 
@@ -290,7 +343,7 @@ export default defineComponent({
                   // регистрация успешна
                   Object.assign(message, {
                     show: true,
-                    title: successMessages.auth,
+                    title: successMessages.registry,
                     text: successMessages.sendEmailByAuth(dataField.email.value),
                     status: 'success'
                   })
@@ -313,7 +366,31 @@ export default defineComponent({
         }
 
         nextTick(() => {
-          sendHandler.value = false
+          onValidation.value = false
+        })
+      }
+
+      function restorePassHandler(): void {
+        if (loading.value) return
+
+        onValidation.value = true
+
+        if (checkValid({ email: dataField.email })) {
+          userAPI.restorePassword(dataField.email.value)
+            .then(response => {
+              loading.value = false
+
+              console.log(serverTitlesMessages.restorePass, response.message)
+
+            })
+            .catch(error => {
+              loading.value = false
+              console.error(errorMessages.restorePass, error)
+            })
+        }
+
+        nextTick(() => {
+          onValidation.value = false
         })
       }
 
@@ -321,7 +398,7 @@ export default defineComponent({
         dataField,
         state,
         confirmPassword,
-        sendHandler,
+        onValidation,
         antiSpam,
         loading,
         message,
@@ -329,6 +406,7 @@ export default defineComponent({
         loginHandler,
         registrationHandler,
         isValid,
+        restorePassHandler
       }
     }
   })
@@ -379,5 +457,15 @@ export default defineComponent({
   .loading {
     width: 1.5rem;
     height: 1.5rem;
+  }
+
+  .change-pass {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .change-pass > span {
+    cursor: pointer;
   }
 </style>
