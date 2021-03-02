@@ -124,7 +124,10 @@ app.use(function(request, response) { // not found
 
 // Вспомогательные функции
 async function onRequest(request, response, next) {
-    // 1. Собрать данные о подключение
+    /**
+     * 1. Собрать данные о подключение
+     */
+
     const clientInfo: IClientInfo = {
         date: new Date(),
         requestUrl: request.url,
@@ -136,7 +139,11 @@ async function onRequest(request, response, next) {
         params: request.params
     }
 
-    // 2. Проверить пользователя
+    // =================
+
+    /**
+     * 2. Проверить пользователя
+     */
     const token: { email?: string } = clientInfo.requestSignedCookies?.token
         ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
         : {}
@@ -149,7 +156,12 @@ async function onRequest(request, response, next) {
 
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
-    // 3. Проверить доступ к маршруту
+    // =================
+
+    /**
+     * 3. Проверить доступ к маршруту
+     */
+
     const getRoutes = (url: string = '') => {
         const requestUrl: string[] = url.split('?') // игнорируем параметры переданные после знака '?'
         const urls: Array<string> = requestUrl[0].split('/')
@@ -186,28 +198,45 @@ async function onRequest(request, response, next) {
             (checkDeniedAccess(route?.roleAccessDenied))(user?.roles),
             (checkDeniedAccess(route?.userAccessDenied))([user?.mainEmail]),
         )
-        // console.log(denied)
-        // console.log('result:', {access: !denied.reduce((acc, value) => acc + value), useLogin: !user.mainEmail})
 
         // useLogin - параметр, который говорит системе, что необходимо в начале пройти логин
         // @ts-ignore
         return { access: !denied.reduce((acc, value) => acc + value), useLogin: !user.mainEmail }
     }
 
-    // записываем в clientInfo данные о доступности маршрута
-    console.log(clientInfo, route)
+    // =================
+
+    /**
+     * 4. записываем в clientInfo данные о доступности маршрута
+     */
+
     Object.assign(clientInfo, { accessRoute: checkAccess(route, clientInfo.user) })
 
-    // 4. Залогировать подключение
+    // =================
+
+    /**
+     * 5. Залогировать подключение
+     */
     new RequestLogsModel(clientInfo).save(error => {
         if (error) events.emit('onError', dataBaseErrorMessage.createRequestLog, error)
     })
 
-    // 5. Записать данные подключения в request
+    // =================
+
+    /**
+     * 6. Записать данные подключения в request
+     */
+
     request.dataMain = clientInfo
 
-    // передаем управление следующему middleware
+    // =================
+
+    /**
+     * 7. передаем управление следующему middleware
+     */
     next()
+
+    // =================
 }
 
 export default app

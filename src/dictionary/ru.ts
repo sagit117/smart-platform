@@ -53,10 +53,12 @@ export default class Ru {
     private _eventsName = {
         registryUser: 'Регистрация пользователя',
         sendEmail: 'Отправки письма',
+        login: 'Пользователь вошел в систему'
     }
 
     private _emailSubjects = {
-        confirmEmail: 'Подтверждение адреса электронной почты'
+        confirmEmail: 'Подтверждение адреса электронной почты',
+        accountLogin: 'Вход в систему'
     }
 
     private _routeTitles = {
@@ -81,6 +83,23 @@ export default class Ru {
                     </b>. 
                 </p>
                 <p> Если Вы не регистрировались на сайте www.${APP.address.HOST}, просто проигнорируйте данное письмо.</p>
+            `
+        },
+        accountLogin() {
+            return `
+                <h3> Здравствуйте! Вы вошли в аккаунт на сайте www.${APP.address.HOST}</h3>
+                
+                <p> Если это были не Вы, 
+                    <b>
+                        <a 
+                            href="${APP.address.PROTOCOL}://${APP.address.HOST}${APP.address.PORT
+                            ? ':' + APP.address.PORT
+                            : ''}/change-password">
+                                смените пароль
+                       </a>
+                    </b>.
+                </p>
+                
             `
         }
     }

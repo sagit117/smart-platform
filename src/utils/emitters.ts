@@ -14,8 +14,6 @@ const events = new Emitter()
 
 // mail
 const sendMail = (to: string, subject: string, html: string, request: Request): void => {
-    // console.log(`to: ${to}, subject: ${subject}, html: ${html}`)
-
     mailer(to, subject, html)
         .then(() => {
             events.emit('saveEventLogs', eventsName.sendEmail, `to: ${to}, subject: ${subject}, html: ${html}`, request)
@@ -34,7 +32,6 @@ const logError = (textDescription: string, textError: string): void => {
 
 // log events
 const logEvents = (eventName: string, text: string, request: Request): void => {
-    // console.log('dm', request)
     new ModelEventLogs({
         eventName,
         text,

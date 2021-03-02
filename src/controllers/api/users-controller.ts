@@ -28,19 +28,38 @@ export default class UsersApiController extends SmartApiController {
     }
 
     async registrationWithEmail() { // регистрация пользователя по email
-        // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
+        /**
+         * 1. если пользователь авторизован или запрос пуст,
+         *    повторную авторизацию не проводить
+         */
+
         if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(serverSuccessMessage.accessSuccess)
         if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body
 
-        // 1. Проверить анти-спам поле
+        // =================
+
+        /**
+         * 2. Проверить анти-спам поле
+         */
+
         if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
 
-        // 2. Проверить на корректность email
+        // =================
+
+        /**
+         * 3. Проверить на корректность email
+         */
+
         if (!testEmail(data?.email)) return this.errorHandler(authErrorMessage.emailIsWrong)
 
-        // 3. Проверить на существование email
+        // =================
+
+        /**
+         * 4. Проверить на существование email
+         */
+
         const getUserWithEmail = (email: string = '') => {
             return UsersModel.findOne({
                 $or: [
@@ -53,7 +72,12 @@ export default class UsersApiController extends SmartApiController {
 
         if (await getUserWithEmail(data?.email)) return this.errorHandler(authErrorMessage.emailExists)
 
-        // 4. Проверить количество попыток регистрации с IP за указанное время
+        // =================
+
+        /**
+         * 5. Проверить количество попыток регистрации с IP за указанное время
+         */
+
         const getLastTryRegistration = (IP: string = '') => {
             return EventLogsModel
                 .find({ eventName: eventsName.registryUser, requestIP: IP })
@@ -62,16 +86,19 @@ export default class UsersApiController extends SmartApiController {
                 .catch(error => events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error))
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRegistration(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
-        // console.log(records)
 
         if (Array.isArray(records) && records.length === 2) {
             // @ts-ignore
             const delta: number = new Date() - new Date(records[1].date)
-            // console.log(delta, new Date(), new Date(records[1].date), delta / 1000 / 60)
             if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(authErrorMessage.lastTryRegistry)
         }
 
-        // 5. Создать запись
+        // =================
+
+        /**
+         * 6. Создать запись
+         */
+
         const hash: string = randomKeyGenerator() // хеш для подтверждения email
 
         const user = new UsersModel({
@@ -92,28 +119,59 @@ export default class UsersApiController extends SmartApiController {
 
         if (!isSave) return this.errorHandler(authErrorMessage.registry)
 
-        // 6. Выслать письмо для подтверждения email
+        // =================
+
+        /**
+         * 7. Выслать письмо для подтверждения email
+         */
+
         events.emit('sendMail', data?.email, emailSubjects.confirmEmail, emailTemplates.confirmEmailTemplate(hash), this.request)
 
-        // 7. Логировать event
+        // =================
+
+        /**
+         * 8. Логировать event
+         */
+
         this.request.dataMain.user = user
         events.emit('saveEventLogs', eventsName.registryUser, data?.email, this.request)
 
-        // 8. Выслать ответ
+        // =================
+
+        /**
+         * 9. Выслать ответ
+         */
+
         return this.response.status(200).send({ message: authSuccessMessage.registry, success: true, data: { email: data?.email } })
+
+        // =================
     }
 
     async loginWithEmail() { // логин пользователя по email
-        // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
+        /**
+         * 1. если пользователь авторизован или запрос пуст,
+         *    повторную авторизацию не проводить
+         */
+
         if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(authSuccessMessage.auth)
         if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body
 
-        // 2. Проверить анти-спам поле
+        // =================
+
+        /**
+         * 2. Проверить анти-спам поле
+         */
+
         if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
 
-        // 3. Проверить на существование email
+        // =================
+
+        /**
+         * 3. Проверить на существование email
+         */
+
         const getUserWithEmail = (email: string = '') => {
             return UsersModel.findOne({ mainEmail: email })
                 .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
@@ -122,7 +180,12 @@ export default class UsersApiController extends SmartApiController {
         const user = await getUserWithEmail(data?.email) as IUsersModel
         if (!user) return this.errorHandler(authErrorMessage.passwordOrEmailIsWrong)
 
-        // 4. Проверить пароль
+        // =================
+
+        /**
+         * 4. Проверить пароль
+         */
+
         const isLoginSuccess = (<IUsersModel>user).comparePassword(data?.password, (error, match) => {
             if (!match) return false
             if (error) {
@@ -135,9 +198,22 @@ export default class UsersApiController extends SmartApiController {
 
         if (!isLoginSuccess) return this.errorHandler(authErrorMessage.passwordOrEmailIsWrong)
 
-        // 5. Установить куки
+        // =================
+
+        /**
+         * 5. Записать полученного пользователя в request
+         */
+
+        this.request.dataMain.user = user
+
+        // =================
+
+        /**
+         * 6. Установить куки
+         */
+
         const date = new Date()
-        date.setDate(date.getDate() + 30);
+        date.setDate(date.getDate() + 30) // 30 days
 
         const jwt = JWT.sign({
             email: user.mainEmail,
@@ -146,7 +222,7 @@ export default class UsersApiController extends SmartApiController {
         }, APP.secure.KEY_FOR_JWT)
 
         this.response.cookie('token', jwt,  {
-            maxAge: 1000 * 60 * 60 * 24 * 30,
+            maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
             secure: APP.cookie.COOKIE_SECURE,
             httpOnly: true,
             signed: true,
@@ -154,12 +230,30 @@ export default class UsersApiController extends SmartApiController {
             sameSite: "lax"
         })
 
-        // 6. TODO: Выслать подтверждение на email
-        console.log(this.request.dataMain)
+        // =================
 
-        // 7. TODO: Логировать вход
+        /**
+         * 7. Выслать подтверждение на email
+         */
 
-        // 8. TODO: Вернуть ответ
+        events.emit('sendMail', user.mainEmail, emailSubjects.accountLogin, emailTemplates.accountLogin(), this.request)
+
+        // =================
+
+        /**
+         * 8. Логировать вход
+         */
+
+        events.emit('saveEventLogs', eventsName.login, user.mainEmail, this.request)
+
+        // =================
+
+        /**
+         * 9. Вернуть ответ
+         */
+
         return this.response.status(200).send({ message: authSuccessMessage.auth, success: true, data: user })
+
+        // =================
     }
 }
