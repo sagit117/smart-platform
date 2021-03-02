@@ -9,19 +9,18 @@ import LIMIT from '../../configs/limits-config'
 import { testEmail } from "../../utils/validate"
 import events from '../../utils/emitters'
 import { randomKeyGenerator } from '../../utils/generators'
-
+import {
+    serverSuccessMessage,
+    serverErrorMessage,
+    authErrorMessage,
+    dataBaseErrorMessage,
+    eventsName,
+    emailSubjects,
+    emailTemplates,
+    authSuccessMessage
+} from '../../utils/language'
 import APP from '../../configs/server-config'
-import { setDictionary } from '../../dictionary/connect-dictionary' // словарь переводов
 
-const Lang = setDictionary(APP.LANG)
-const serverSuccessMessage = Lang.getServerSuccessMessage()
-const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
-const eventsName = Lang.getEventsName()
-const serverErrorMessage = Lang.getServerErrorMessage()
-const authErrorMessage = Lang.getAuthErrorMessage()
-const authSuccessMessage = Lang.getAuthSuccessMessage()
-const emailSubjects = Lang.getEmailSubjects()
-const emailTemplates = Lang.getEmailTemplates()
 
 export default class UsersApiController extends SmartApiController {
     constructor(request: Request, response: Response) {
@@ -30,7 +29,7 @@ export default class UsersApiController extends SmartApiController {
 
     async registrationWithEmail() { // регистрация пользователя по email
         // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
-        if (this.request.dataMain?.user) return this.errorHandler(serverSuccessMessage.accessSuccess)
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(serverSuccessMessage.accessSuccess)
         if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body
@@ -106,7 +105,7 @@ export default class UsersApiController extends SmartApiController {
 
     async loginWithEmail() { // логин пользователя по email
         // 1. если пользователь авторизован или запрос пуст, повторную авторизацию не проводить
-        if (this.request.dataMain?.user) return this.errorHandler(authSuccessMessage.auth)
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(authSuccessMessage.auth)
         if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
 
         const data = this.request.dataMain.body

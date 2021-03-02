@@ -1,10 +1,6 @@
 import { Request, Response } from "express"
 
-import { setDictionary } from '../../dictionary/connect-dictionary' // словарь переводов
-import APP from '../../configs/server-config'
-
-const Lang = setDictionary(APP.LANG)
-const serverErrorMessage = Lang.getServerErrorMessage()
+import { serverErrorMessage } from '../../utils/language'
 
 export default class SmartApiController {
     protected request: Request

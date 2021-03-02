@@ -1,8 +1,8 @@
-import Mongoose, { Model, Query } from 'mongoose' // библиотека для подключение к mongodb
+import Mongoose, { Model } from 'mongoose' // библиотека для подключение к mongodb
 
 import app from './app' // файл инициализации приложения
 import APP from './configs/server-config'
-import { setDictionary } from './dictionary/connect-dictionary' // словарь переводов
+import { dataBaseSuccessMessage, dataBaseErrorMessage, serverSuccessMessage } from './utils/language'
 
 // models
 import RoutesModel, { IRoutesModel } from  './models/routes-model'
@@ -19,11 +19,6 @@ interface IRouteRecord {
 interface IParam {
     url: string
 }
-
-const Lang = setDictionary(APP.LANG)
-const serverSuccessMessage = Lang.getServerSuccessMessage()
-const dataBaseSuccessMessage = Lang.getDataBaseSuccessMessage()
-const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
 
 const checkFindRecord = (model: Model<IRoutesModel>) => (param: IParam) => model.findOne(param) // возвращает найденную запись
 

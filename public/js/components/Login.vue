@@ -142,8 +142,7 @@ import Message from './app/Message.vue'
 import { require, isValid, minLength, email, equal, checkValid, IValidation } from "./utils/validation";
 import * as API from "../api/userApi"
 import * as I from './interfaces/messages-interfaces'
-
-import { getDictionary } from "./dictionary/connect-dictionary";
+import { labelsMessage, validateErrorMessages, serverTitlesMessages, errorMessages, successMessages } from './utils/language'
 
 interface IDataField {
   email: IField,
@@ -168,13 +167,6 @@ export default defineComponent({
     },
 
     setup() {
-      // языковой пакет
-      const lang = getDictionary()
-      const labelsMessage = lang.getLabels()
-      const validateErrorMessages = lang.getErrorValidateMessages()
-      const serverErrorMessages = lang.getErrorServerMessages()
-      const errorMessages = lang.getErrorMessages()
-
       // данные полей
       const dataField = reactive({
         email: {
@@ -256,7 +248,7 @@ export default defineComponent({
             .then((response): void => {
               loading.value = false
 
-              console.log(serverErrorMessages.auth, response.message)
+              console.log(serverTitlesMessages.auth, response.message)
 
               if (response.success) {
                 // логин успешный
@@ -292,14 +284,14 @@ export default defineComponent({
           })
               .then((response): void => {
                 loading.value = false
-                console.log('Ответ от сервера при регистрации: ', response.message)
+                console.log(serverTitlesMessages.registry, response.message)
 
                 if (response.success) {
                   // регистрация успешна
                   Object.assign(message, {
                     show: true,
-                    title: 'Вы успешно зарегистрировались',
-                    text: `На адрес электронной почты <span style="color: var(--primary);">${dataField.email.value}</span> выслано письмо для окончания регистрации`,
+                    title: successMessages.auth,
+                    text: successMessages.sendEmailByAuth(dataField.email.value),
                     status: 'success'
                   })
 
@@ -308,7 +300,7 @@ export default defineComponent({
                   // ошибка при регистрации
                   Object.assign(message, {
                     show: true,
-                    title: 'Ошибка при регистрации',
+                    title: errorMessages.registryTitle,
                     text: response.message,
                     status: 'error'
                   })
@@ -316,7 +308,7 @@ export default defineComponent({
               })
               .catch(error => {
                 loading.value = false
-                console.error('Ошибка при регистрации: ', error)
+                console.error(errorMessages.registry, error)
               })
         }
 

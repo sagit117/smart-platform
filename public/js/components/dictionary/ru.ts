@@ -19,13 +19,23 @@ export default class RU {
     }
 
     private _serverMessages = {
-        errorMessages: {
-            auth: 'Ответ от сервера при авторизации: '
+        titles: {
+            auth: 'Ответ от сервера при авторизации: ',
+            registry: 'Ответ от сервера при регистрации: '
         }
     }
 
     private _errors = {
-        auth: 'Ошибка при авторизации: '
+        auth: 'Ошибка при авторизации: ',
+        registryTitle: 'Ошибка при регистрации',
+        registry: 'Ошибка при регистрации: '
+    }
+
+    private _success = {
+        auth: 'Вы успешно зарегистрировались',
+        sendEmailByAuth(email: string = ''): string {
+            return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано письмо для окончания регистрации`
+        }
     }
 
     // getters
@@ -37,11 +47,15 @@ export default class RU {
         return this._validateMessages.errorMessages
     }
 
-    public getErrorServerMessages() {
-        return this._serverMessages.errorMessages
+    public getTitilesServerMessages() {
+        return this._serverMessages.titles
     }
 
     public getErrorMessages() {
         return this._errors
+    }
+
+    public getSuccessMessages() {
+        return this._success
     }
 }

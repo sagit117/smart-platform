@@ -10,7 +10,7 @@ import BodyParser from "body-parser"
 
 // config
 import APP from './configs/server-config'
-import { setDictionary } from './dictionary/connect-dictionary' // словарь переводов
+import { dataBaseErrorMessage, serverErrorMessage } from "./utils/language";
 
 // models
 import UsersModel, { IUsersModel } from './models/users-model'
@@ -44,10 +44,6 @@ interface IClientInfo {
 }
 
 const app = Express() // создаем экземпляр експресс
-
-const Lang = setDictionary(APP.LANG)
-const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
-const serverErrorMessage = Lang.getServerErrorMessage()
 
 // настройка hbs, helpers
 app.engine("hbs", ExpressHbs({

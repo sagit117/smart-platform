@@ -1,23 +1,12 @@
 import { Request } from "express"
 import EventEmitter from 'events'
-import Mongoose from "mongoose";
+import Mongoose from "mongoose"
+
 import mailer from './mailer'
 import ModelErrorLogs from '../models/error-logs-model'
 import ModelEventLogs from '../models/event-logs-model'
 
-import APP from '../configs/server-config'
-import { setDictionary } from '../dictionary/connect-dictionary' // словарь переводов
-
-const Lang = setDictionary(APP.LANG)
-const serverSuccessMessage = Lang.getServerSuccessMessage()
-const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
-const eventsName = Lang.getEventsName()
-const serverErrorMessage = Lang.getServerErrorMessage()
-const authErrorMessage = Lang.getAuthErrorMessage()
-const authSuccessMessage = Lang.getAuthSuccessMessage()
-const emailSubjects = Lang.getEmailSubjects()
-const emailTemplates = Lang.getEmailTemplates()
-const errorsMessage = Lang.getErrorMessage()
+import { eventsName, errorsMessage, dataBaseErrorMessage } from './language'
 
 // Создаем экземпляр слушателя событий
 class Emitter extends EventEmitter {}

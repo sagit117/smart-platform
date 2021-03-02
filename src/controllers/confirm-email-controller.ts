@@ -4,12 +4,7 @@ import SmartController from './smart-controller'
 import UsersModel from '../models/users-model'
 import events from "../utils/emitters"
 
-import APP from '../configs/server-config'
-import { setDictionary } from '../dictionary/connect-dictionary' // словарь переводов
-
-const Lang = setDictionary(APP.LANG)
-const routeTitles = Lang.getRouteTitles()
-const dataBaseErrorMessage = Lang.getDataBaseErrorMessage()
+import { routeTitles, dataBaseErrorMessage } from '../utils/language'
 
 export default class ConfirmEmailController extends SmartController{
     constructor(request: Request, response: Response) {
