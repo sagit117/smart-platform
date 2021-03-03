@@ -1,3 +1,4 @@
 export default {
-    limitTimeOfRegistration: 1 // minute
+    limitTimeOfRegistration: 1, // minutes
+    limitTimeOfRestorePassword: 1
 }

@@ -98,7 +98,7 @@ export default class UsersApiController extends SmartApiController {
         if (Array.isArray(records) && records.length === 2) {
             // @ts-ignore
             const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(authErrorMessage.lastTryRegistry)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(authErrorMessage.lastTryQuery)
         }
 
         // =================
@@ -124,7 +124,7 @@ export default class UsersApiController extends SmartApiController {
                 return false
             })
 
-        if (errors.length) return this.errorHandler(authErrorMessage.registry + ' ' + errors.join(', '))
+        if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
 
         // =================
 
@@ -278,7 +278,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 2. TODO: Проверяем email на существование
+         * 2. Проверяем email на существование
          */
 
         const getUserWithEmail = (email: string = '') => {
@@ -292,20 +292,60 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 3. TODO: Высылаем письмо
+         * 3. TODO: Проверяем лимиты(по IP и email) на запросы по востановлению пароля
          */
+
+        const errors: string[] = []
+
+        const getLastTryRestorePass = (IP: string = '') => {
+            return EventLogsModel
+                .find({ eventName: eventsName.restorePassword, $or: [ { requestIP: IP }, { text: user.mainEmail} ] })
+                .sort({ date: -1, _id: -1 })
+                .limit(2)
+                .catch(error => {
+                    events.emit('onError', dataBaseErrorMessage.lastTryRestorePass, error)
+                    errors.push(error)
+                    return false
+                })
+        }
+        const records: Array<IEventLogs> | boolean = await getLastTryRestorePass(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
+
+        if (Array.isArray(records) && records.length === 2) {
+            // @ts-ignore
+            const delta: number = new Date() - new Date(records[1].date)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRestorePassword) return this.errorHandler(authErrorMessage.lastTryQuery)
+        }
 
         // =================
 
         /**
-         * 4. TODO: Логируем событие
+         * 4. TODO: Сгенерировать и сохранить хеш для востановления
          */
+
+        if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
+        // =================
+
+        /**
+         * 5. TODO: Высылаем письмо
+         */
+
+        events.emit('sendMail', user.mainEmail, emailSubjects.restorePassword, emailTemplates.accountLogin(), this.request)
 
         // =================
 
         /**
-         * 5. TODO: Возвращаем ответ
+         * 6. Логируем событие
          */
+
+        events.emit('saveEventLogs', eventsName.restorePassword, user.mainEmail, this.request)
+
+        // =================
+
+        /**
+         * 7. Возвращаем ответ
+         */
+
+        return this.response.status(200).send({ message: authSuccessMessage.restorePassword, success: true, data: { email: user.mainEmail } })
 
         // =================
     }

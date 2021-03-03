@@ -12,6 +12,7 @@ export default class Ru {
             connectionOn: '⚡️[DB]: Ошибка подключения к mongodb: ',
             createRequestLog: '⚡️[DB]: Ошибка при сохранение данных в лог подключения: ',
             lastTryRegistry: '⚡️[DB]: Ошибка при запросе попследней попытке регистрации: ',
+            lastTryRestorePass: '⚡️[DB]: Ошибка при запросе попследней попытке востановить пароль: ',
             createUser: '⚡️[DB]: Ошибка при сохранение данных пользователя: ',
             searchForUsersByEmail: '⚡️[DB]: Ошибка при запросе поиска пользователей по email: ',
             checkingPassDuringLogin: '⚡️[DB]: Ошибка при проверки пароля во время логина: ',
@@ -24,8 +25,8 @@ export default class Ru {
             emailExists: 'Указанный email уже зарегистрирован!',
             emailNotExists: 'Указанный email не существует',
             emailIsWrong: 'Введите корректный email!',
-            lastTryRegistry: 'Перед повторной регистрацией должно пройти некоторое время!',
-            registry: 'Произошла ошибка во время регистрации!',
+            lastTryQuery: 'Перед повторным запросом должно пройти некоторое время!',
+            onPrepare: 'Произошла ошибка во время выполнения операции!',
             passwordOrEmailIsWrong: 'Указанный email или пароль не совпадает!'
         },
         errors: {
@@ -48,18 +49,21 @@ export default class Ru {
         auth: {
             registry: 'Регистрация прошла успешно!',
             auth: 'Пользователь авторизован!',
+            restorePassword: 'Запрос на востановление доступа обработан'
         }
     }
 
     private _eventsName = {
         registryUser: 'Регистрация пользователя',
         sendEmail: 'Отправки письма',
-        login: 'Пользователь вошел в систему'
+        login: 'Пользователь вошел в систему',
+        restorePassword: 'Запрос сброса пароля',
     }
 
     private _emailSubjects = {
         confirmEmail: 'Подтверждение адреса электронной почты',
-        accountLogin: 'Вход в систему'
+        accountLogin: 'Вход в систему',
+        restorePassword: 'Востановление пароля'
     }
 
     private _routeTitles = {
@@ -73,12 +77,13 @@ export default class Ru {
 
             return `
                 <h3> Здравствуйте! </h3>
-                <p> Для подтверждения регистрации на сайте www.${APP.address.HOST}, перейдите по 
+                <p> 
+                    Для подтверждения регистрации на сайте www.${APP.address.HOST}, перейдите по 
                     <b>
                         <a 
                             href="${APP.address.PROTOCOL}://${APP.address.HOST}${APP.address.PORT
-                        ? ':' + APP.address.PORT
-                        : ''}/confirm_email/${hash}">
+                                ? ':' + APP.address.PORT
+                                : ''}/confirm_email/${hash}">
                                 ссылке
                        </a>
                     </b>. 
@@ -86,21 +91,39 @@ export default class Ru {
                 <p> Если Вы не регистрировались на сайте www.${APP.address.HOST}, просто проигнорируйте данное письмо.</p>
             `
         },
-        accountLogin() {
+        accountLogin(): string {
             return `
                 <h3> Здравствуйте! Вы вошли в аккаунт на сайте www.${APP.address.HOST}</h3>
                 
-                <p> Если это были не Вы, 
+                <p> 
+                    Если это были не Вы, 
                     <b>
                         <a 
                             href="${APP.address.PROTOCOL}://${APP.address.HOST}${APP.address.PORT
-                            ? ':' + APP.address.PORT
-                            : ''}/change-password">
+                                ? ':' + APP.address.PORT
+                                : ''}/change-password">
                                 смените пароль
                        </a>
                     </b>.
                 </p>
                 
+            `
+        },
+        restorePassword(hash: string = ''): string {
+            return `
+                <h3> Здравствуйте! </h3>
+                <p> 
+                    Вы запросили востановление доступа к сайту www.${APP.address.HOST}, для этого перейдите по 
+                    <b>
+                        <a 
+                            href="${APP.address.PROTOCOL}://${APP.address.HOST}${APP.address.PORT
+                                ? ':' + APP.address.PORT
+                                : ''}/reset-password/${hash}">
+                                ссылке
+                       </a>
+                    </b>.
+                </p>
+                <p> Если Вы не запрашивали востановление доступа к сайту www.${APP.address.HOST}, просто проигнорируйте данное письмо.</p>
             `
         }
     }
