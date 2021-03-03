@@ -87,11 +87,11 @@ export default class UsersApiController extends SmartApiController {
                 .find({ eventName: eventsName.registryUser, requestIP: IP })
                     .sort({ date: -1, _id: -1 })
                         .limit(2)
-                .catch(error => {
-                    events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error)
-                    errors.push(error)
-                    return false
-                })
+                            .catch(error => {
+                                events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error)
+                                errors.push(error)
+                                return false
+                            })
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRegistration(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
 
@@ -292,7 +292,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 3. TODO: Проверяем лимиты(по IP и email) на запросы по востановлению пароля
+         * 3. Проверяем лимиты(по IP и email) на запросы по востановлению пароля
          */
 
         const errors: string[] = []
@@ -300,13 +300,13 @@ export default class UsersApiController extends SmartApiController {
         const getLastTryRestorePass = (IP: string = '') => {
             return EventLogsModel
                 .find({ eventName: eventsName.restorePassword, $or: [ { requestIP: IP }, { text: user.mainEmail} ] })
-                .sort({ date: -1, _id: -1 })
-                .limit(2)
-                .catch(error => {
-                    events.emit('onError', dataBaseErrorMessage.lastTryRestorePass, error)
-                    errors.push(error)
-                    return false
-                })
+                    .sort({ date: -1, _id: -1 })
+                        .limit(2)
+                            .catch(error => {
+                                events.emit('onError', dataBaseErrorMessage.lastTryRestorePass, error)
+                                errors.push(error)
+                                return false
+                            })
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRestorePass(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
 
@@ -319,17 +319,32 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 4. TODO: Сгенерировать и сохранить хеш для востановления
+         * 4. Сгенерировать и сохранить хеш для востановления
          */
+
+        const hash: string = randomKeyGenerator() // хеш для подтверждения email
+
+        await UsersModel.updateOne({
+            mainEmail: user.mainEmail,
+        }, {
+            hash,
+            updatedAt: new Date()
+        })
+            .catch(error => {
+                events.emit('onError', dataBaseErrorMessage.createUser, error)
+                errors.push(error)
+                return false
+            })
+
 
         if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
         // =================
 
         /**
-         * 5. TODO: Высылаем письмо
+         * 5. Высылаем письмо
          */
 
-        events.emit('sendMail', user.mainEmail, emailSubjects.restorePassword, emailTemplates.accountLogin(), this.request)
+        events.emit('sendMail', user.mainEmail, emailSubjects.restorePassword, emailTemplates.restorePassword(), this.request)
 
         // =================
 

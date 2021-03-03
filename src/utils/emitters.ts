@@ -33,6 +33,7 @@ const logError = (textDescription: string, textError: string): void => {
 // log events
 const logEvents = (eventName: string, text: string, request: Request): void => {
     new ModelEventLogs({
+        date: new Date(),
         eventName,
         text,
         requestIP: request?.dataMain?.requestIP || '',
