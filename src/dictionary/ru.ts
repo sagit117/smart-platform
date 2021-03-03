@@ -12,7 +12,7 @@ export default class Ru {
             connectionOn: '⚡️[DB]: Ошибка подключения к mongodb: ',
             createRequestLog: '⚡️[DB]: Ошибка при сохранение данных в лог подключения: ',
             lastTryRegistry: '⚡️[DB]: Ошибка при запросе попследней попытке регистрации: ',
-            lastTryRestorePass: '⚡️[DB]: Ошибка при запросе попследней попытке востановить пароль: ',
+            lastTryRestorePass: '⚡️[DB]: Ошибка при запросе попследней попытке восстановить пароль: ',
             createUser: '⚡️[DB]: Ошибка при сохранение данных пользователя: ',
             searchForUsersByEmail: '⚡️[DB]: Ошибка при запросе поиска пользователей по email: ',
             checkingPassDuringLogin: '⚡️[DB]: Ошибка при проверки пароля во время логина: ',
@@ -49,7 +49,7 @@ export default class Ru {
         auth: {
             registry: 'Регистрация прошла успешно!',
             auth: 'Пользователь авторизован!',
-            restorePassword: 'Запрос на востановление доступа обработан'
+            restorePassword: 'Запрос на восстановление доступа обработан'
         }
     }
 
@@ -63,7 +63,7 @@ export default class Ru {
     private _emailSubjects = {
         confirmEmail: 'Подтверждение адреса электронной почты',
         accountLogin: 'Вход в систему',
-        restorePassword: 'Востановление пароля'
+        restorePassword: 'Восстановление пароля'
     }
 
     private _routeTitles = {
@@ -113,7 +113,7 @@ export default class Ru {
             return `
                 <h3> Здравствуйте! </h3>
                 <p> 
-                    Вы запросили востановление доступа к сайту www.${APP.address.HOST}, для этого перейдите по 
+                    Вы запросили восстановление доступа к сайту www.${APP.address.HOST}, для этого перейдите по 
                     <b>
                         <a 
                             href="${APP.address.PROTOCOL}://${APP.address.HOST}${APP.address.PORT
@@ -123,7 +123,7 @@ export default class Ru {
                        </a>
                     </b>.
                 </p>
-                <p> Если Вы не запрашивали востановление доступа к сайту www.${APP.address.HOST}, просто проигнорируйте данное письмо.</p>
+                <p> Если Вы не запрашивали восстановление доступа к сайту www.${APP.address.HOST}, просто проигнорируйте данное письмо.</p>
             `
         }
     }

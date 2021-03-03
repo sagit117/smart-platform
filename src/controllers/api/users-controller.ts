@@ -338,13 +338,14 @@ export default class UsersApiController extends SmartApiController {
 
 
         if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
+
         // =================
 
         /**
          * 5. Высылаем письмо
          */
 
-        events.emit('sendMail', user.mainEmail, emailSubjects.restorePassword, emailTemplates.restorePassword(), this.request)
+        events.emit('sendMail', user.mainEmail, emailSubjects.restorePassword, emailTemplates.restorePassword(hash), this.request)
 
         // =================
 

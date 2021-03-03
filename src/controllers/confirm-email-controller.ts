@@ -19,15 +19,23 @@ export default class ConfirmEmailController extends SmartController{
     layout = 'confirm-email.hbs'
 
     confirm() { // проверка хеша
-        // 1. Проверить найден ли пользователь
+        /**
+         * 1. Проверить найден ли пользователь
+         */
+
         UsersModel.findOne({
             hash: this.request.params.hash,
             confirmEmail: false
         })
             .then(async user => {
-                // console.log(user)
                 if (user && Array.isArray(user.roles)) {
-                    // 2. Если пользователь найден и email не подтвержден, сменить временну роль на постоянную и подтвердить email
+
+                    // =================
+
+                    /**
+                     * 2. Если пользователь найден и email не подтвержден,
+                     *    сменить временну роль на постоянную и подтвердить email
+                     */
 
                     // @ts-ignore
                     const roles: string[] = user.roles.map(role => {
@@ -44,13 +52,27 @@ export default class ConfirmEmailController extends SmartController{
 
                     if (ok) this.optionsRender.isConfirmSuccess = true
                     else this.optionsRender.isConfirmSuccess = false
+
+                    // =================
+
                 } else {
-                    // 3. Иначе вернуть ошибку
+
+                    /**
+                     * 3. Иначе вернуть ошибку
+                     */
+
                     this.optionsRender.isConfirmSuccess = false
+
+                    // =================
                 }
 
-                // 4. Отрендерить
+                /**
+                 * 4. Отрендерить
+                 */
+
                 return this.render()
+
+                // =================
             })
             .catch(error => events.emit('onError', dataBaseErrorMessage.confirmEmail, error))
     }

@@ -25,10 +25,11 @@ import usersApiRouters from "./routers/api/users-api-router"
 import { isNumber } from "./utils/is-type"
 
 // emitters
-import events from "./utils/emitters";
+import events from "./utils/emitters"
 
 // controllers
-import ConfirmEmailController from "./controllers/confirm-email-controller";
+import ConfirmEmailController from './controllers/confirm-email-controller'
+import ResetPasswordController from './controllers/reset-password-controller'
 
 // interfaces
 interface IClientInfo {
@@ -110,6 +111,10 @@ app.use('/configurator', configuratorRouter)
 app.get('/confirm_email/:hash', (request, response) => {
     // подтверждение email
     return new ConfirmEmailController(request, response).confirm()
+})
+app.get('/reset-password/:hash', (request, response) => {
+    // сброс пароля
+    return new ResetPasswordController(request, response).render()
 })
 
 // routers API

@@ -1,10 +1,10 @@
 const path = require('path')
-const { VueLoaderPlugin } = require("vue-loader");
-// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { VueLoaderPlugin } = require("vue-loader")
 
 module.exports = {
     entry: {
         login: './public/js/loginApp.js',
+        resetPassword: './public/js/resetPasswordApp.js'
     },
     output: {
         filename: '[name].js',
@@ -37,6 +37,5 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
-        // new CleanWebpackPlugin()
     ],
 }

@@ -466,4 +466,7 @@ export default defineComponent({
   .change-pass > span {
     cursor: pointer;
   }
+  .change-pass > span:hover {
+    color: var(--primary)
+  }
 </style>
