@@ -45,12 +45,12 @@ export default class RU {
         registry: 'Вы успешно зарегистрировались',
         auth: 'Вы успешно вошли в систему',
         requestSuccess: 'Запрос обработан',
-        changePass: 'Пароль изменен',
+        changePass: 'Пароль изменен, через несколько секунд Вы будете перенаправлены',
         sendEmailByAuth(email: string = ''): string {
             return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано письмо для окончания регистрации`
         },
         sendEmailByResetPass(email: string = ''): string {
-            return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано с письмо инструкциями по сбросу пароля`
+            return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано письмо с инструкциями по сбросу пароля`
         }
     }
 

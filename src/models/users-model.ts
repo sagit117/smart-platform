@@ -75,7 +75,6 @@ SchemaUsers.pre('save', function(next) {
     // хеширование пароля перед сохранением
     if (!this.isModified("password")) return next()
 
-    console.log(this.password, this)
     this.password = Bcrypt.hashSync(this.password, 10)
     next()
 })

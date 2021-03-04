@@ -489,7 +489,9 @@ export default defineComponent({
                 status: 'success'
               })
 
-              state.value = 'login'
+              setTimeout(() => {
+                location.replace('/')
+              }, 5000)
             } else {
               Object.assign(message, {
                 show: true,
@@ -501,7 +503,7 @@ export default defineComponent({
           })
           .catch(error => {
             loading.value = false
-            console.error(errorMessages.registry, error)
+            console.error(errorMessages.changePass, error)
           })
       }
 
