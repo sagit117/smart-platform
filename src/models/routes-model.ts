@@ -4,10 +4,10 @@ export interface IRoutesModel extends Document {
     date: Date
     updatedAt: Date
     url: String
-    roleAccessSuccess: string[]
-    roleAccessDenied: string[]
-    userAccessSuccess: string[]
-    userAccessDenied: string[]
+    roleAccessSuccess?: string[]
+    roleAccessDenied?: string[]
+    userAccessSuccess?: string[]
+    userAccessDenied?: string[]
 }
 
 const SchemaRoutes: Schema<IRoutesModel> = new Mongoose.Schema({

@@ -8,8 +8,8 @@ export default class Ru {
             accessDenied: '⚡️[server]: В доступе отказано',
         },
         dataBase: {
-            createRoute: '⚡️[DB]: Ошибка при создание записи маршрута: ',
-            connectionOn: '⚡️[DB]: Ошибка подключения к mongodb: ',
+            // createRoute: '⚡️[DB]: Ошибка при создание записи маршрута: ',
+            // connectionOn: '⚡️[DB]: Ошибка подключения к mongodb: ',
             createRequestLog: '⚡️[DB]: Ошибка при сохранение данных в лог подключения: ',
             lastTryRegistry: '⚡️[DB]: Ошибка при запросе попследней попытке регистрации: ',
             lastTryRestorePass: '⚡️[DB]: Ошибка при запросе попследней попытке восстановить пароль: ',
@@ -41,13 +41,13 @@ export default class Ru {
 
     private _successMessage = {
         server: {
-            serverIsRunning: `⚡️[server]: Сервер запущен на ${APP.address.HOST}:${APP.address.PORT}`,
-            serverIsWaiting: `⚡️[server]: Сервер ожидает подключения...`,
+            // serverIsRunning: `⚡️[server]: Сервер запущен на ${APP.address.HOST}:${APP.address.PORT}`,
+            // serverIsWaiting: `⚡️[server]: Сервер ожидает подключения...`,
             accessSuccess: '⚡️[server]: Пользователь авторизован!'
         },
         dataBase: {
-            createRoute: '⚡️[DB]: Создана запись маршрута: ',
-            connectionOn: '⚡️[DB]: Соединение с mongodb установлено',
+            // createRoute: '⚡️[DB]: Создана запись маршрута: ',
+            // connectionOn: '⚡️[DB]: Соединение с mongodb установлено',
         },
         auth: {
             registry: 'Регистрация прошла успешно!',
