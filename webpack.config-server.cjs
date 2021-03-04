@@ -12,7 +12,7 @@ module.exports = {
     externals: [nodeExternals()],
     output: {
         path: path.resolve(__dirname, './build-server'),
-        filename: '[name].cjs'
+        filename: '[name].cjs',
     },
     resolve: {
         extensions: [ '.ts', '.js' ],

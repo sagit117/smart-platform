@@ -1,14 +1,13 @@
-import RUS from './rus'
-
-const LANG = {
-    RUS
-}
-
 export default class Lang {
     protected _lang: string
 
-    constructor(lang: string = 'RUS') {
-        this._lang = LANG[lang.toUpperCase()]()
+    constructor(lang: string = 'rus') {
+
+        (async () => {
+            // @ts-ignore
+            const L = await import(`./${lang}`)
+            this._lang = L.default
+        })()
     }
 
     public translate(message: string = '', args: object = {}): string {

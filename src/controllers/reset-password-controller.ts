@@ -1,5 +1,5 @@
 import SmartController from "./smart-controller";
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 export default class ConfirmEmailController extends SmartController {
     constructor(request: Request, response: Response) {

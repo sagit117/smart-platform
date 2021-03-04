@@ -4,7 +4,10 @@ import SmartController from './smart-controller'
 import UsersModel from '../models/users-model'
 import events from "../utils/emitters"
 
-import { routeTitles, dataBaseErrorMessage } from '../utils/language'
+import Config from "../configs/server-config"
+import Lang from '../dictionary/language'
+
+const L = new Lang(Config.LANG)
 
 export default class ConfirmEmailController extends SmartController{
     constructor(request: Request, response: Response) {
@@ -12,7 +15,7 @@ export default class ConfirmEmailController extends SmartController{
     }
 
     optionsRender = {
-        title: routeTitles.confirmEmail,
+        title: L.translate('Подтверждение email'),
         isConfirmSuccess: false
     }
 
@@ -48,7 +51,7 @@ export default class ConfirmEmailController extends SmartController{
                         roles,
                         confirmEmail: true
                     })
-                        .catch(error => events.emit('onError', dataBaseErrorMessage.changeRoleUser, error))
+                        .catch(error => events.emit('onError', L.translate('Ошибка при попытке сменить роль пользователя:'), error))
 
                     if (ok) this.optionsRender.isConfirmSuccess = true
                     else this.optionsRender.isConfirmSuccess = false
@@ -74,6 +77,6 @@ export default class ConfirmEmailController extends SmartController{
 
                 // =================
             })
-            .catch(error => events.emit('onError', dataBaseErrorMessage.confirmEmail, error))
+            .catch(error => events.emit('onError', L.translate('Ошибка при попытке подтвердить email:'), error))
     }
 }

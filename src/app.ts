@@ -9,8 +9,8 @@ import Compression from 'compression'
 import BodyParser from "body-parser"
 
 // config
-import APP from './configs/server-config'
-import { dataBaseErrorMessage, serverErrorMessage } from "./utils/language";
+import Config from "./configs/server-config"
+import Lang from './dictionary/language'
 
 // models
 import UsersModel, { IUsersModel } from './models/users-model'
@@ -45,6 +45,7 @@ interface IClientInfo {
 }
 
 const app = Express() // создаем экземпляр експресс
+const L = new Lang(Config.LANG)
 
 // настройка hbs, helpers
 app.engine("hbs", ExpressHbs({
@@ -79,14 +80,14 @@ app.use(Helmet.contentSecurityPolicy({
 // }))
 
 // настройка CORS
-const whitelist = [ APP.address.PROTOCOL + "://" + APP.address.HOST + ':' + APP.address.PORT ]
+const whitelist = [ Config.address.PROTOCOL + "://" + Config.address.HOST + ':' + Config.address.PORT ]
 const corsOptions = {
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1 || !origin || origin === 'null') {
             return callback(null, true)
         } else {
             // console.log('origin', origin)
-            return callback(new Error(serverErrorMessage.notAllowedCORS))
+            return callback(new Error(L.translate('Запрещено настройками CORS')))
         }
     },
     optionsSuccessStatus: 200
@@ -97,7 +98,7 @@ app.use(CORS(corsOptions))
 app.use(Compression())
 
 // парсеры
-app.use(CookieParse(APP.secure.KEY_FOR_COOKIE)) // Передаем строку шифрования для cookie
+app.use(CookieParse(Config.secure.KEY_FOR_COOKIE)) // Передаем строку шифрования для cookie
 const urlencodedParser = BodyParser.urlencoded({ limit: '50mb', extended: false, parameterLimit: 50000 }) // чтение данных из форм
 const jsonParser = BodyParser.json({ limit: '50mb' }) // чтение данных из json
 app.use(urlencodedParser)
@@ -122,9 +123,9 @@ app.use('/api/users', usersApiRouters)
 
 // обработка не существующего маршрута
 app.use(function(request, response) { // not found
-    console.log(serverErrorMessage.notFound, request.method, request.originalUrl, 'user:', request.dataMain?.user?.mainEmail)
+    console.log(L.translate('Ресурс не найден'), request.method, request.originalUrl, 'user:', request.dataMain?.user?.mainEmail)
 
-    return response.status(404).send(serverErrorMessage.notFound)
+    return response.status(404).send(L.translate('Ресурс не найден'))
 })
 
 // Вспомогательные функции
@@ -150,7 +151,7 @@ async function onRequest(request, response, next) {
      * 2. Проверить пользователя
      */
     const token: { email?: string } = clientInfo.requestSignedCookies?.token
-        ? JWT.verify(clientInfo.requestSignedCookies?.token, APP.secure.KEY_FOR_JWT)
+        ? JWT.verify(clientInfo.requestSignedCookies?.token, Config.secure.KEY_FOR_JWT)
         : {}
 
     const getUser = (email: string = '') => {
@@ -223,7 +224,7 @@ async function onRequest(request, response, next) {
      * 5. Залогировать подключение
      */
     new RequestLogsModel(clientInfo).save(error => {
-        if (error) events.emit('onError', dataBaseErrorMessage.createRequestLog, error)
+        if (error) events.emit('onError', L.translate('Ошибка при сохранение данных в лог подключения:'), error)
     })
 
     // =================

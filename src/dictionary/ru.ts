@@ -3,22 +3,22 @@ import APP from "../configs/server-config";
 export default class Ru {
     private _errorMessage = {
         server: {
-            notAllowedCORS: '⚡️[server]: Запрещено настройками CORS',
-            notFound: '⚡️[server]: Ресурс не найден',
+            // notAllowedCORS: '⚡️[server]: Запрещено настройками CORS',
+            // notFound: '⚡️[server]: Ресурс не найден',
             accessDenied: '⚡️[server]: В доступе отказано',
         },
         dataBase: {
             // createRoute: '⚡️[DB]: Ошибка при создание записи маршрута: ',
             // connectionOn: '⚡️[DB]: Ошибка подключения к mongodb: ',
-            createRequestLog: '⚡️[DB]: Ошибка при сохранение данных в лог подключения: ',
+            // createRequestLog: '⚡️[DB]: Ошибка при сохранение данных в лог подключения: ',
             lastTryRegistry: '⚡️[DB]: Ошибка при запросе попследней попытке регистрации: ',
             lastTryRestorePass: '⚡️[DB]: Ошибка при запросе попследней попытке восстановить пароль: ',
             lastTryChangePass: '⚡️[DB]: Ошибка при запросе попследней попытке изменить пароль: ',
             createUser: '⚡️[DB]: Ошибка при сохранение данных пользователя: ',
             searchForUsersByEmail: '⚡️[DB]: Ошибка при запросе поиска пользователей по email: ',
             checkingPassDuringLogin: '⚡️[DB]: Ошибка при проверки пароля во время логина: ',
-            changeRoleUser: '⚡️[DB]: Ошибка при попытке сменить роль пользователя: ',
-            confirmEmail: '⚡️[DB]: Ошибка при попытке подтвердить email: ',
+            // changeRoleUser: '⚡️[DB]: Ошибка при попытке сменить роль пользователя: ',
+            // confirmEmail: '⚡️[DB]: Ошибка при попытке подтвердить email: ',
             createErrorsLog: '⚡️[DB]: Ошибка при попытке сохранить в БД лог ошибки: ',
             createEventsLog: '⚡️[DB]: Ошибка во время сохранения лога события: ',
             searchForUsersByHash: '⚡️[DB]: Ошибка при запросе поиска пользователей по хеш-коду: '
@@ -73,7 +73,7 @@ export default class Ru {
 
     private _routeTitles = {
         configurator: 'Конфигуратор',
-        confirmEmail: 'Подтверждение email'
+        // confirmEmail: 'Подтверждение email'
     }
 
     private _emailTemplates = {

@@ -14,5 +14,5 @@ export default {
     cookie: {
         COOKIE_SECURE: false // false - http || true - https
     },
-    LANG: 'RUS'
+    LANG: 'rus'
 }
