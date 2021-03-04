@@ -10,7 +10,8 @@ export default class RU {
         relocate: 'Через несколько секунд Вы будете перенаправлены на нужный ресурс',
         errorAuth: 'Попробуйте снова ввести логин и пароль или нажмите "Забыли пароль?"',
         resetPass: 'Забыли пароль?',
-        restorePass: 'Запросить пароль'
+        restorePass: 'Запросить пароль',
+        changePass: 'Смена пароля'
     }
 
     private _validateMessages = {
@@ -27,6 +28,7 @@ export default class RU {
             auth: 'Ответ от сервера при авторизации: ',
             registry: 'Ответ от сервера при регистрации: ',
             restorePass: 'Ответ от сервера при востановление пароля: ',
+            changePass: 'Ответ от сервера при смене пароля: '
         }
     }
 
@@ -35,13 +37,15 @@ export default class RU {
         authTitle: 'Не верный логин или пароль',
         registryTitle: 'Ошибка при регистрации',
         registry: 'Ошибка при регистрации: ',
-        restorePass: 'Ошибка при востановление пароля: '
+        restorePass: 'Ошибка при востановление пароля: ',
+        changePass: 'Ошибка при смене пароля',
     }
 
     private _success = {
         registry: 'Вы успешно зарегистрировались',
         auth: 'Вы успешно вошли в систему',
         requestSuccess: 'Запрос обработан',
+        changePass: 'Пароль изменен',
         sendEmailByAuth(email: string = ''): string {
             return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано письмо для окончания регистрации`
         },

@@ -365,4 +365,8 @@ export default class UsersApiController extends SmartApiController {
 
         // =================
     }
+
+    public async changePassWithHash() {
+
+    }
 }

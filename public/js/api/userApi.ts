@@ -9,6 +9,12 @@ interface IResponse {
     success: boolean
 }
 
+interface IDataChangePass {
+    password: string,
+    antiSpam: string,
+    hash: string
+}
+
 export class UserAPI {
     protected baseURL: string = '/api/users'
 
@@ -39,6 +45,18 @@ export class UserAPI {
     public restorePassword(email: string = ''): Promise<IResponse> {
         return fetch(this.baseURL + `/restore-password/${email}`, {
             credentials: 'include',
+        })
+            .then((response): Promise<IResponse> => response.json())
+    }
+
+    public changePassword(data: IDataChangePass): Promise<IResponse> {
+        return fetch(this.baseURL + '/change-password', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
             .then((response): Promise<IResponse> => response.json())
     }

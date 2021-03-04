@@ -164,6 +164,51 @@
           </div>
 
         </div>
+
+        <div class="login-form" v-else-if="state === 'changePass'">
+          <h3 class="mt-0">{{ labelsMessage.changePass }}</h3>
+
+          <div class="login-form--items mt-2">
+            <Inputin
+                type="password"
+                :label="labelsMessage.inputPassword"
+                :validation="isValid(dataField.password.validation, dataField.password.value)"
+                :onValidation="onValidation"
+                v-model:value.trim="dataField.password.value"
+                @keypress.enter="registrationHandler"
+            >
+              <template v-slot:ico>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><g fill="none"><path d="M0 0h24v24H0V0z"/><path d="M0 0h24v24H0V0z" opacity=".87"/></g><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+              </template>
+            </Inputin>
+          </div>
+
+          <div class="login-form--items mt-2">
+            <Inputin
+                type="password"
+                :label="labelsMessage.confirmPassword"
+                :validation="isValid(confirmPassword.validation, confirmPassword.value)"
+                :onValidation="onValidation"
+                v-model:value.trim="confirmPassword.value"
+                @keypress.enter="registrationHandler"
+            >
+              <template v-slot:ico>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><g fill="none"><path d="M0 0h24v24H0V0z"/><path d="M0 0h24v24H0V0z" opacity=".87"/></g><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+              </template>
+            </Inputin>
+          </div>
+
+          <input type="hidden" v-model="antiSpam">
+
+          <div class="login-form--events mt-2">
+            <Button
+              class="primary"
+              :caption="labelsMessage.changePass"
+              :loading="loading"
+              @click="changePasswordHandler"
+            />
+          </div>
+        </div>
       </transition>
 
     </div>
@@ -171,7 +216,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, computed, nextTick } from 'vue'
+import { defineComponent, reactive, ref, computed, nextTick, PropType } from 'vue'
 
 import Button from './app/Button.vue'
 import Inputin from './app/Inputin.vue'
@@ -193,240 +238,295 @@ interface IField {
   validation?: IValidation
 }
 
-type stateWindow = 'login' | 'registration' | 'reset'
+type stateWindow = 'login' | 'registration' | 'reset' | 'changePass'
 
 export default defineComponent({
-    name: 'smart-login',
+  name: 'smart-login',
 
-    components: {
-      Button,
-      Inputin,
-      Spiner,
-      Message
-    },
+  components: {
+    Button,
+    Inputin,
+    Spiner,
+    Message
+  },
 
-    setup() {
-      // данные полей
-      const dataField = reactive({
-        email: {
-          value: '',
-          validation: {
-            require: {
-              errorMessage: validateErrorMessages.require,
-              method: require
-            },
-            minLength: {
-              value: 6,
-              errorMessage: validateErrorMessages.minLength,
-              method: minLength,
-            },
-            email: {
-              errorMessage: validateErrorMessages.wrongEmail,
-              method: email
-            }
-          }
-        },
-        password: {
-          value: '',
-          validation: {
-            require: {
-              errorMessage: validateErrorMessages.require,
-              method: require
-            },
-          }
-        }
-      }) as IDataField
-      const confirmPassword = reactive({
+  props: {
+    stateWin: {
+      type: String as PropType<stateWindow>,
+      default: 'login'
+    }
+  },
+
+  setup(props) {
+    // данные полей
+    const dataField = reactive({
+      email: {
         value: '',
         validation: {
           require: {
             errorMessage: validateErrorMessages.require,
             method: require
           },
-          equal: {
-            value: computed(() => dataField.password.value),
-            errorMessage: validateErrorMessages.equalPassword,
-            method: equal
+          minLength: {
+            value: 6,
+            errorMessage: validateErrorMessages.minLength,
+            method: minLength,
+          },
+          email: {
+            errorMessage: validateErrorMessages.wrongEmail,
+            method: email
           }
         }
-      }) as IField
-      const antiSpam = ref<string>('') // анти-спам поле
-
-      // выбор какое окно отобразить login / registration
-      const state = ref<stateWindow>('login')
-
-      // флаг для проверки валидации при нажатие кнопки логин или регистрация
-      const onValidation = ref<boolean>(false)
-
-      // API users
-      const userAPI = new API.UserAPI()
-
-      // Индикатор загрузки
-      const loading = ref<boolean>(false)
-
-      // обработчики логина и регистрации
-      const message = reactive({
-        title: '',
-        text: '',
-        status: 'success',
-        show: false
-      }) as I.IMessage
-
-      function loginHandler(): void { // логин
-        if (loading.value) return
-
-        onValidation.value = true
-
-        // все поля корректно заполнены
-        if (checkValid(dataField)) {
-          userAPI.loginWithEmail({
-            email: dataField.email.value,
-            password: dataField.password.value,
-            antiSpam: antiSpam.value
-          })
-            .then((response): void => {
-              loading.value = false
-
-              console.log(serverTitlesMessages.auth, response.message)
-
-              if (response.success) {
-                Object.assign(message, {
-                  show: true,
-                  title: successMessages.auth,
-                  text: labelsMessage.relocate,
-                  status: 'success'
-                })
-
-                setTimeout(() => location.replace(location.pathname), 5000)
-              } else {
-                Object.assign(message, {
-                  show: true,
-                  title: errorMessages.authTitle,
-                  text: labelsMessage.errorAuth,
-                  status: 'error'
-                })
-              }
-            })
-            .catch(error => {
-              loading.value = false
-              console.error(errorMessages.auth, error)
-            })
+      },
+      password: {
+        value: '',
+        validation: {
+          require: {
+            errorMessage: validateErrorMessages.require,
+            method: require
+          },
         }
+      }
+    }) as IDataField
+    const confirmPassword = reactive({
+      value: '',
+      validation: {
+        require: {
+          errorMessage: validateErrorMessages.require,
+          method: require
+        },
+        equal: {
+          value: computed(() => dataField.password.value),
+          errorMessage: validateErrorMessages.equalPassword,
+          method: equal
+        }
+      }
+    }) as IField
+    const antiSpam = ref<string>('') // анти-спам поле
 
-        nextTick(() => {
-          onValidation.value = false
+    // выбор какое окно отобразить login / registration
+    const state = ref<stateWindow>(props.stateWin)
+
+    // флаг для проверки валидации при нажатие кнопки логин или регистрация
+    const onValidation = ref<boolean>(false)
+
+    // API users
+    const userAPI = new API.UserAPI()
+
+    // Индикатор загрузки
+    const loading = ref<boolean>(false)
+
+    // обработчики логина и регистрации
+    const message = reactive({
+      title: '',
+      text: '',
+      status: 'success',
+      show: false
+    }) as I.IMessage
+
+    function loginHandler(): void { // логин
+      if (loading.value) return
+
+      onValidation.value = true
+
+      // все поля корректно заполнены
+      if (checkValid(dataField)) {
+        userAPI.loginWithEmail({
+          email: dataField.email.value,
+          password: dataField.password.value,
+          antiSpam: antiSpam.value
         })
+          .then((response): void => {
+            loading.value = false
+
+            console.log(serverTitlesMessages.auth, response.message)
+
+            if (response.success) {
+              Object.assign(message, {
+                show: true,
+                title: successMessages.auth,
+                text: labelsMessage.relocate,
+                status: 'success'
+              })
+
+              setTimeout(() => location.replace(location.pathname), 5000)
+            } else {
+              Object.assign(message, {
+                show: true,
+                title: errorMessages.authTitle,
+                text: labelsMessage.errorAuth,
+                status: 'error'
+              })
+            }
+          })
+          .catch(error => {
+            loading.value = false
+            console.error(errorMessages.auth, error)
+          })
       }
 
-      function registrationHandler(): void { // регистрация
-        if (loading.value) return
+      nextTick(() => {
+        onValidation.value = false
+      })
+    }
 
-        onValidation.value = true
+    function registrationHandler(): void { // регистрация
+      if (loading.value) return
 
-        // все поля корректно заполнены
-        if (checkValid({ dataField, confirmPassword })) {
-          // пытаемся зарегистрироваться
-          loading.value = true
+      onValidation.value = true
 
-          userAPI.registrationWithEmail({
-            email: dataField.email.value,
-            password: dataField.password.value,
-            antiSpam: antiSpam.value
-          })
-              .then((response): void => {
-                loading.value = false
-                console.log(serverTitlesMessages.registry, response.message)
+      // все поля корректно заполнены
+      if (checkValid({ dataField, confirmPassword })) {
+        // пытаемся зарегистрироваться
+        loading.value = true
 
-                if (response.success) {
-                  // регистрация успешна
-                  Object.assign(message, {
-                    show: true,
-                    title: successMessages.registry,
-                    text: successMessages.sendEmailByAuth(dataField.email.value),
-                    status: 'success'
-                  })
-
-                  state.value = 'login'
-                } else {
-                  // ошибка при регистрации
-                  Object.assign(message, {
-                    show: true,
-                    title: errorMessages.registryTitle,
-                    text: response.message,
-                    status: 'error'
-                  })
-                }
-              })
-              .catch(error => {
-                loading.value = false
-                console.error(errorMessages.registry, error)
-              })
-        }
-
-        nextTick(() => {
-          onValidation.value = false
+        userAPI.registrationWithEmail({
+          email: dataField.email.value,
+          password: dataField.password.value,
+          antiSpam: antiSpam.value
         })
-      }
-
-      function restorePassHandler(): void {
-        if (loading.value) return
-
-        onValidation.value = true
-
-        if (checkValid({ email: dataField.email })) {
-          userAPI.restorePassword(dataField.email.value)
             .then((response): void => {
               loading.value = false
-              console.log(serverTitlesMessages.restorePass, response.message)
+              console.log(serverTitlesMessages.registry, response.message)
 
               if (response.success) {
-                // запрос обработан успешно
+                // регистрация успешна
                 Object.assign(message, {
                   show: true,
-                  title: successMessages.requestSuccess,
-                  text: successMessages.sendEmailByResetPass(dataField.email.value),
+                  title: successMessages.registry,
+                  text: successMessages.sendEmailByAuth(dataField.email.value),
                   status: 'success'
                 })
 
                 state.value = 'login'
               } else {
-                // ошибка при запросе востановления пароля
+                // ошибка при регистрации
                 Object.assign(message, {
                   show: true,
-                  title: errorMessages.restorePass,
+                  title: errorMessages.registryTitle,
                   text: response.message,
                   status: 'error'
                 })
               }
-
             })
             .catch(error => {
               loading.value = false
-              console.error(errorMessages.restorePass, error)
+              console.error(errorMessages.registry, error)
             })
-        }
-
-        nextTick(() => {
-          onValidation.value = false
-        })
       }
 
-      return {
-        dataField,
-        state,
-        confirmPassword,
-        onValidation,
-        antiSpam,
-        loading,
-        message,
-        labelsMessage,
-        loginHandler,
-        registrationHandler,
-        isValid,
-        restorePassHandler
-      }
+      nextTick(() => {
+        onValidation.value = false
+      })
     }
-  })
+
+    function restorePassHandler(): void {
+      if (loading.value) return
+
+      onValidation.value = true
+
+      if (checkValid({ email: dataField.email })) {
+        userAPI.restorePassword(dataField.email.value)
+          .then((response): void => {
+            loading.value = false
+            console.log(serverTitlesMessages.restorePass, response.message)
+
+            if (response.success) {
+              // запрос обработан успешно
+              Object.assign(message, {
+                show: true,
+                title: successMessages.requestSuccess,
+                text: successMessages.sendEmailByResetPass(dataField.email.value),
+                status: 'success'
+              })
+
+              state.value = 'login'
+            } else {
+              // ошибка при запросе востановления пароля
+              Object.assign(message, {
+                show: true,
+                title: errorMessages.restorePass,
+                text: response.message,
+                status: 'error'
+              })
+            }
+
+          })
+          .catch(error => {
+            loading.value = false
+            console.error(errorMessages.restorePass, error)
+          })
+      }
+
+      nextTick(() => {
+        onValidation.value = false
+      })
+    }
+
+    function changePasswordHandler(): void {
+      if (loading.value) return
+
+      onValidation.value = true
+
+      if (checkValid({ pass: dataField.password, confirmPassword })) {
+        const hash: string[] = location.pathname.split('/')
+
+        userAPI.changePassword({
+          password: dataField.password.value,
+          antiSpam: antiSpam.value,
+          hash: hash[hash.length]
+        })
+          .then((response): void => {
+            loading.value = false
+            console.log(serverTitlesMessages.changePass, response.message)
+
+            if (response.success) {
+              // смена пароля прошла успешно
+              Object.assign(message, {
+                show: true,
+                title: successMessages.requestSuccess,
+                text: successMessages.changePass,
+                status: 'success'
+              })
+
+              state.value = 'login'
+            } else {
+              Object.assign(message, {
+                show: true,
+                title: errorMessages.changePass,
+                text: response.message,
+                status: 'error'
+              })
+            }
+          })
+          .catch(error => {
+            loading.value = false
+            console.error(errorMessages.registry, error)
+          })
+      }
+
+      nextTick(() => {
+        onValidation.value = false
+      })
+    }
+
+    return {
+      dataField,
+      state,
+      confirmPassword,
+      onValidation,
+      antiSpam,
+      loading,
+      message,
+      labelsMessage,
+      loginHandler,
+      registrationHandler,
+      isValid,
+      restorePassHandler,
+      changePasswordHandler
+    }
+  }
+})
 </script>
 
 <style scoped>
