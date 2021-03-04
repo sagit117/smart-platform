@@ -375,10 +375,29 @@ export default defineComponent({
 
         if (checkValid({ email: dataField.email })) {
           userAPI.restorePassword(dataField.email.value)
-            .then(response => {
+            .then((response): void => {
               loading.value = false
-
               console.log(serverTitlesMessages.restorePass, response.message)
+
+              if (response.success) {
+                // запрос обработан успешно
+                Object.assign(message, {
+                  show: true,
+                  title: successMessages.requestSuccess,
+                  text: successMessages.sendEmailByResetPass(dataField.email.value),
+                  status: 'success'
+                })
+
+                state.value = 'login'
+              } else {
+                // ошибка при запросе востановления пароля
+                Object.assign(message, {
+                  show: true,
+                  title: errorMessages.restorePass,
+                  text: response.message,
+                  status: 'error'
+                })
+              }
 
             })
             .catch(error => {

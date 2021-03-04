@@ -41,9 +41,13 @@ export default class RU {
     private _success = {
         registry: 'Вы успешно зарегистрировались',
         auth: 'Вы успешно вошли в систему',
+        requestSuccess: 'Запрос обработан',
         sendEmailByAuth(email: string = ''): string {
             return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано письмо для окончания регистрации`
         },
+        sendEmailByResetPass(email: string = ''): string {
+            return `На адрес электронной почты <span style="color: var(--primary);">${email}</span> выслано с письмо инструкциями по сбросу пароля`
+        }
     }
 
     // getters
