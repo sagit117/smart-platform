@@ -474,7 +474,7 @@ export default defineComponent({
         userAPI.changePassword({
           password: dataField.password.value,
           antiSpam: antiSpam.value,
-          hash: hash[hash.length]
+          hash: hash[hash.length - 1]
         })
           .then((response): void => {
             loading.value = false

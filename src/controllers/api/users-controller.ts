@@ -299,7 +299,7 @@ export default class UsersApiController extends SmartApiController {
 
         const getLastTryRestorePass = (IP: string = '') => {
             return EventLogsModel
-                .find({ eventName: eventsName.restorePassword, $or: [ { requestIP: IP }, { text: user.mainEmail} ] })
+                .find({ eventName: eventsName.restorePassword, $or: [ { requestIP: IP }, { text: user.mainEmail } ] })
                     .sort({ date: -1, _id: -1 })
                         .limit(2)
                             .catch(error => {
@@ -366,7 +366,100 @@ export default class UsersApiController extends SmartApiController {
         // =================
     }
 
-    public async changePassWithHash() {
+    public async changePassWithHash() { // Меняем пароль пользователя по хешу
+        /**
+         * 1. если пользователь авторизован или запрос пуст,
+         *    пароль не менять
+         */
 
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(serverSuccessMessage.accessSuccess)
+        if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
+
+        const data = this.request.dataMain.body
+        const errors: string[] = []
+
+        // =================
+
+        /**
+         * 2. Проверить анти-спам поле
+         */
+
+        if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
+
+        // =================
+
+        /**
+         * 3. Поиск пользователя по хеш
+         */
+
+        const getUserWithHash = (hash: string = '') => {
+            return UsersModel.findOne({ hash })
+                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByHash, error))
+        }
+
+        const user = await getUserWithHash(data?.hash) as IUsersModel
+        if (!user) return this.errorHandler(authErrorMessage.hashIsWrong)
+
+        // =================
+
+        /**
+         * 4. Проверяем лимиты(по IP и hash) на запросы по смене пароля
+         */
+
+        const getLastTryChangePass = (IP: string = '', hash: string = '') => {
+            return EventLogsModel
+                .find({ eventName: eventsName.changePassword, $or: [ { requestIP: IP }, { text: hash } ] })
+                    .sort({ date: -1, _id: -1 })
+                        .limit(2)
+                            .catch(error => {
+                                events.emit('onError', dataBaseErrorMessage.lastTryChangePass, error)
+                                errors.push(error)
+                                return false
+                            })
+        }
+        const records: Array<IEventLogs> | boolean = await getLastTryChangePass(this.request.dataMain?.requestIP, data?.hash) // 2 записи последней регистрации по IP
+
+        if (Array.isArray(records) && records.length === 2) {
+            // @ts-ignore
+            const delta: number = new Date() - new Date(records[1].date)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfChangePassword) return this.errorHandler(authErrorMessage.lastTryQuery)
+        }
+
+        // =================
+
+        /**
+         * 5. Смена пароля
+         */
+
+        user.password = data?.password || ''
+        user.updatedAt = new Date()
+
+        await new UsersModel(user)
+            .save()
+                .catch(error => {
+                    events.emit('onError', dataBaseErrorMessage.createUser, error)
+                    errors.push(error)
+                    return false
+                })
+
+        if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
+
+        // =================
+
+        /**
+         * 6. Логируем событие
+         */
+
+        events.emit('saveEventLogs', eventsName.changePassword, user.mainEmail, this.request)
+
+        // =================
+
+        /**
+         * 7. Отрисовать ответ
+         */
+
+        return this.response.status(200).send({ message: authSuccessMessage.changePassword, success: true, data: { } })
+
+        // =================
     }
 }

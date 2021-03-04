@@ -10,6 +10,7 @@ declare namespace Express {
                 email?: string
                 password?: string
                 antiSpam?: string
+                hash?: string
             },
             requestIP?: string
         }

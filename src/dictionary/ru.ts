@@ -13,13 +13,15 @@ export default class Ru {
             createRequestLog: '⚡️[DB]: Ошибка при сохранение данных в лог подключения: ',
             lastTryRegistry: '⚡️[DB]: Ошибка при запросе попследней попытке регистрации: ',
             lastTryRestorePass: '⚡️[DB]: Ошибка при запросе попследней попытке восстановить пароль: ',
+            lastTryChangePass: '⚡️[DB]: Ошибка при запросе попследней попытке изменить пароль: ',
             createUser: '⚡️[DB]: Ошибка при сохранение данных пользователя: ',
             searchForUsersByEmail: '⚡️[DB]: Ошибка при запросе поиска пользователей по email: ',
             checkingPassDuringLogin: '⚡️[DB]: Ошибка при проверки пароля во время логина: ',
             changeRoleUser: '⚡️[DB]: Ошибка при попытке сменить роль пользователя: ',
             confirmEmail: '⚡️[DB]: Ошибка при попытке подтвердить email: ',
             createErrorsLog: '⚡️[DB]: Ошибка при попытке сохранить в БД лог ошибки: ',
-            createEventsLog: '⚡️[DB]: Ошибка во время сохранения лога события: '
+            createEventsLog: '⚡️[DB]: Ошибка во время сохранения лога события: ',
+            searchForUsersByHash: '⚡️[DB]: Ошибка при запросе поиска пользователей по хеш-коду: '
         },
         auth: {
             emailExists: 'Указанный email уже зарегистрирован!',
@@ -27,7 +29,8 @@ export default class Ru {
             emailIsWrong: 'Введите корректный email!',
             lastTryQuery: 'Перед повторным запросом должно пройти некоторое время!',
             onPrepare: 'Произошла ошибка во время выполнения операции!',
-            passwordOrEmailIsWrong: 'Указанный email или пароль не совпадает!'
+            passwordOrEmailIsWrong: 'Указанный email или пароль не совпадает!',
+            hashIsWrong: 'Хэш-код не действителен'
         },
         errors: {
             sendEmail(to: string): string {
@@ -49,7 +52,8 @@ export default class Ru {
         auth: {
             registry: 'Регистрация прошла успешно!',
             auth: 'Пользователь авторизован!',
-            restorePassword: 'Запрос на восстановление доступа обработан'
+            restorePassword: 'Запрос на восстановление доступа обработан',
+            changePassword: 'Пароль изменен',
         }
     }
 
@@ -58,6 +62,7 @@ export default class Ru {
         sendEmail: 'Отправки письма',
         login: 'Пользователь вошел в систему',
         restorePassword: 'Запрос сброса пароля',
+        changePassword: 'Смена пароля',
     }
 
     private _emailSubjects = {
