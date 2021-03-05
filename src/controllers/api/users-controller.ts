@@ -9,17 +9,11 @@ import LIMIT from '../../configs/limits-config'
 import { testEmail } from "../../utils/validate"
 import events from '../../utils/emitters'
 import { randomKeyGenerator } from '../../utils/generators'
-import {
-    serverSuccessMessage,
-    serverErrorMessage,
-    authErrorMessage,
-    dataBaseErrorMessage,
-    eventsName,
-    emailSubjects,
-    emailTemplates,
-    authSuccessMessage
-} from '../../utils/language'
-import APP from '../../configs/server-config'
+
+import Lang from "../../dictionary/language";
+import Config from "../../configs/server-config";
+
+const L = new Lang(Config.LANG)
 
 export default class UsersApiController extends SmartApiController {
     constructor(request: Request, response: Response) {
@@ -32,8 +26,8 @@ export default class UsersApiController extends SmartApiController {
          *    регистрацию не проводить
          */
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(serverSuccessMessage.accessSuccess)
-        if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
+        if (!this.request.dataMain?.body) return this.errorHandler(L.translate('В доступе отказано'))
 
         const data = this.request.dataMain.body
         const errors: string[] = []
@@ -44,7 +38,7 @@ export default class UsersApiController extends SmartApiController {
          * 2. Проверить анти-спам поле
          */
 
-        if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (data?.antiSpam) return this.errorHandler(L.translate('В доступе отказано'))
 
         // =================
 
@@ -52,7 +46,7 @@ export default class UsersApiController extends SmartApiController {
          * 3. Проверить на корректность email
          */
 
-        if (!testEmail(data?.email)) return this.errorHandler(authErrorMessage.emailIsWrong)
+        if (!testEmail(data?.email)) return this.errorHandler(L.translate('Введите корректный email!'))
 
         // =================
 
@@ -68,13 +62,13 @@ export default class UsersApiController extends SmartApiController {
                 ]
             })
                 .catch(error => {
-                    events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error)
+                    events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error)
                     errors.push(error)
                     return false
                 })
         }
 
-        if (await getUserWithEmail(data?.email)) return this.errorHandler(authErrorMessage.emailExists)
+        if (await getUserWithEmail(data?.email)) return this.errorHandler(L.translate('Указанный email уже зарегистрирован!'))
 
         // =================
 
@@ -84,11 +78,11 @@ export default class UsersApiController extends SmartApiController {
 
         const getLastTryRegistration = (IP: string = '') => {
             return EventLogsModel
-                .find({ eventName: eventsName.registryUser, requestIP: IP })
+                .find({ eventName: L.translate('Регистрация пользователя'), requestIP: IP })
                     .sort({ date: -1, _id: -1 })
                         .limit(2)
                             .catch(error => {
-                                events.emit('onError', dataBaseErrorMessage.lastTryRegistry, error)
+                                events.emit('onError', L.translate('Ошибка при запросе попследней попытке регистрации:'), error)
                                 errors.push(error)
                                 return false
                             })
@@ -98,7 +92,7 @@ export default class UsersApiController extends SmartApiController {
         if (Array.isArray(records) && records.length === 2) {
             // @ts-ignore
             const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(authErrorMessage.lastTryQuery)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(L.translate('Перед повторным запросом должно пройти некоторое время!'))
         }
 
         // =================
@@ -119,12 +113,12 @@ export default class UsersApiController extends SmartApiController {
 
         await user.save()
             .catch(error => {
-                events.emit('onError', dataBaseErrorMessage.createUser, error)
+                events.emit('onError', L.translate('Ошибка при сохранение данных пользователя:'), error)
                 errors.push(error)
                 return false
             })
 
-        if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
+        if (errors.length) return this.errorHandler(L.translate('Произошла ошибка во время выполнения операции!') + ' ' + errors.join(', '))
 
         // =================
 
@@ -132,7 +126,7 @@ export default class UsersApiController extends SmartApiController {
          * 7. Выслать письмо для подтверждения email
          */
 
-        events.emit('sendMail', data?.email, emailSubjects.confirmEmail, emailTemplates.confirmEmailTemplate(hash), this.request)
+        events.emit('sendMail', data?.email, L.translate('Подтверждение адреса электронной почты'), L.translate('confirmEmailTemplate', { hash }), this.request)
 
         // =================
 
@@ -141,7 +135,7 @@ export default class UsersApiController extends SmartApiController {
          */
 
         this.request.dataMain.user = user
-        events.emit('saveEventLogs', eventsName.registryUser, data?.email, this.request)
+        events.emit('saveEventLogs', L.translate('Регистрация пользователя'), data?.email, this.request)
 
         // =================
 
@@ -149,7 +143,7 @@ export default class UsersApiController extends SmartApiController {
          * 9. Выслать ответ
          */
 
-        return this.response.status(200).send({ message: authSuccessMessage.registry, success: true, data: { email: data?.email } })
+        return this.response.status(200).send({ message: L.translate('Регистрация прошла успешно!'), success: true, data: { email: data?.email } })
 
         // =================
     }
@@ -160,8 +154,8 @@ export default class UsersApiController extends SmartApiController {
          *    повторную авторизацию не проводить
          */
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(authSuccessMessage.auth)
-        if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
+        if (!this.request.dataMain?.body) return this.errorHandler(L.translate('В доступе отказано'))
 
         const data = this.request.dataMain.body
 
@@ -171,7 +165,7 @@ export default class UsersApiController extends SmartApiController {
          * 2. Проверить анти-спам поле
          */
 
-        if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (data?.antiSpam) return this.errorHandler(L.translate('В доступе отказано'))
 
         // =================
 
@@ -181,11 +175,11 @@ export default class UsersApiController extends SmartApiController {
 
         const getUserWithEmail = (email: string = '') => {
             return UsersModel.findOne({ mainEmail: email })
-                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
+                .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error))
         }
 
         const user = await getUserWithEmail(data?.email) as IUsersModel
-        if (!user) return this.errorHandler(authErrorMessage.passwordOrEmailIsWrong)
+        if (!user) return this.errorHandler(L.translate('Указанный email или пароль не совпадает!'))
 
         // =================
 
@@ -196,14 +190,14 @@ export default class UsersApiController extends SmartApiController {
         const isLoginSuccess = (<IUsersModel>user).comparePassword(data?.password, (error, match) => {
             if (!match) return false
             if (error) {
-                events.emit('onError', dataBaseErrorMessage.checkingPassDuringLogin, error)
+                events.emit('onError', L.translate('Ошибка при проверки пароля во время логина:'), error)
                 return false
             }
 
             return true
         })
 
-        if (!isLoginSuccess) return this.errorHandler(authErrorMessage.passwordOrEmailIsWrong)
+        if (!isLoginSuccess) return this.errorHandler(L.translate('Указанный email или пароль не совпадает!'))
 
         // =================
 
@@ -226,14 +220,14 @@ export default class UsersApiController extends SmartApiController {
             email: user.mainEmail,
             id: user._id,
             exp: date.getTime()
-        }, APP.secure.KEY_FOR_JWT)
+        }, Config.secure.KEY_FOR_JWT)
 
         this.response.cookie('token', jwt,  {
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-            secure: APP.cookie.COOKIE_SECURE,
+            secure: Config.cookie.COOKIE_SECURE,
             httpOnly: true,
             signed: true,
-            domain: APP.address.HOST,
+            domain: Config.address.HOST,
             sameSite: "lax"
         })
 
@@ -243,7 +237,7 @@ export default class UsersApiController extends SmartApiController {
          * 7. Выслать подтверждение на email
          */
 
-        events.emit('sendMail', user.mainEmail, emailSubjects.accountLogin, emailTemplates.accountLogin(), this.request)
+        events.emit('sendMail', user.mainEmail, L.translate('Вход в систему'), L.translate('accountLogin'), this.request)
 
         // =================
 
@@ -251,7 +245,7 @@ export default class UsersApiController extends SmartApiController {
          * 8. Логировать вход
          */
 
-        events.emit('saveEventLogs', eventsName.login, user.mainEmail, this.request)
+        events.emit('saveEventLogs', L.translate('Пользователь вошел в систему'), user.mainEmail, this.request)
 
         // =================
 
@@ -259,7 +253,7 @@ export default class UsersApiController extends SmartApiController {
          * 9. Вернуть ответ
          */
 
-        return this.response.status(200).send({ message: authSuccessMessage.auth, success: true, data: user })
+        return this.response.status(200).send({ message: L.translate('Пользователь авторизован успешно!'), success: true, data: user })
 
         // =================
     }
@@ -272,8 +266,8 @@ export default class UsersApiController extends SmartApiController {
 
         const email: string = this.request.params?.email
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(authSuccessMessage.auth)
-        if (!email) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
+        if (!email) return this.errorHandler(L.translate('В доступе отказано'))
 
         // =================
 
@@ -283,11 +277,11 @@ export default class UsersApiController extends SmartApiController {
 
         const getUserWithEmail = (email: string = '') => {
             return UsersModel.findOne({ mainEmail: email })
-                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByEmail, error))
+                .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error))
         }
 
         const user = await getUserWithEmail(email) as IUsersModel
-        if (!user) return this.errorHandler(authErrorMessage.emailNotExists)
+        if (!user) return this.errorHandler(L.translate('Указанный email не существует'))
 
         // =================
 
@@ -299,11 +293,11 @@ export default class UsersApiController extends SmartApiController {
 
         const getLastTryRestorePass = (IP: string = '') => {
             return EventLogsModel
-                .find({ eventName: eventsName.restorePassword, $or: [ { requestIP: IP }, { text: user.mainEmail } ] })
+                .find({ eventName: L.translate('Запрос сброса пароля'), $or: [ { requestIP: IP }, { text: user.mainEmail } ] })
                     .sort({ date: -1, _id: -1 })
                         .limit(2)
                             .catch(error => {
-                                events.emit('onError', dataBaseErrorMessage.lastTryRestorePass, error)
+                                events.emit('onError', L.translate('Ошибка при запросе попследней попытке восстановить пароль:'), error)
                                 errors.push(error)
                                 return false
                             })
@@ -313,7 +307,7 @@ export default class UsersApiController extends SmartApiController {
         if (Array.isArray(records) && records.length === 2) {
             // @ts-ignore
             const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRestorePassword) return this.errorHandler(authErrorMessage.lastTryQuery)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRestorePassword) return this.errorHandler(L.translate('Перед повторным запросом должно пройти некоторое время!'))
         }
 
         // =================
@@ -331,13 +325,13 @@ export default class UsersApiController extends SmartApiController {
             updatedAt: new Date()
         })
             .catch(error => {
-                events.emit('onError', dataBaseErrorMessage.createUser, error)
+                events.emit('onError', L.translate('Ошибка при сохранение данных пользователя:'), error)
                 errors.push(error)
                 return false
             })
 
 
-        if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
+        if (errors.length) return this.errorHandler(L.translate('Произошла ошибка во время выполнения операции!') + ' ' + errors.join(', '))
 
         // =================
 
@@ -345,7 +339,7 @@ export default class UsersApiController extends SmartApiController {
          * 5. Высылаем письмо
          */
 
-        events.emit('sendMail', user.mainEmail, emailSubjects.restorePassword, emailTemplates.restorePassword(hash), this.request)
+        events.emit('sendMail', user.mainEmail, L.translate('Восстановление пароля'), L.translate('restorePassword', { hash }), this.request)
 
         // =================
 
@@ -353,7 +347,7 @@ export default class UsersApiController extends SmartApiController {
          * 6. Логируем событие
          */
 
-        events.emit('saveEventLogs', eventsName.restorePassword, user.mainEmail, this.request)
+        events.emit('saveEventLogs', L.translate('Запрос сброса пароля'), user.mainEmail, this.request)
 
         // =================
 
@@ -361,7 +355,7 @@ export default class UsersApiController extends SmartApiController {
          * 7. Возвращаем ответ
          */
 
-        return this.response.status(200).send({ message: authSuccessMessage.restorePassword, success: true, data: { email: user.mainEmail } })
+        return this.response.status(200).send({ message: L.translate('Запрос на восстановление доступа обработан'), success: true, data: { email: user.mainEmail } })
 
         // =================
     }
@@ -372,8 +366,8 @@ export default class UsersApiController extends SmartApiController {
          *    пароль не менять
          */
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(serverSuccessMessage.accessSuccess)
-        if (!this.request.dataMain?.body) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
+        if (!this.request.dataMain?.body) return this.errorHandler(L.translate('В доступе отказано'))
 
         const data = this.request.dataMain.body
         const errors: string[] = []
@@ -384,7 +378,7 @@ export default class UsersApiController extends SmartApiController {
          * 2. Проверить анти-спам поле
          */
 
-        if (data?.antiSpam) return this.errorHandler(serverErrorMessage.accessDenied)
+        if (data?.antiSpam) return this.errorHandler(L.translate('В доступе отказано'))
 
         // =================
 
@@ -394,11 +388,11 @@ export default class UsersApiController extends SmartApiController {
 
         const getUserWithHash = (hash: string = '') => {
             return UsersModel.findOne({ hash })
-                .catch(error => events.emit('onError', dataBaseErrorMessage.searchForUsersByHash, error))
+                .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по хеш-коду:'), error))
         }
 
         const user = await getUserWithHash(data?.hash) as IUsersModel
-        if (!user) return this.errorHandler(authErrorMessage.hashIsWrong)
+        if (!user) return this.errorHandler(L.translate('Хэш-код не действителен'))
 
         // =================
 
@@ -408,11 +402,11 @@ export default class UsersApiController extends SmartApiController {
 
         const getLastTryChangePass = (IP: string = '', hash: string = '') => {
             return EventLogsModel
-                .find({ eventName: eventsName.changePassword, $or: [ { requestIP: IP }, { text: hash } ] })
+                .find({ eventName: L.translate('Смена пароля'), $or: [ { requestIP: IP }, { text: hash } ] })
                     .sort({ date: -1, _id: -1 })
                         .limit(2)
                             .catch(error => {
-                                events.emit('onError', dataBaseErrorMessage.lastTryChangePass, error)
+                                events.emit('onError', L.translate('Ошибка при запросе попследней попытке изменить пароль:'), error)
                                 errors.push(error)
                                 return false
                             })
@@ -422,7 +416,7 @@ export default class UsersApiController extends SmartApiController {
         if (Array.isArray(records) && records.length === 2) {
             // @ts-ignore
             const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfChangePassword) return this.errorHandler(authErrorMessage.lastTryQuery)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfChangePassword) return this.errorHandler(L.translate('Перед повторным запросом должно пройти некоторое время!'))
         }
 
         // =================
@@ -437,12 +431,12 @@ export default class UsersApiController extends SmartApiController {
         await new UsersModel(user)
             .save()
                 .catch(error => {
-                    events.emit('onError', dataBaseErrorMessage.createUser, error)
+                    events.emit('onError', L.translate('Ошибка при сохранение данных пользователя:'), error)
                     errors.push(error)
                     return false
                 })
 
-        if (errors.length) return this.errorHandler(authErrorMessage.onPrepare + ' ' + errors.join(', '))
+        if (errors.length) return this.errorHandler(L.translate('Произошла ошибка во время выполнения операции!') + ' ' + errors.join(', '))
 
         // =================
 
@@ -450,7 +444,7 @@ export default class UsersApiController extends SmartApiController {
          * 6. Логируем событие
          */
 
-        events.emit('saveEventLogs', eventsName.changePassword, user.mainEmail, this.request)
+        events.emit('saveEventLogs', L.translate('Смена пароля'), user.mainEmail, this.request)
 
         // =================
 
@@ -458,7 +452,7 @@ export default class UsersApiController extends SmartApiController {
          * 7. Отрисовать ответ
          */
 
-        return this.response.status(200).send({ message: authSuccessMessage.changePassword, success: true, data: { } })
+        return this.response.status(200).send({ message: L.translate('Пароль изменен'), success: true, data: { } })
 
         // =================
     }

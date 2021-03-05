@@ -1,6 +1,10 @@
 import { Request, Response } from "express"
 
-import { serverErrorMessage } from '../../utils/language'
+// config
+import Config from "../../configs/server-config"
+import Lang from '../../dictionary/language'
+
+const L = new Lang(Config.LANG)
 
 export default class SmartApiController {
     protected request: Request
@@ -14,7 +18,7 @@ export default class SmartApiController {
         this.objectAccess = this.request?.dataMain?.accessRoute
     }
 
-    public errorHandler(message: string = serverErrorMessage.accessDenied) {
+    public errorHandler(message: string = L.translate('В доступе отказано')) {
         return this.response.status(403).send({ message, success: false })
     }
 }

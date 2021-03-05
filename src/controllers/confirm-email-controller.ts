@@ -16,7 +16,9 @@ export default class ConfirmEmailController extends SmartController{
 
     optionsRender = {
         title: L.translate('Подтверждение email'),
-        isConfirmSuccess: false
+        isConfirmSuccess: false,
+        successMsg: L.translate('Ваш email успешно подтвержден!'),
+        errorMsg: L.translate('Email не подтвержден')
     }
 
     layout = 'confirm-email.hbs'
