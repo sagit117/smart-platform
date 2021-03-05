@@ -1,7 +1,13 @@
-import Mongoose, { Schema, Document } from 'mongoose' // библиотека для подключение к mongodb
+import Mongoose, { Schema, Document, Model } from 'mongoose' // библиотека для подключение к mongodb
 import Bcrypt from 'bcrypt'
+import events from "../utils/emitters"
 
-export interface IUsersModel extends Document {
+import Lang from "../dictionary/language"
+import Config from "../configs/server-config"
+
+const L = new Lang(Config.LANG)
+
+interface IUsersDocument extends Document {
     _id: string
     date: Date
     updatedAt: Date
@@ -25,7 +31,13 @@ export interface IUsersModel extends Document {
     comparePassword: (plaintext: string | undefined, callback: Function) => boolean
 }
 
-const SchemaUsers: Schema<IUsersModel> = new Mongoose.Schema({
+export interface IUsersModel extends Model<IUsersDocument> {
+    findUserByMainEmail: (email: string | undefined) => Promise<IUsersModel | boolean | null>
+    findUserByEmail: (email: string | undefined) => Promise<IUsersModel | boolean | null>
+    findUserByHash: (hash: string | undefined) => Promise<IUsersDocument | boolean | null>
+}
+
+const SchemaUsers: Schema<IUsersDocument> = new Mongoose.Schema({
     date: {
         type: Date,
         default: new Date()
@@ -69,6 +81,7 @@ const SchemaUsers: Schema<IUsersModel> = new Mongoose.Schema({
     roles: [String]
 })
 
+
 SchemaUsers.index({ mainEmail: 1 })
 
 SchemaUsers.pre('save', function(next) {
@@ -79,9 +92,35 @@ SchemaUsers.pre('save', function(next) {
     next()
 })
 
-// Метод для проверки пароля
-SchemaUsers.methods.comparePassword = function(plaintext: string = '', callback: Function) {
+/** Методы */
+
+SchemaUsers.methods.comparePassword = function(plaintext: string | undefined = '', callback: Function): boolean { // метод для проверки пароля
     return callback(null, Bcrypt.compareSync(plaintext, this.password))
 }
 
-export default Mongoose.model<IUsersModel>('users', SchemaUsers)
+SchemaUsers.statics.findUserByEmail = function(email: string | undefined = ''): Promise<IUsersDocument | boolean | null> { // поиск пользователя по всем email-ам
+    return UsersModel.findOne({
+        $or: [
+            { mainEmail: email },
+            { "emails.value": email }
+        ]
+    })
+        .catch(error => {
+            events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error)
+            return false
+        })
+}
+
+SchemaUsers.statics.findUserByMainEmail = function(email: string | undefined = ''): Promise<IUsersDocument | boolean | null> { // поиск пользователя по email
+    return UsersModel.findOne({ mainEmail: email })
+        .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error))
+}
+
+SchemaUsers.statics.findUserByHash = function(hash: string | undefined = ''): Promise<IUsersDocument | boolean | null>  { // поиск пользователя по всем hash-коду
+    return UsersModel.findOne({ hash })
+        .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по хеш-коду:'), error))
+}
+
+const UsersModel: IUsersModel = Mongoose.model<IUsersDocument, IUsersModel>('users', SchemaUsers)
+
+export default UsersModel

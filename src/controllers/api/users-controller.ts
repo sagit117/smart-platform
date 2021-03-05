@@ -3,15 +3,15 @@ import { Request, Response} from "express"
 
 import SmartApiController from './smart-api-controller'
 import EventLogsModel, { IEventLogs } from '../../models/event-logs-model'
-import UsersModel, {IUsersModel} from '../../models/users-model'
+import UsersModel, { IUsersModel } from '../../models/users-model'
 
 import LIMIT from '../../configs/limits-config'
 import { testEmail } from "../../utils/validate"
 import events from '../../utils/emitters'
 import { randomKeyGenerator } from '../../utils/generators'
 
-import Lang from "../../dictionary/language";
-import Config from "../../configs/server-config";
+import Lang from "../../dictionary/language"
+import Config from "../../configs/server-config"
 
 const L = new Lang(Config.LANG)
 
@@ -20,60 +20,49 @@ export default class UsersApiController extends SmartApiController {
         super(request, response)
     }
 
+    protected _userIsLoggedOrEmptyData(): string {
+        if (this.request.dataMain?.user?.mainEmail) return L.translate('Пользователь авторизован!')
+        if (!this.request.dataMain?.body) return L.translate('В доступе отказано')
+        if (this.request.dataMain?.body.antiSpam) return L.translate('В доступе отказано')
+
+        return ''
+    }
+
+    protected  _checkLimits(records: Array<IUsersModel | IEventLogs> | boolean): string {
+        if (Array.isArray(records) && records.length === 2) {
+            // @ts-ignore
+            const delta: number = new Date() - new Date(records[1].date)
+            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return L.translate('Перед повторным запросом должно пройти некоторое время!')
+        }
+
+        return ''
+    }
+
     public async registrationWithEmail() { // регистрация пользователя по email
         /**
          * 1. если пользователь авторизован или запрос пуст,
          *    регистрацию не проводить
          */
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
-        if (!this.request.dataMain?.body) return this.errorHandler(L.translate('В доступе отказано'))
+        const errorMsg = this._userIsLoggedOrEmptyData()
+        if (errorMsg) return this.errorHandler(errorMsg)
 
-        const data = this.request.dataMain.body
+        const data = this.request.dataMain?.body
         const errors: string[] = []
 
         // =================
 
         /**
-         * 2. Проверить анти-спам поле
-         */
-
-        if (data?.antiSpam) return this.errorHandler(L.translate('В доступе отказано'))
-
-        // =================
-
-        /**
-         * 3. Проверить на корректность email
+         * 2. Проверить на существование email
          */
 
         if (!testEmail(data?.email)) return this.errorHandler(L.translate('Введите корректный email!'))
+        if (await UsersModel.findUserByEmail(data?.email)) return this.errorHandler(L.translate('Указанный email уже зарегистрирован!'))
 
         // =================
 
         /**
-         * 4. Проверить на существование email
-         */
-
-        const getUserWithEmail = (email: string = '') => {
-            return UsersModel.findOne({
-                $or: [
-                    { mainEmail: email },
-                    { "emails.value": email }
-                ]
-            })
-                .catch(error => {
-                    events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error)
-                    errors.push(error)
-                    return false
-                })
-        }
-
-        if (await getUserWithEmail(data?.email)) return this.errorHandler(L.translate('Указанный email уже зарегистрирован!'))
-
-        // =================
-
-        /**
-         * 5. Проверить количество попыток регистрации с IP за указанное время
+         * 3. Проверить количество попыток регистрации с IP за указанное время
          */
 
         const getLastTryRegistration = (IP: string = '') => {
@@ -89,16 +78,12 @@ export default class UsersApiController extends SmartApiController {
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRegistration(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
 
-        if (Array.isArray(records) && records.length === 2) {
-            // @ts-ignore
-            const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRegistration) return this.errorHandler(L.translate('Перед повторным запросом должно пройти некоторое время!'))
-        }
-
+        const errorMessage = this._checkLimits(records)
+        if (errorMessage) return this.errorHandler(errorMessage)
         // =================
 
         /**
-         * 6. Создать запись и проверить на ошибки предыдущие действия
+         * 4. Создать запись и проверить на ошибки предыдущие действия
          */
 
         const hash: string = randomKeyGenerator() // хеш для подтверждения email
@@ -123,7 +108,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 7. Выслать письмо для подтверждения email
+         * 5. Выслать письмо для подтверждения email
          */
 
         events.emit('sendMail', data?.email, L.translate('Подтверждение адреса электронной почты'), L.translate('confirmEmailTemplate', { hash }), this.request)
@@ -131,16 +116,17 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 8. Логировать event
+         * 6. Логировать event
          */
 
+        // @ts-ignore
         this.request.dataMain.user = user
         events.emit('saveEventLogs', L.translate('Регистрация пользователя'), data?.email, this.request)
 
         // =================
 
         /**
-         * 9. Выслать ответ
+         * 7. Выслать ответ
          */
 
         return this.response.status(200).send({ message: L.translate('Регистрация прошла успешно!'), success: true, data: { email: data?.email } })
@@ -154,40 +140,27 @@ export default class UsersApiController extends SmartApiController {
          *    повторную авторизацию не проводить
          */
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
-        if (!this.request.dataMain?.body) return this.errorHandler(L.translate('В доступе отказано'))
+        const errorMsg = this._userIsLoggedOrEmptyData()
+        if (errorMsg) return this.errorHandler(errorMsg)
 
-        const data = this.request.dataMain.body
-
-        // =================
-
-        /**
-         * 2. Проверить анти-спам поле
-         */
-
-        if (data?.antiSpam) return this.errorHandler(L.translate('В доступе отказано'))
+        const data = this.request.dataMain?.body
 
         // =================
 
         /**
-         * 3. Проверить на существование email
+         * 2. Проверить на существование email
          */
 
-        const getUserWithEmail = (email: string = '') => {
-            return UsersModel.findOne({ mainEmail: email })
-                .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error))
-        }
-
-        const user = await getUserWithEmail(data?.email) as IUsersModel
-        if (!user) return this.errorHandler(L.translate('Указанный email или пароль не совпадает!'))
+        const user = await UsersModel.findUserByMainEmail(data?.email)
+        if (!(user instanceof UsersModel)) return this.errorHandler(L.translate('Указанный email или пароль не совпадает!'))
 
         // =================
 
         /**
-         * 4. Проверить пароль
+         * 3. Проверить пароль
          */
 
-        const isLoginSuccess = (<IUsersModel>user).comparePassword(data?.password, (error, match) => {
+        const isLoginSuccess: boolean = user.comparePassword(data?.password, (error, match) => {
             if (!match) return false
             if (error) {
                 events.emit('onError', L.translate('Ошибка при проверки пароля во время логина:'), error)
@@ -202,15 +175,16 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 5. Записать полученного пользователя в request
+         * 4. Записать полученного пользователя в request
          */
 
+        // @ts-ignore
         this.request.dataMain.user = user
 
         // =================
 
         /**
-         * 6. Установить куки
+         * 5. Установить куки
          */
 
         const date = new Date()
@@ -234,7 +208,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 7. Выслать подтверждение на email
+         * 6. Выслать подтверждение на email
          */
 
         events.emit('sendMail', user.mainEmail, L.translate('Вход в систему'), L.translate('accountLogin'), this.request)
@@ -242,7 +216,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 8. Логировать вход
+         * 7. Логировать вход
          */
 
         events.emit('saveEventLogs', L.translate('Пользователь вошел в систему'), user.mainEmail, this.request)
@@ -250,7 +224,7 @@ export default class UsersApiController extends SmartApiController {
         // =================
 
         /**
-         * 9. Вернуть ответ
+         * 8. Вернуть ответ
          */
 
         return this.response.status(200).send({ message: L.translate('Пользователь авторизован успешно!'), success: true, data: user })
@@ -266,8 +240,8 @@ export default class UsersApiController extends SmartApiController {
 
         const email: string = this.request.params?.email
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
-        if (!email) return this.errorHandler(L.translate('В доступе отказано'))
+        const errorMsg = this._userIsLoggedOrEmptyData()
+        if (errorMsg) return this.errorHandler(errorMsg)
 
         // =================
 
@@ -275,13 +249,8 @@ export default class UsersApiController extends SmartApiController {
          * 2. Проверяем email на существование
          */
 
-        const getUserWithEmail = (email: string = '') => {
-            return UsersModel.findOne({ mainEmail: email })
-                .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по email:'), error))
-        }
-
-        const user = await getUserWithEmail(email) as IUsersModel
-        if (!user) return this.errorHandler(L.translate('Указанный email не существует'))
+        const user = await UsersModel.findUserByMainEmail(email)
+        if (!(user instanceof UsersModel)) return this.errorHandler(L.translate('Указанный email не существует'))
 
         // =================
 
@@ -304,11 +273,8 @@ export default class UsersApiController extends SmartApiController {
         }
         const records: Array<IEventLogs> | boolean = await getLastTryRestorePass(this.request.dataMain?.requestIP) // 2 записи последней регистрации по IP
 
-        if (Array.isArray(records) && records.length === 2) {
-            // @ts-ignore
-            const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfRestorePassword) return this.errorHandler(L.translate('Перед повторным запросом должно пройти некоторое время!'))
-        }
+        const errorMessage = this._checkLimits(records)
+        if (errorMessage) return this.errorHandler(errorMessage)
 
         // =================
 
@@ -366,19 +332,11 @@ export default class UsersApiController extends SmartApiController {
          *    пароль не менять
          */
 
-        if (this.request.dataMain?.user?.mainEmail) return this.errorHandler(L.translate('Пользователь авторизован!'))
-        if (!this.request.dataMain?.body) return this.errorHandler(L.translate('В доступе отказано'))
+        const errorMsg = this._userIsLoggedOrEmptyData()
+        if (errorMsg) return this.errorHandler(errorMsg)
 
-        const data = this.request.dataMain.body
+        const data = this.request.dataMain?.body
         const errors: string[] = []
-
-        // =================
-
-        /**
-         * 2. Проверить анти-спам поле
-         */
-
-        if (data?.antiSpam) return this.errorHandler(L.translate('В доступе отказано'))
 
         // =================
 
@@ -386,13 +344,8 @@ export default class UsersApiController extends SmartApiController {
          * 3. Поиск пользователя по хеш
          */
 
-        const getUserWithHash = (hash: string = '') => {
-            return UsersModel.findOne({ hash })
-                .catch(error => events.emit('onError', L.translate('Ошибка при запросе поиска пользователей по хеш-коду:'), error))
-        }
-
-        const user = await getUserWithHash(data?.hash) as IUsersModel
-        if (!user) return this.errorHandler(L.translate('Хэш-код не действителен'))
+        const user = await UsersModel.findUserByHash(data?.hash)
+        if (!(user instanceof UsersModel)) return this.errorHandler(L.translate('Хэш-код не действителен'))
 
         // =================
 
@@ -413,11 +366,8 @@ export default class UsersApiController extends SmartApiController {
         }
         const records: Array<IEventLogs> | boolean = await getLastTryChangePass(this.request.dataMain?.requestIP, data?.hash) // 2 записи последней регистрации по IP
 
-        if (Array.isArray(records) && records.length === 2) {
-            // @ts-ignore
-            const delta: number = new Date() - new Date(records[1].date)
-            if ((delta / 1000 / 60) < LIMIT.limitTimeOfChangePassword) return this.errorHandler(L.translate('Перед повторным запросом должно пройти некоторое время!'))
-        }
+        const errorMessage = this._checkLimits(records)
+        if (errorMessage) return this.errorHandler(errorMessage)
 
         // =================
 
