@@ -7,7 +7,7 @@ import Config from "../configs/server-config"
 
 const L = new Lang(Config.LANG)
 
-interface IUsersDocument extends Document {
+export interface IUsersDocument extends Document {
     _id: string
     date: Date
     updatedAt: Date

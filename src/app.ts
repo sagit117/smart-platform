@@ -13,7 +13,7 @@ import Config from "./configs/server-config"
 import Lang from './dictionary/language'
 
 // models
-import UsersModel, { IUsersModel } from './models/users-model'
+import UsersModel, { IUsersModel, IUsersDocument } from './models/users-model'
 import RoutesModel, { IRoutesModel } from  './models/routes-model'
 import RequestLogsModel from './models/request-log-model'
 
@@ -41,7 +41,7 @@ interface IClientInfo {
     requestIP: string
     body: object
     params: string[]
-    user?: IUsersModel | null | undefined
+    user?: IUsersDocument | { }
 }
 
 const app = Express() // создаем экземпляр експресс
@@ -158,7 +158,7 @@ async function onRequest(request, response, next) {
         return UsersModel.findOne({ mainEmail: email })
     }
 
-    const user: IUsersModel | null = await getUser(token?.email)
+    const user = await getUser(token?.email)
 
     Object.assign(clientInfo, { user: user ?? {} }) // записываем данные пользователя в clientInfo
 
@@ -183,8 +183,13 @@ async function onRequest(request, response, next) {
 
     const route: IRoutesModel | null = await getRoutes(clientInfo.requestUrl) // маршрут из базы | null
 
-    const checkAccess = (route: IRoutesModel | null, user: IUsersModel | null | undefined) => {
-        if (!route || !user) return { access: true, useLogin: false }
+    const checkAccess = (route: IRoutesModel | null, user: IUsersDocument | { } | undefined) => {
+        if (!route) return { access: true, useLogin: false }
+        if (!(user instanceof UsersModel)) {
+            const rules = route.roleAccessSuccess.length + route.roleAccessDenied.length + route.userAccessDenied.length + route.userAccessSuccess.length
+            if (!rules) return { access: true, useLogin: false }
+            else return { access: false, useLogin: true }
+        }
 
         const denied: boolean[] = []
 
@@ -199,10 +204,10 @@ async function onRequest(request, response, next) {
         }
 
         denied.push(
-            (checkSuccessAccess(route?.roleAccessSuccess))(user?.roles),
-            (checkSuccessAccess(route?.userAccessSuccess))([user?.mainEmail]),
-            (checkDeniedAccess(route?.roleAccessDenied))(user?.roles),
-            (checkDeniedAccess(route?.userAccessDenied))([user?.mainEmail]),
+            (checkSuccessAccess(route.roleAccessSuccess))(user.roles),
+            (checkSuccessAccess(route.userAccessSuccess))([user.mainEmail]),
+            (checkDeniedAccess(route.roleAccessDenied))(user.roles),
+            (checkDeniedAccess(route.userAccessDenied))([user.mainEmail]),
         )
 
         // useLogin - параметр, который говорит системе, что необходимо в начале пройти логин
@@ -223,6 +228,7 @@ async function onRequest(request, response, next) {
     /**
      * 5. Залогировать подключение
      */
+
     new RequestLogsModel(clientInfo).save(error => {
         if (error) events.emit('onError', L.translate('Ошибка при сохранение данных в лог подключения:'), error)
     })
@@ -240,6 +246,7 @@ async function onRequest(request, response, next) {
     /**
      * 7. передаем управление следующему middleware
      */
+
     next()
 
     // =================
