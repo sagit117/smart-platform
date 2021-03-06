@@ -583,11 +583,18 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+
+    span {
+      cursor: pointer;
+    }
+    span:hover {
+      color: var(--primary)
+    }
   }
-  .change-pass > span {
-    cursor: pointer;
-  }
-  .change-pass > span:hover {
-    color: var(--primary)
-  }
+  //.change-pass > span {
+  //  cursor: pointer;
+  //}
+  //.change-pass > span:hover {
+  //  color: var(--primary)
+  //}
 </style>

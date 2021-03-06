@@ -37,7 +37,7 @@ export default class RU {
         authTitle: 'Не верный логин или пароль',
         registryTitle: 'Ошибка при регистрации',
         registry: 'Ошибка при регистрации: ',
-        restorePass: 'Ошибка при востановление пароля: ',
+        restorePass: 'Ошибка',
         changePass: 'Ошибка при смене пароля',
     }
 

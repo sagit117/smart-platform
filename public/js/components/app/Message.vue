@@ -66,7 +66,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .message-container {
     display: flex;
     position: relative;
@@ -91,10 +91,14 @@ export default defineComponent({
     right: 0;
     cursor: pointer;
     color: var(--primary);
+
+    svg:hover {
+      color: var(--mute);
+    }
   }
-  .message-close > svg:hover {
-    color: var(--mute);
-  }
+  //.message-close > svg:hover {
+  //  color: var(--mute);
+  //}
   .color-error {
     color: var(--danger);
   }

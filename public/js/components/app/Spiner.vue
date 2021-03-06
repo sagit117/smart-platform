@@ -12,7 +12,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .lds-dual-ring {
     position: absolute;
     top: 0;
