@@ -15,7 +15,7 @@
           <div class="login-form--items">
             <Inputin
                 type="text"
-                :label="labelsMessage.inputEmail"
+                :label="L.translate('Введите email:')"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="dataField.email.value"
@@ -30,7 +30,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                :label="labelsMessage.inputPassword"
+                :label="L.translate('Введите пароль:')"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="dataField.password.value"
@@ -227,6 +227,9 @@ import { require, isValid, minLength, email, equal, checkValid, IValidation } fr
 import * as API from "../api/userApi"
 import * as I from './interfaces/messages-interfaces'
 import { labelsMessage, validateErrorMessages, serverTitlesMessages, errorMessages, successMessages } from './utils/language'
+
+import Lang from '../../../src/dictionary/language'
+const L = new Lang(localStorage.getItem('language') || 'rus')
 
 interface IDataField {
   email: IField,
@@ -525,7 +528,8 @@ export default defineComponent({
       registrationHandler,
       isValid,
       restorePassHandler,
-      changePasswordHandler
+      changePasswordHandler,
+      L
     }
   }
 })
@@ -591,10 +595,4 @@ export default defineComponent({
       color: var(--primary)
     }
   }
-  //.change-pass > span {
-  //  cursor: pointer;
-  //}
-  //.change-pass > span:hover {
-  //  color: var(--primary)
-  //}
 </style>

@@ -1,13 +1,18 @@
+import rus from './rus'
+
+const LANGUAGES = {
+    rus
+}
+
 export default class Lang {
-    protected _lang: string
+    protected _lang
 
     constructor(lang: string = 'rus') {
-
-        (async () => {
-            // @ts-ignore
-            const L = await import(`./${lang}`)
-            this._lang = L.default
-        })()
+        if (LANGUAGES.hasOwnProperty(lang)) {
+            this._lang = LANGUAGES[lang]
+        } else {
+            this._lang = LANGUAGES.rus
+        }
     }
 
     public translate(message: string = '', args: object = {}): string {

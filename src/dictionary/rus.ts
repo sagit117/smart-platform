@@ -66,6 +66,10 @@ export default {
     /** errors */
     'Ошибка при отправке email получателю {{email}}': 'Ошибка при отправке email получателю {{email}}',
 
+    /** labels */
+    'Введите email:': 'Введите email:',
+    'Введите пароль:': 'Введите пароль:',
+
     /** email templates */
     confirmEmailTemplate:
         `

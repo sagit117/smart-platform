@@ -1,7 +1,7 @@
 export default class RU {
     private _labels = {
-        inputEmail: 'Введите email:',
-        inputPassword: 'Введите пароль:',
+        // inputEmail: 'Введите email:',
+        // inputPassword: 'Введите пароль:',
         registration: 'Регистрация',
         entry: 'Войти',
         regOfSystem: 'Регистрация в системе',
