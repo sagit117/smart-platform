@@ -1,7 +1,5 @@
 <template>
-<!--  <div class="spiner">-->
-    <div class="lds-dual-ring"></div>
-<!--  </div>-->
+  <div class="lds-dual-ring"></div>
 </template>
 
 <script lang="ts">

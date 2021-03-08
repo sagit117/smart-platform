@@ -4,7 +4,8 @@ const { VueLoaderPlugin } = require("vue-loader")
 module.exports = {
     entry: {
         login: './public/js/loginApp.js',
-        resetPassword: './public/js/resetPasswordApp.js'
+        resetPassword: './public/js/resetPasswordApp.js',
+        configurator: './public/js/configuratorApp.js'
     },
     output: {
         filename: '[name].js',
