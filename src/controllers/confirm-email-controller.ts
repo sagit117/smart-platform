@@ -46,6 +46,8 @@ export default class ConfirmEmailController extends SmartController{
                     const roles: string[] = user.roles.map(role => {
                         if (role === 'temp-role') {
                             return 'user'
+                        } else {
+                            return role
                         }
                     })
 

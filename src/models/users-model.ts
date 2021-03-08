@@ -86,9 +86,10 @@ SchemaUsers.index({ mainEmail: 1 })
 
 SchemaUsers.pre('save', function(next) {
     // хеширование пароля перед сохранением
-    if (!this.isModified("password")) return next()
+    if (this.isModified('mainEmail')) this.mainEmail = this.mainEmail.toLowerCase()
 
-    this.password = Bcrypt.hashSync(this.password, 10)
+    if (!this.isModified("password")) return next()
+    else this.password = Bcrypt.hashSync(this.password, 10)
     next()
 })
 

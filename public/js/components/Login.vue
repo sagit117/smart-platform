@@ -334,7 +334,7 @@ export default defineComponent({
       // все поля корректно заполнены
       if (checkValid(dataField)) {
         userAPI.loginWithEmail({
-          email: dataField.email.value,
+          email: dataField.email.value.toLowerCase(),
           password: dataField.password.value,
           antiSpam: antiSpam.value
         })
@@ -383,7 +383,7 @@ export default defineComponent({
         loading.value = true
 
         userAPI.registrationWithEmail({
-          email: dataField.email.value,
+          email: dataField.email.value.toLowerCase(),
           password: dataField.password.value,
           antiSpam: antiSpam.value
         })
@@ -396,7 +396,7 @@ export default defineComponent({
                 Object.assign(message, {
                   show: true,
                   title: L.translate('Вы успешно зарегистрировались'),
-                  text: L.translate('На адрес электронной почты {{email}} выслано письмо для окончания регистрации', { email: dataField.email.value }),
+                  text: L.translate('На адрес электронной почты {{email}} выслано письмо для окончания регистрации', { email: dataField.email.value.toLowerCase() }),
                   status: 'success'
                 })
 
@@ -428,7 +428,7 @@ export default defineComponent({
       onValidation.value = true
 
       if (checkValid({ email: dataField.email })) {
-        userAPI.restorePassword(dataField.email.value)
+        userAPI.restorePassword(dataField.email.value.toLowerCase())
           .then((response): void => {
             loading.value = false
 
@@ -439,7 +439,7 @@ export default defineComponent({
               Object.assign(message, {
                 show: true,
                 title: L.translate('Запрос обработан'),
-                text: L.translate('На адрес электронной почты {{email}} выслано письмо для окончания регистрации', { email: dataField.email.value }),
+                text: L.translate('На адрес электронной почты {{email}} выслано письмо для окончания регистрации', { email: dataField.email.value.toLowerCase() }),
                 status: 'success'
               })
 
