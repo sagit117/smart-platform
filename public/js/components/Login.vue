@@ -117,7 +117,7 @@
           <div class="login-form--events mt-2">
             <Button
                 class="success mr-2"
-                :caption="labelsMessage.entry"
+                :caption="L.translate('Войти')"
                 @click="state = 'login'"
             />
 
@@ -226,7 +226,6 @@ import Message from './app/Message.vue'
 import { require, isValid, minLength, email, equal, checkValid, IValidation } from "./utils/validation";
 import * as API from "../api/userApi"
 import * as I from './interfaces/messages-interfaces'
-import { labelsMessage, validateErrorMessages, serverTitlesMessages, errorMessages, successMessages } from './utils/language'
 
 import Lang from '../../../src/dictionary/language'
 const L = new Lang(localStorage.getItem('language') || 'rus')
@@ -267,16 +266,16 @@ export default defineComponent({
         value: '',
         validation: {
           require: {
-            errorMessage: validateErrorMessages.require,
+            errorMessage: L.translate('Необходимо заполнить поле'),
             method: require
           },
           minLength: {
             value: 6,
-            errorMessage: validateErrorMessages.minLength,
+            errorMessage: L.translate('В поле введено мало символов!'),
             method: minLength,
           },
           email: {
-            errorMessage: validateErrorMessages.wrongEmail,
+            errorMessage: L.translate('Необходимо ввести корректный email'),
             method: email
           }
         }
@@ -285,7 +284,7 @@ export default defineComponent({
         value: '',
         validation: {
           require: {
-            errorMessage: validateErrorMessages.require,
+            errorMessage: L.translate('Необходимо заполнить поле'),
             method: require
           },
         }
@@ -295,12 +294,12 @@ export default defineComponent({
       value: '',
       validation: {
         require: {
-          errorMessage: validateErrorMessages.require,
+          errorMessage: L.translate('Необходимо заполнить поле'),
           method: require
         },
         equal: {
           value: computed(() => dataField.password.value),
-          errorMessage: validateErrorMessages.equalPassword,
+          errorMessage: L.translate('Поле не совпадает с введенным паролем'),
           method: equal
         }
       }
@@ -342,13 +341,13 @@ export default defineComponent({
           .then((response): void => {
             loading.value = false
 
-            console.log(serverTitlesMessages.auth, response.message)
+            console.log(L.translate('Ответ от сервера при авторизации:'), response.message)
 
             if (response.success) {
               Object.assign(message, {
                 show: true,
-                title: successMessages.auth,
-                text: labelsMessage.relocate,
+                title: L.translate('Вы успешно вошли в систему'),
+                text: L.translate('Через несколько секунд Вы будете перенаправлены на нужный ресурс'),
                 status: 'success'
               })
 
@@ -356,15 +355,15 @@ export default defineComponent({
             } else {
               Object.assign(message, {
                 show: true,
-                title: errorMessages.authTitle,
-                text: labelsMessage.errorAuth,
+                title: L.translate('Не верный логин или пароль'),
+                text: L.translate('Попробуйте снова ввести логин и пароль или нажмите "Забыли пароль?"'),
                 status: 'error'
               })
             }
           })
           .catch(error => {
             loading.value = false
-            console.error(errorMessages.auth, error)
+            console.error(L.translate('Ошибка при авторизации:'), error)
           })
       }
 
@@ -390,14 +389,14 @@ export default defineComponent({
         })
             .then((response): void => {
               loading.value = false
-              console.log(serverTitlesMessages.registry, response.message)
+              console.log(L.translate('Ответ от сервера при регистрации:'), response.message)
 
               if (response.success) {
                 // регистрация успешна
                 Object.assign(message, {
                   show: true,
-                  title: successMessages.registry,
-                  text: successMessages.sendEmailByAuth(dataField.email.value),
+                  title: L.translate('Вы успешно зарегистрировались'),
+                  text: L.translate('На адрес электронной почты {{email}} выслано письмо для окончания регистрации', { email: dataField.email.value }),
                   status: 'success'
                 })
 
@@ -406,7 +405,7 @@ export default defineComponent({
                 // ошибка при регистрации
                 Object.assign(message, {
                   show: true,
-                  title: errorMessages.registryTitle,
+                  title: L.translate('Ошибка при регистрации'),
                   text: response.message,
                   status: 'error'
                 })
@@ -414,7 +413,7 @@ export default defineComponent({
             })
             .catch(error => {
               loading.value = false
-              console.error(errorMessages.registry, error)
+              console.error(L.translate('Ошибка при регистрации:'), error)
             })
       }
 
@@ -432,14 +431,15 @@ export default defineComponent({
         userAPI.restorePassword(dataField.email.value)
           .then((response): void => {
             loading.value = false
-            console.log(serverTitlesMessages.restorePass, response.message)
+
+            console.log(L.translate('Ответ от сервера при восстановление пароля:'), response.message)
 
             if (response.success) {
               // запрос обработан успешно
               Object.assign(message, {
                 show: true,
-                title: successMessages.requestSuccess,
-                text: successMessages.sendEmailByResetPass(dataField.email.value),
+                title: L.translate('Запрос обработан'),
+                text: L.translate('На адрес электронной почты {{email}} выслано письмо для окончания регистрации', { email: dataField.email.value }),
                 status: 'success'
               })
 
@@ -448,7 +448,7 @@ export default defineComponent({
               // ошибка при запросе востановления пароля
               Object.assign(message, {
                 show: true,
-                title: errorMessages.restorePass,
+                title: L.translate('Ошибка'),
                 text: response.message,
                 status: 'error'
               })
@@ -457,7 +457,7 @@ export default defineComponent({
           })
           .catch(error => {
             loading.value = false
-            console.error(errorMessages.restorePass, error)
+            console.error(L.translate('Ошибка при запросе восстановления пароля:'), error)
           })
       }
 
@@ -481,14 +481,15 @@ export default defineComponent({
         })
           .then((response): void => {
             loading.value = false
-            console.log(serverTitlesMessages.changePass, response.message)
+
+            console.log(L.translate('Ответ от сервера при смене пароля:'), response.message)
 
             if (response.success) {
               // смена пароля прошла успешно
               Object.assign(message, {
                 show: true,
-                title: successMessages.requestSuccess,
-                text: successMessages.changePass,
+                title: L.translate('Запрос обработан'),
+                text: L.translate('Пароль изменен, через несколько секунд Вы будете перенаправлены'),
                 status: 'success'
               })
 
@@ -498,7 +499,7 @@ export default defineComponent({
             } else {
               Object.assign(message, {
                 show: true,
-                title: errorMessages.changePass,
+                title: L.translate('Ошибка при смене пароля'),
                 text: response.message,
                 status: 'error'
               })
@@ -506,7 +507,7 @@ export default defineComponent({
           })
           .catch(error => {
             loading.value = false
-            console.error(errorMessages.changePass, error)
+            console.error(L.translate('Ошибка при смене пароля:'), error)
           })
       }
 
@@ -523,7 +524,6 @@ export default defineComponent({
       antiSpam,
       loading,
       message,
-      labelsMessage,
       loginHandler,
       registrationHandler,
       isValid,
