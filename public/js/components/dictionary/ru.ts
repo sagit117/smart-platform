@@ -2,16 +2,16 @@ export default class RU {
     private _labels = {
         // inputEmail: 'Введите email:',
         // inputPassword: 'Введите пароль:',
-        registration: 'Регистрация',
-        entry: 'Войти',
-        regOfSystem: 'Регистрация в системе',
-        confirmPassword: 'Введите пароль еще раз:',
-        endRegistration: 'Завершить регистрацию',
+        // registration: 'Регистрация',
+        // entry: 'Войти',
+        // regOfSystem: 'Регистрация в системе',
+        // confirmPassword: 'Введите пароль еще раз:',
+        // endRegistration: 'Завершить регистрацию',
         relocate: 'Через несколько секунд Вы будете перенаправлены на нужный ресурс',
         errorAuth: 'Попробуйте снова ввести логин и пароль или нажмите "Забыли пароль?"',
-        resetPass: 'Забыли пароль?',
-        restorePass: 'Запросить пароль',
-        changePass: 'Смена пароля'
+        // resetPass: 'Забыли пароль?',
+        // restorePass: 'Запросить пароль',
+        // changePass: 'Смена пароля'
     }
 
     private _validateMessages = {

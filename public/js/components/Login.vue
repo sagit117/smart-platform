@@ -46,31 +46,31 @@
 
           <div class="login-form--events mt-2">
             <div class="change-pass">
-              <span @click="state = 'reset'">{{ labelsMessage.resetPass }}</span>
+              <span @click="state = 'reset'">{{ L.translate('Забыли пароль?') }}</span>
             </div>
 
 
             <Button
                 class="success mr-2"
-                :caption="labelsMessage.registration"
+                :caption="L.translate('Регистрация')"
                 @click="state = 'registration'"
             />
 
             <Button
                 class="primary"
-                :caption="labelsMessage.entry"
+                :caption="L.translate('Войти')"
                 @click="loginHandler"
             />
           </div>
         </div>
 
         <div class="login-form" v-else-if="state === 'registration'">
-          <h3 class="mt-0">{{ labelsMessage.regOfSystem }}</h3>
+          <h3 class="mt-0">{{ L.translate('Регистрация в системе')}}</h3>
 
           <div class="login-form--items">
             <Inputin
                 type="text"
-                :label="labelsMessage.inputEmail"
+                :label="L.translate('Введите email:')"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="dataField.email.value"
@@ -85,7 +85,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                :label="labelsMessage.inputPassword"
+                :label="L.translate('Введите пароль:')"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="dataField.password.value"
@@ -100,7 +100,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                :label="labelsMessage.confirmPassword"
+                :label="L.translate('Введите пароль еще раз:')"
                 :validation="isValid(confirmPassword.validation, confirmPassword.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="confirmPassword.value"
@@ -123,7 +123,7 @@
 
             <Button
                 class="primary"
-                :caption="labelsMessage.endRegistration"
+                :caption="L.translate('Завершить регистрацию')"
                 :loading="loading"
                 @click="registrationHandler"
             />
@@ -131,12 +131,12 @@
         </div>
 
         <div class="login-form" v-else-if="state === 'reset'">
-          <h3 class="mt-0">{{ labelsMessage.resetPass }}</h3>
+          <h3 class="mt-0">{{ L.translate('Забыли пароль?') }}</h3>
 
           <div class="login-form--items">
             <Inputin
                 type="text"
-                :label="labelsMessage.inputEmail"
+                :label="L.translate('Введите пароль:')"
                 :validation="isValid(dataField.email.validation, dataField.email.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="dataField.email.value"
@@ -151,13 +151,13 @@
           <div class="login-form--events mt-2">
             <Button
                 class="success mr-2"
-                :caption="labelsMessage.entry"
+                :caption="L.translate('Войти')"
                 @click="state = 'login'"
             />
 
             <Button
                 class="primary"
-                :caption="labelsMessage.restorePass"
+                :caption="L.translate('Запросить пароль')"
                 :loading="loading"
                 @click="restorePassHandler"
             />
@@ -166,12 +166,12 @@
         </div>
 
         <div class="login-form" v-else-if="state === 'changePass'">
-          <h3 class="mt-0">{{ labelsMessage.changePass }}</h3>
+          <h3 class="mt-0">{{ L.translate('Смена пароля') }}</h3>
 
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                :label="labelsMessage.inputPassword"
+                :label="L.translate('Введите пароль:')"
                 :validation="isValid(dataField.password.validation, dataField.password.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="dataField.password.value"
@@ -186,7 +186,7 @@
           <div class="login-form--items mt-2">
             <Inputin
                 type="password"
-                :label="labelsMessage.confirmPassword"
+                :label="L.translate('Введите пароль еще раз:')"
                 :validation="isValid(confirmPassword.validation, confirmPassword.value)"
                 :onValidation="onValidation"
                 v-model:value.trim="confirmPassword.value"
@@ -203,7 +203,7 @@
           <div class="login-form--events mt-2">
             <Button
               class="primary"
-              :caption="labelsMessage.changePass"
+              :caption="L.translate('Смена пароля')"
               :loading="loading"
               @click="changePasswordHandler"
             />
