@@ -7,7 +7,7 @@
     --success-active: #198754;
     --danger: #dc3545;
     --danger-active: #a02a35;
-    --mute: grey;
+    --mute: #808080;
     --background-active: rgba(255, 255, 255, 1);
     --background-no-active: rgba(0, 0, 0, 0.5);
 }
