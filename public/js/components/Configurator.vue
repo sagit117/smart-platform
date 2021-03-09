@@ -9,7 +9,7 @@
     </div>
 
     <div class="context">
-
+      <router-view></router-view>
     </div>
 
     <div class="footer">
@@ -42,7 +42,7 @@ export default defineComponent({
                       " footer footer ";
   grid-template-rows: 3rem 1fr 3rem;
   grid-template-columns: 300px 1fr;
-  grid-gap: 2px;
+  grid-gap: 4px;
   border: 1px solid;
   min-width: 100vw;
   min-height: 100vh;
@@ -51,6 +51,9 @@ export default defineComponent({
   .top-panel {
     grid-area: topPanel;
     background-color: #fff;
+    box-shadow: 0px 2px 6px 0px #a5a5a5;
+    z-index: 1;
+    background-color: dodgerblue;
   }
 
   .context {
@@ -67,7 +70,8 @@ export default defineComponent({
 
   .footer {
     grid-area: footer;
-    background-color: #fff;
+    background-color: #212529;
+    z-index: 1;
   }
 }
 </style>
