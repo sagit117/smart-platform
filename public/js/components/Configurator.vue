@@ -1,8 +1,21 @@
 <template>
-  <h1>Configurator</h1>
+  <div class="container">
+    <div class="top-panel">
 
-  <router-link :to="{ name: 'constructor' }">constructor</router-link>
-  <router-view></router-view>
+    </div>
+
+    <div class="nav-panel">
+
+    </div>
+
+    <div class="context">
+
+    </div>
+
+    <div class="footer">
+
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -20,6 +33,41 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.container {
+  display: grid;
+  grid-template-areas:
+                      " topPanel topPanel "
+                      " navPanel context "
+                      " footer footer ";
+  grid-template-rows: 3rem 1fr 3rem;
+  grid-template-columns: 300px 1fr;
+  grid-gap: 2px;
+  border: 1px solid;
+  min-width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
 
+  .top-panel {
+    grid-area: topPanel;
+    background-color: #fff;
+  }
+
+  .context {
+    grid-area: context;
+    background-color: #fff;
+  }
+
+  .nav-panel {
+    grid-area: navPanel;
+    background-color: #212529;
+    box-shadow: 7px 7px 6px 0px #a5a5a5;
+    z-index: 1;
+  }
+
+  .footer {
+    grid-area: footer;
+    background-color: #fff;
+  }
+}
 </style>
