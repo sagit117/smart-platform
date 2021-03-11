@@ -1,13 +1,15 @@
 <template>
   <div class="lang">
-    <ListBox />
+    <ListBox dark :options="languages" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 import ListBox from './ListBox.vue'
+
+import { LANGUAGES } from '../../../../src/dictionary/language'
 
 export default defineComponent({
   name: 'change-lang',
@@ -17,7 +19,11 @@ export default defineComponent({
   },
 
   setup() {
+    const languages = ref<string[]>(Object.keys(LANGUAGES))
 
+    return {
+      languages
+    }
   }
 })
 </script>

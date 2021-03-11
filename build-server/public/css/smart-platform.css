@@ -10,6 +10,9 @@
     --mute: #808080;
     --background-active: rgba(255, 255, 255, 1);
     --background-no-active: rgba(0, 0, 0, 0.5);
+    --background-dark: #212529;
+    --text-normal: #161718;
+    --text-for-dark: #c7c7c7;
 }
 
 /* body */

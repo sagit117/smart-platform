@@ -75,7 +75,7 @@ export default defineComponent({
     padding: 1rem;
     min-width: 40%;
     background-color: #fff;
-    color: #0e0e0e;
+    color: var(--text-normal);
     border-radius: 5px;
     box-shadow: 2px 2px 6px black;
   }
@@ -96,9 +96,6 @@ export default defineComponent({
       color: var(--mute);
     }
   }
-  //.message-close > svg:hover {
-  //  color: var(--mute);
-  //}
   .color-error {
     color: var(--danger);
   }

@@ -111,8 +111,8 @@ export default defineComponent({
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
+    color: var(--text-normal);
+    background-color: var(--background-active);
     box-sizing: border-box;
   }
   input:focus {

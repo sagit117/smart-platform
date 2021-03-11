@@ -25,7 +25,6 @@ export default defineComponent({
     left: -.75rem;
     width: 1.75rem;
     height: 1.75rem;
-    /*margin: 8px;*/
     border-radius: 50%;
     border: 6px solid #cef;
     border-color: #cef transparent #cef transparent;

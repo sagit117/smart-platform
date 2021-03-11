@@ -1,6 +1,6 @@
 import rus from './rus'
 
-const LANGUAGES = {
+export const LANGUAGES = {
     rus
 }
 
