@@ -61,6 +61,7 @@ export default defineComponent({
     box-shadow: 0px 2px 6px 0px #a5a5a5;
     z-index: 1;
     background-color: dodgerblue;
+    display: flex;
 
     .toggle-menu {
       display: flex;

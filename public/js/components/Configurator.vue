@@ -1,7 +1,9 @@
 <template>
   <DashboradTemplate>
     <template v-slot:topPanel>
-
+      <div class="top-panel--container">
+        <ChangeLang />
+      </div>
     </template>
 
     <template v-slot:navPanel>
@@ -24,13 +26,16 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+
 import DashboradTemplate from './templates/Dashboard-template.vue'
+import ChangeLang from "./app/ChangeLang.vue";
 
 export default defineComponent({
   name: 'Configurator',
 
   components: {
-    DashboradTemplate
+    DashboradTemplate,
+    ChangeLang
   },
 
   setup() {
@@ -41,6 +46,15 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.top-panel--container {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+
+}
+
 .footer {
   display: flex;
   justify-content: flex-end;
