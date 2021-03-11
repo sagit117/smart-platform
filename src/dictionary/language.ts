@@ -1,7 +1,8 @@
 import rus from './rus'
 
 export const LANGUAGES = {
-    rus
+    rus,
+    eng: 'eng'
 }
 
 export default class Lang {

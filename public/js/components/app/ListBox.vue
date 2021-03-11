@@ -1,6 +1,6 @@
 <template>
-  <select :class="{ dark }">
-    <option v-for="(option, index) in options" :key="index">{{ option }}</option>>
+  <select :class="{ dark }" :value="value" @change="event => $emit('update:value', event.target.value)">
+    <option v-for="(option, index) in options" :key="index" :value="option">{{ option }}</option>>
   </select>
 </template>
 
@@ -10,15 +10,23 @@ import { defineComponent, PropType } from 'vue'
 export default defineComponent({
   name: 'list-box',
 
+  emits: [ 'update:value' ],
+
   props: {
     dark: Boolean,
     options: {
       type: Array as PropType<string[]>,
-    }
+    },
+    value: {
+      type: String
+    },
   },
 
   setup() {
 
+    return {
+
+    }
   }
 })
 </script>

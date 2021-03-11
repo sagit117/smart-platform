@@ -1,11 +1,11 @@
 <template>
   <div class="lang">
-    <ListBox dark :options="languages" />
+    <ListBox dark :options="languages" v-model:value.trim="selectedLang" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 
 import ListBox from './ListBox.vue'
 
@@ -20,9 +20,16 @@ export default defineComponent({
 
   setup() {
     const languages = ref<string[]>(Object.keys(LANGUAGES))
+    const selectedLang = ref<string>(localStorage.getItem('language') || 'rus')
+
+    watch(() => selectedLang.value, (val) => {
+      // сохранение языка перевода
+      localStorage.setItem('language', val.trim() || 'rus')
+    })
 
     return {
-      languages
+      languages,
+      selectedLang
     }
   }
 })
