@@ -6,6 +6,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import ListBox from './ListBox.vue'
 
@@ -22,9 +23,14 @@ export default defineComponent({
     const languages = ref<string[]>(Object.keys(LANGUAGES))
     const selectedLang = ref<string>(localStorage.getItem('language') || 'rus')
 
+    const store = useStore()
+
     watch(() => selectedLang.value, (val) => {
       // сохранение языка перевода
-      localStorage.setItem('language', val.trim() || 'rus')
+      const lang = val.trim() || 'rus'
+
+      localStorage.setItem('language', lang)
+      store.commit('setLang', lang)
     })
 
     return {
